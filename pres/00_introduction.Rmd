@@ -169,6 +169,7 @@ summary(lm(hp ~ cyl, mtcars))
 
 ---
 
+class: center middle inverse
+
 That's it!
 
-class: center middle inverse
