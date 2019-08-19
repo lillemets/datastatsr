@@ -1,0 +1,34 @@
+# Data visualization
+
+## Basic principles
+
+Pie charts, 3 dimensions, y-scale, ...
+
+scientific_paper_graph_quality.png
+
+self_description.png
+
+## Types of plots
+
+violin_plots.png
+
+(scatter)plot, barplot, boxplot
+
+pairs, biplot
+
+histogram
+
+## Adding elements
+
+Legend, text, abline
+
+## Parameters
+
+mfrow, ...
+
+## Saving
+
+## Extending basic plotting
+
+ggplot2
+

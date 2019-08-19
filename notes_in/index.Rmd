@@ -1,0 +1,28 @@
+--- 
+title: "Data and statistics with R"
+author: "Jüri Lillemets"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::html_book
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: lillemets/rcourse
+description: "This is an introduction to quantitative data analysis with R"
+---
+
+# Preface {-}
+
+Purposes of the course: quantitative data management, processing and analysis with R. Tidying, description, visualization, statistical analysis.
+
+Outline: focus on base R, emphasis on skills.
+
+Getting help: ? command, Stackoverflow
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```

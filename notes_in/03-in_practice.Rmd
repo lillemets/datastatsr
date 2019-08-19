@@ -1,0 +1,46 @@
+# R in practice
+
+## RStudio
+
+Installation and interface
+
+## Data preparation and tidying
+
+### Wide and long format
+
+tidyr::gather, tidyr::spread
+
+### Combining
+
+cbind, rbind
+
+merge, dplyr::left_join, ...
+
+## Aggregation
+
+aggregate, dplyr::group_by
+
+### Duplication
+
+unique, duplicated
+
+### String manipulation
+
+substr, substring, grep, grepl, sub, gsub
+
+xkcd: perl_problems
+
+## Repetitive processing
+
+For loops, the apply family
+
+ifelse, for, lapply, sapply
+
+## Functions
+
+Brief introduction
+
+## Simplifying and extending
+
+The tidyverse ecosystem: dplyr, tidyr, ...
+

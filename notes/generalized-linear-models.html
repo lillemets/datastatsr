@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 11 Generalized linear models | Data and statistics with R</title>
+  <meta name="description" content="This is an introduction to quantitative data analysis with R" />
+  <meta name="generator" content="bookdown 0.12 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 11 Generalized linear models | Data and statistics with R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is an introduction to quantitative data analysis with R" />
+  <meta name="github-repo" content="lillemets/rcourse" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 11 Generalized linear models | Data and statistics with R" />
+  
+  <meta name="twitter:description" content="This is an introduction to quantitative data analysis with R" />
+  
+
+<meta name="author" content="Jüri Lillemets" />
+
+
+<meta name="date" content="2019-08-19" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="ordinary-least-squares-regression.html">
+<link rel="next" href="improving-the-functional-form.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Data and statistics with R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="introduction-to-r.html"><a href="introduction-to-r.html"><i class="fa fa-check"></i><b>1</b> Introduction to R</a><ul>
+<li class="chapter" data-level="1.1" data-path="introduction-to-r.html"><a href="introduction-to-r.html#what"><i class="fa fa-check"></i><b>1.1</b> What?</a></li>
+<li class="chapter" data-level="1.2" data-path="introduction-to-r.html"><a href="introduction-to-r.html#why"><i class="fa fa-check"></i><b>1.2</b> Why?</a></li>
+<li class="chapter" data-level="1.3" data-path="introduction-to-r.html"><a href="introduction-to-r.html#how"><i class="fa fa-check"></i><b>1.3</b> How?</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html"><i class="fa fa-check"></i><b>2</b> Pitfalls in quantitative analysis</a><ul>
+<li class="chapter" data-level="2.1" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#time-series"><i class="fa fa-check"></i><b>2.1</b> Time series</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#extrapolating"><i class="fa fa-check"></i><b>2.1.1</b> Extrapolating</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#causality"><i class="fa fa-check"></i><b>2.2</b> Causality</a></li>
+<li class="chapter" data-level="2.3" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#ecological-fallacy"><i class="fa fa-check"></i><b>2.3</b> Ecological fallacy</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html"><i class="fa fa-check"></i><b>3</b> Basic data management in R</a><ul>
+<li class="chapter" data-level="3.1" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#data-sources-and-managing-data"><i class="fa fa-check"></i><b>3.1</b> Data sources and managing data</a></li>
+<li class="chapter" data-level="3.2" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#workspace-management"><i class="fa fa-check"></i><b>3.2</b> Workspace management</a></li>
+<li class="chapter" data-level="3.3" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#data-strcutures"><i class="fa fa-check"></i><b>3.3</b> Data strcutures</a></li>
+<li class="chapter" data-level="3.4" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#basic-r-use"><i class="fa fa-check"></i><b>3.4</b> Basic R use</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#arithmetic"><i class="fa fa-check"></i><b>3.4.1</b> Arithmetic</a></li>
+<li class="chapter" data-level="3.4.2" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#logical-operators"><i class="fa fa-check"></i><b>3.4.2</b> Logical operators</a></li>
+<li class="chapter" data-level="3.4.3" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#assignment"><i class="fa fa-check"></i><b>3.4.3</b> Assignment</a></li>
+<li class="chapter" data-level="3.4.4" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#subsetting"><i class="fa fa-check"></i><b>3.4.4</b> Subsetting</a></li>
+<li class="chapter" data-level="3.4.5" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#set-operations"><i class="fa fa-check"></i><b>3.4.5</b> Set operations</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#some-r-principles"><i class="fa fa-check"></i><b>3.5</b> Some R principles</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="r-in-practice.html"><a href="r-in-practice.html"><i class="fa fa-check"></i><b>4</b> R in practice</a><ul>
+<li class="chapter" data-level="4.1" data-path="r-in-practice.html"><a href="r-in-practice.html#rstudio"><i class="fa fa-check"></i><b>4.1</b> RStudio</a></li>
+<li class="chapter" data-level="4.2" data-path="r-in-practice.html"><a href="r-in-practice.html#data-preparation-and-tidying"><i class="fa fa-check"></i><b>4.2</b> Data preparation and tidying</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="r-in-practice.html"><a href="r-in-practice.html#wide-and-long-format"><i class="fa fa-check"></i><b>4.2.1</b> Wide and long format</a></li>
+<li class="chapter" data-level="4.2.2" data-path="r-in-practice.html"><a href="r-in-practice.html#combining"><i class="fa fa-check"></i><b>4.2.2</b> Combining</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="r-in-practice.html"><a href="r-in-practice.html#aggregation"><i class="fa fa-check"></i><b>4.3</b> Aggregation</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="r-in-practice.html"><a href="r-in-practice.html#duplication"><i class="fa fa-check"></i><b>4.3.1</b> Duplication</a></li>
+<li class="chapter" data-level="4.3.2" data-path="r-in-practice.html"><a href="r-in-practice.html#string-manipulation"><i class="fa fa-check"></i><b>4.3.2</b> String manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="r-in-practice.html"><a href="r-in-practice.html#repetitive-processing"><i class="fa fa-check"></i><b>4.4</b> Repetitive processing</a></li>
+<li class="chapter" data-level="4.5" data-path="r-in-practice.html"><a href="r-in-practice.html#functions"><i class="fa fa-check"></i><b>4.5</b> Functions</a></li>
+<li class="chapter" data-level="4.6" data-path="r-in-practice.html"><a href="r-in-practice.html#simplifying-and-extending"><i class="fa fa-check"></i><b>4.6</b> Simplifying and extending</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html"><i class="fa fa-check"></i><b>5</b> Descriptive statistics</a><ul>
+<li class="chapter" data-level="5.1" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#numbers"><i class="fa fa-check"></i><b>5.1</b> Numbers</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#normalizing-and-scaling"><i class="fa fa-check"></i><b>5.1.1</b> Normalizing and scaling</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#frequency-tables"><i class="fa fa-check"></i><b>5.2</b> Frequency tables</a></li>
+<li class="chapter" data-level="5.3" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#measures-of-central-tendency-quantiles"><i class="fa fa-check"></i><b>5.3</b> Measures of central tendency, quantiles…</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="data-visualization.html"><a href="data-visualization.html"><i class="fa fa-check"></i><b>6</b> Data visualization</a><ul>
+<li class="chapter" data-level="6.1" data-path="data-visualization.html"><a href="data-visualization.html#basic-principles"><i class="fa fa-check"></i><b>6.1</b> Basic principles</a></li>
+<li class="chapter" data-level="6.2" data-path="data-visualization.html"><a href="data-visualization.html#types-of-plots"><i class="fa fa-check"></i><b>6.2</b> Types of plots</a></li>
+<li class="chapter" data-level="6.3" data-path="data-visualization.html"><a href="data-visualization.html#adding-elements"><i class="fa fa-check"></i><b>6.3</b> Adding elements</a></li>
+<li class="chapter" data-level="6.4" data-path="data-visualization.html"><a href="data-visualization.html#parameters"><i class="fa fa-check"></i><b>6.4</b> Parameters</a></li>
+<li class="chapter" data-level="6.5" data-path="data-visualization.html"><a href="data-visualization.html#saving"><i class="fa fa-check"></i><b>6.5</b> Saving</a></li>
+<li class="chapter" data-level="6.6" data-path="data-visualization.html"><a href="data-visualization.html#extending-basic-plotting"><i class="fa fa-check"></i><b>6.6</b> Extending basic plotting</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="inferential-statistics.html"><a href="inferential-statistics.html"><i class="fa fa-check"></i><b>7</b> Inferential statistics</a><ul>
+<li class="chapter" data-level="7.1" data-path="inferential-statistics.html"><a href="inferential-statistics.html#experimental-vs-non-experimental-data"><i class="fa fa-check"></i><b>7.1</b> Experimental vs non-experimental data</a></li>
+<li class="chapter" data-level="7.2" data-path="inferential-statistics.html"><a href="inferential-statistics.html#sample-and-population-distributions"><i class="fa fa-check"></i><b>7.2</b> Sample and population, distributions</a></li>
+<li class="chapter" data-level="7.3" data-path="inferential-statistics.html"><a href="inferential-statistics.html#hypothesis-testing"><i class="fa fa-check"></i><b>7.3</b> Hypothesis testing</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html"><i class="fa fa-check"></i><b>8</b> Dimensionality reduction</a><ul>
+<li class="chapter" data-level="8.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#principal-component-analysis"><i class="fa fa-check"></i><b>8.1</b> Principal component analysis</a></li>
+<li class="chapter" data-level="8.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#factor-analysis"><i class="fa fa-check"></i><b>8.2</b> Factor analysis</a></li>
+<li class="chapter" data-level="8.3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#discriminant-analysis"><i class="fa fa-check"></i><b>8.3</b> Discriminant analysis</a></li>
+<li class="chapter" data-level="8.4" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#correspondence-analysis"><i class="fa fa-check"></i><b>8.4</b> Correspondence analysis</a></li>
+<li class="chapter" data-level="8.5" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#cluster-analysis"><i class="fa fa-check"></i><b>8.5</b> Cluster analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="measures-of-association.html"><a href="measures-of-association.html"><i class="fa fa-check"></i><b>9</b> Measures of association</a><ul>
+<li class="chapter" data-level="9.1" data-path="measures-of-association.html"><a href="measures-of-association.html#correlation"><i class="fa fa-check"></i><b>9.1</b> Correlation</a></li>
+<li class="chapter" data-level="9.2" data-path="measures-of-association.html"><a href="measures-of-association.html#goodness-of-fit-and-coefficent-of-determination"><i class="fa fa-check"></i><b>9.2</b> Goodness of fit and coefficent of determination</a></li>
+<li class="chapter" data-level="9.3" data-path="measures-of-association.html"><a href="measures-of-association.html#regression"><i class="fa fa-check"></i><b>9.3</b> Regression</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html"><i class="fa fa-check"></i><b>10</b> Ordinary least squares regression</a><ul>
+<li class="chapter" data-level="10.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#model-explains-the-data-well"><i class="fa fa-check"></i><b>10.1</b> Model explains the data well</a></li>
+<li class="chapter" data-level="10.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#functional-form-of-the-model-is-correct"><i class="fa fa-check"></i><b>10.2</b> Functional form of the model is correct</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#log-linear-or-log-log-relationship"><i class="fa fa-check"></i><b>10.2.1</b> Log-linear or log-log relationship</a></li>
+<li class="chapter" data-level="10.2.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#polynomials"><i class="fa fa-check"></i><b>10.2.2</b> Polynomials</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#model-parameters-are-statistically-significant"><i class="fa fa-check"></i><b>10.3</b> Model parameters are statistically significant</a><ul>
+<li class="chapter" data-level="10.3.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#individual-significance-of-parameters-t-test"><i class="fa fa-check"></i><b>10.3.1</b> Individual significance of parameters (t-test)</a></li>
+<li class="chapter" data-level="10.3.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#combined-significance-of-parameters-f-test"><i class="fa fa-check"></i><b>10.3.2</b> Combined significance of parameters (f-test)</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#model-is-not-sensitive-to-individual-observations"><i class="fa fa-check"></i><b>10.4</b> Model is not sensitive to individual observations</a><ul>
+<li class="chapter" data-level="10.4.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#residuals"><i class="fa fa-check"></i><b>10.4.1</b> Residuals</a></li>
+<li class="chapter" data-level="10.4.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#leverage-of-observations"><i class="fa fa-check"></i><b>10.4.2</b> Leverage of observations</a></li>
+<li class="chapter" data-level="10.4.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#influence-of-observations-cooks-distance"><i class="fa fa-check"></i><b>10.4.3</b> Influence of observations (Cook’s distance)</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#error-term-is-independent-and-has-constant-variance"><i class="fa fa-check"></i><b>10.5</b> Error term is independent and has constant variance</a><ul>
+<li class="chapter" data-level="10.5.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#heteroscedasticity"><i class="fa fa-check"></i><b>10.5.1</b> Heteroscedasticity</a></li>
+<li class="chapter" data-level="10.5.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#autocorrelation"><i class="fa fa-check"></i><b>10.5.2</b> Autocorrelation</a></li>
+<li class="chapter" data-level="10.5.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#robust-standard-errors"><i class="fa fa-check"></i><b>10.5.3</b> Robust standard errors</a></li>
+</ul></li>
+<li class="chapter" data-level="10.6" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#error-term-is-uncorrelated-to-predictors"><i class="fa fa-check"></i><b>10.6</b> Error term is uncorrelated to predictor(s)</a><ul>
+<li class="chapter" data-level="10.6.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#weak-instruments"><i class="fa fa-check"></i><b>10.6.1</b> Weak instruments</a></li>
+<li class="chapter" data-level="10.6.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#wu-hausmann-test"><i class="fa fa-check"></i><b>10.6.2</b> Wu-Hausmann test</a></li>
+<li class="chapter" data-level="10.6.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#sargan-test"><i class="fa fa-check"></i><b>10.6.3</b> Sargan test</a></li>
+</ul></li>
+<li class="chapter" data-level="10.7" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#predictors-can-not-be-linearly-predicted-from-others-no-multicollinearity"><i class="fa fa-check"></i><b>10.7</b> Predictors can not be linearly predicted from others (no multicollinearity)</a></li>
+<li class="chapter" data-level="10.8" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#todo"><i class="fa fa-check"></i><b>10.8</b> TODO</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>11</b> Generalized linear models</a><ul>
+<li class="chapter" data-level="11.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions-in-r"><i class="fa fa-check"></i><b>11.1</b> Link functions in R</a></li>
+<li class="chapter" data-level="11.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#binary"><i class="fa fa-check"></i><b>11.2</b> Binary</a></li>
+<li class="chapter" data-level="11.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#ordered-logit"><i class="fa fa-check"></i><b>11.3</b> Ordered logit</a></li>
+<li class="chapter" data-level="11.4" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#multinomial-logit"><i class="fa fa-check"></i><b>11.4</b> Multinomial logit</a></li>
+<li class="chapter" data-level="11.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#count-data"><i class="fa fa-check"></i><b>11.5</b> Count data</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html"><i class="fa fa-check"></i><b>12</b> Improving the functional form</a><ul>
+<li class="chapter" data-level="12.1" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#fixed-and-random-effects"><i class="fa fa-check"></i><b>12.1</b> Fixed and random effects</a></li>
+<li class="chapter" data-level="12.2" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#panel-data-methods"><i class="fa fa-check"></i><b>12.2</b> Panel data methods</a></li>
+<li class="chapter" data-level="12.3" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#impact-evaluation"><i class="fa fa-check"></i><b>12.3</b> Impact evaluation</a><ul>
+<li class="chapter" data-level="12.3.1" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#basic"><i class="fa fa-check"></i><b>12.3.1</b> Basic</a></li>
+<li class="chapter" data-level="12.3.2" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#instrumental-variable"><i class="fa fa-check"></i><b>12.3.2</b> Instrumental variable</a></li>
+<li class="chapter" data-level="12.3.3" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#regression-discontinuity"><i class="fa fa-check"></i><b>12.3.3</b> Regression discontinuity</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Data and statistics with R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="generalized-linear-models" class="section level1">
+<h1><span class="header-section-number">Chapter 11</span> Generalized linear models</h1>
+<div id="link-functions-in-r" class="section level2">
+<h2><span class="header-section-number">11.1</span> Link functions in R</h2>
+</div>
+<div id="binary" class="section level2">
+<h2><span class="header-section-number">11.2</span> Binary</h2>
+<p>Logit, probit, ROC curve etc</p>
+</div>
+<div id="ordered-logit" class="section level2">
+<h2><span class="header-section-number">11.3</span> Ordered logit</h2>
+</div>
+<div id="multinomial-logit" class="section level2">
+<h2><span class="header-section-number">11.4</span> Multinomial logit</h2>
+</div>
+<div id="count-data" class="section level2">
+<h2><span class="header-section-number">11.5</span> Count data</h2>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="ordinary-least-squares-regression.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="improving-the-functional-form.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["datastatsr.pdf"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

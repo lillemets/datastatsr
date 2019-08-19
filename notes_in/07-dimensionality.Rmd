@@ -1,0 +1,12 @@
+# Dimensionality reduction
+
+## Principal component analysis
+
+## Factor analysis
+
+## Discriminant analysis
+
+## Correspondence analysis
+
+## Cluster analysis
+

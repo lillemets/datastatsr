@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 10 Ordinary least squares regression | Data and statistics with R</title>
+  <meta name="description" content="This is an introduction to quantitative data analysis with R" />
+  <meta name="generator" content="bookdown 0.12 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 10 Ordinary least squares regression | Data and statistics with R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is an introduction to quantitative data analysis with R" />
+  <meta name="github-repo" content="lillemets/rcourse" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 10 Ordinary least squares regression | Data and statistics with R" />
+  
+  <meta name="twitter:description" content="This is an introduction to quantitative data analysis with R" />
+  
+
+<meta name="author" content="Jüri Lillemets" />
+
+
+<meta name="date" content="2019-08-19" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="measures-of-association.html">
+<link rel="next" href="generalized-linear-models.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Data and statistics with R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="introduction-to-r.html"><a href="introduction-to-r.html"><i class="fa fa-check"></i><b>1</b> Introduction to R</a><ul>
+<li class="chapter" data-level="1.1" data-path="introduction-to-r.html"><a href="introduction-to-r.html#what"><i class="fa fa-check"></i><b>1.1</b> What?</a></li>
+<li class="chapter" data-level="1.2" data-path="introduction-to-r.html"><a href="introduction-to-r.html#why"><i class="fa fa-check"></i><b>1.2</b> Why?</a></li>
+<li class="chapter" data-level="1.3" data-path="introduction-to-r.html"><a href="introduction-to-r.html#how"><i class="fa fa-check"></i><b>1.3</b> How?</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html"><i class="fa fa-check"></i><b>2</b> Pitfalls in quantitative analysis</a><ul>
+<li class="chapter" data-level="2.1" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#time-series"><i class="fa fa-check"></i><b>2.1</b> Time series</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#extrapolating"><i class="fa fa-check"></i><b>2.1.1</b> Extrapolating</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#causality"><i class="fa fa-check"></i><b>2.2</b> Causality</a></li>
+<li class="chapter" data-level="2.3" data-path="pitfalls-in-quantitative-analysis.html"><a href="pitfalls-in-quantitative-analysis.html#ecological-fallacy"><i class="fa fa-check"></i><b>2.3</b> Ecological fallacy</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html"><i class="fa fa-check"></i><b>3</b> Basic data management in R</a><ul>
+<li class="chapter" data-level="3.1" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#data-sources-and-managing-data"><i class="fa fa-check"></i><b>3.1</b> Data sources and managing data</a></li>
+<li class="chapter" data-level="3.2" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#workspace-management"><i class="fa fa-check"></i><b>3.2</b> Workspace management</a></li>
+<li class="chapter" data-level="3.3" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#data-strcutures"><i class="fa fa-check"></i><b>3.3</b> Data strcutures</a></li>
+<li class="chapter" data-level="3.4" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#basic-r-use"><i class="fa fa-check"></i><b>3.4</b> Basic R use</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#arithmetic"><i class="fa fa-check"></i><b>3.4.1</b> Arithmetic</a></li>
+<li class="chapter" data-level="3.4.2" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#logical-operators"><i class="fa fa-check"></i><b>3.4.2</b> Logical operators</a></li>
+<li class="chapter" data-level="3.4.3" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#assignment"><i class="fa fa-check"></i><b>3.4.3</b> Assignment</a></li>
+<li class="chapter" data-level="3.4.4" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#subsetting"><i class="fa fa-check"></i><b>3.4.4</b> Subsetting</a></li>
+<li class="chapter" data-level="3.4.5" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#set-operations"><i class="fa fa-check"></i><b>3.4.5</b> Set operations</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="basic-data-management-in-r.html"><a href="basic-data-management-in-r.html#some-r-principles"><i class="fa fa-check"></i><b>3.5</b> Some R principles</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="r-in-practice.html"><a href="r-in-practice.html"><i class="fa fa-check"></i><b>4</b> R in practice</a><ul>
+<li class="chapter" data-level="4.1" data-path="r-in-practice.html"><a href="r-in-practice.html#rstudio"><i class="fa fa-check"></i><b>4.1</b> RStudio</a></li>
+<li class="chapter" data-level="4.2" data-path="r-in-practice.html"><a href="r-in-practice.html#data-preparation-and-tidying"><i class="fa fa-check"></i><b>4.2</b> Data preparation and tidying</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="r-in-practice.html"><a href="r-in-practice.html#wide-and-long-format"><i class="fa fa-check"></i><b>4.2.1</b> Wide and long format</a></li>
+<li class="chapter" data-level="4.2.2" data-path="r-in-practice.html"><a href="r-in-practice.html#combining"><i class="fa fa-check"></i><b>4.2.2</b> Combining</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="r-in-practice.html"><a href="r-in-practice.html#aggregation"><i class="fa fa-check"></i><b>4.3</b> Aggregation</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="r-in-practice.html"><a href="r-in-practice.html#duplication"><i class="fa fa-check"></i><b>4.3.1</b> Duplication</a></li>
+<li class="chapter" data-level="4.3.2" data-path="r-in-practice.html"><a href="r-in-practice.html#string-manipulation"><i class="fa fa-check"></i><b>4.3.2</b> String manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="r-in-practice.html"><a href="r-in-practice.html#repetitive-processing"><i class="fa fa-check"></i><b>4.4</b> Repetitive processing</a></li>
+<li class="chapter" data-level="4.5" data-path="r-in-practice.html"><a href="r-in-practice.html#functions"><i class="fa fa-check"></i><b>4.5</b> Functions</a></li>
+<li class="chapter" data-level="4.6" data-path="r-in-practice.html"><a href="r-in-practice.html#simplifying-and-extending"><i class="fa fa-check"></i><b>4.6</b> Simplifying and extending</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html"><i class="fa fa-check"></i><b>5</b> Descriptive statistics</a><ul>
+<li class="chapter" data-level="5.1" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#numbers"><i class="fa fa-check"></i><b>5.1</b> Numbers</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#normalizing-and-scaling"><i class="fa fa-check"></i><b>5.1.1</b> Normalizing and scaling</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#frequency-tables"><i class="fa fa-check"></i><b>5.2</b> Frequency tables</a></li>
+<li class="chapter" data-level="5.3" data-path="descriptive-statistics.html"><a href="descriptive-statistics.html#measures-of-central-tendency-quantiles"><i class="fa fa-check"></i><b>5.3</b> Measures of central tendency, quantiles…</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="data-visualization.html"><a href="data-visualization.html"><i class="fa fa-check"></i><b>6</b> Data visualization</a><ul>
+<li class="chapter" data-level="6.1" data-path="data-visualization.html"><a href="data-visualization.html#basic-principles"><i class="fa fa-check"></i><b>6.1</b> Basic principles</a></li>
+<li class="chapter" data-level="6.2" data-path="data-visualization.html"><a href="data-visualization.html#types-of-plots"><i class="fa fa-check"></i><b>6.2</b> Types of plots</a></li>
+<li class="chapter" data-level="6.3" data-path="data-visualization.html"><a href="data-visualization.html#adding-elements"><i class="fa fa-check"></i><b>6.3</b> Adding elements</a></li>
+<li class="chapter" data-level="6.4" data-path="data-visualization.html"><a href="data-visualization.html#parameters"><i class="fa fa-check"></i><b>6.4</b> Parameters</a></li>
+<li class="chapter" data-level="6.5" data-path="data-visualization.html"><a href="data-visualization.html#saving"><i class="fa fa-check"></i><b>6.5</b> Saving</a></li>
+<li class="chapter" data-level="6.6" data-path="data-visualization.html"><a href="data-visualization.html#extending-basic-plotting"><i class="fa fa-check"></i><b>6.6</b> Extending basic plotting</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="inferential-statistics.html"><a href="inferential-statistics.html"><i class="fa fa-check"></i><b>7</b> Inferential statistics</a><ul>
+<li class="chapter" data-level="7.1" data-path="inferential-statistics.html"><a href="inferential-statistics.html#experimental-vs-non-experimental-data"><i class="fa fa-check"></i><b>7.1</b> Experimental vs non-experimental data</a></li>
+<li class="chapter" data-level="7.2" data-path="inferential-statistics.html"><a href="inferential-statistics.html#sample-and-population-distributions"><i class="fa fa-check"></i><b>7.2</b> Sample and population, distributions</a></li>
+<li class="chapter" data-level="7.3" data-path="inferential-statistics.html"><a href="inferential-statistics.html#hypothesis-testing"><i class="fa fa-check"></i><b>7.3</b> Hypothesis testing</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html"><i class="fa fa-check"></i><b>8</b> Dimensionality reduction</a><ul>
+<li class="chapter" data-level="8.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#principal-component-analysis"><i class="fa fa-check"></i><b>8.1</b> Principal component analysis</a></li>
+<li class="chapter" data-level="8.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#factor-analysis"><i class="fa fa-check"></i><b>8.2</b> Factor analysis</a></li>
+<li class="chapter" data-level="8.3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#discriminant-analysis"><i class="fa fa-check"></i><b>8.3</b> Discriminant analysis</a></li>
+<li class="chapter" data-level="8.4" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#correspondence-analysis"><i class="fa fa-check"></i><b>8.4</b> Correspondence analysis</a></li>
+<li class="chapter" data-level="8.5" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#cluster-analysis"><i class="fa fa-check"></i><b>8.5</b> Cluster analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="measures-of-association.html"><a href="measures-of-association.html"><i class="fa fa-check"></i><b>9</b> Measures of association</a><ul>
+<li class="chapter" data-level="9.1" data-path="measures-of-association.html"><a href="measures-of-association.html#correlation"><i class="fa fa-check"></i><b>9.1</b> Correlation</a></li>
+<li class="chapter" data-level="9.2" data-path="measures-of-association.html"><a href="measures-of-association.html#goodness-of-fit-and-coefficent-of-determination"><i class="fa fa-check"></i><b>9.2</b> Goodness of fit and coefficent of determination</a></li>
+<li class="chapter" data-level="9.3" data-path="measures-of-association.html"><a href="measures-of-association.html#regression"><i class="fa fa-check"></i><b>9.3</b> Regression</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html"><i class="fa fa-check"></i><b>10</b> Ordinary least squares regression</a><ul>
+<li class="chapter" data-level="10.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#model-explains-the-data-well"><i class="fa fa-check"></i><b>10.1</b> Model explains the data well</a></li>
+<li class="chapter" data-level="10.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#functional-form-of-the-model-is-correct"><i class="fa fa-check"></i><b>10.2</b> Functional form of the model is correct</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#log-linear-or-log-log-relationship"><i class="fa fa-check"></i><b>10.2.1</b> Log-linear or log-log relationship</a></li>
+<li class="chapter" data-level="10.2.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#polynomials"><i class="fa fa-check"></i><b>10.2.2</b> Polynomials</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#model-parameters-are-statistically-significant"><i class="fa fa-check"></i><b>10.3</b> Model parameters are statistically significant</a><ul>
+<li class="chapter" data-level="10.3.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#individual-significance-of-parameters-t-test"><i class="fa fa-check"></i><b>10.3.1</b> Individual significance of parameters (t-test)</a></li>
+<li class="chapter" data-level="10.3.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#combined-significance-of-parameters-f-test"><i class="fa fa-check"></i><b>10.3.2</b> Combined significance of parameters (f-test)</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#model-is-not-sensitive-to-individual-observations"><i class="fa fa-check"></i><b>10.4</b> Model is not sensitive to individual observations</a><ul>
+<li class="chapter" data-level="10.4.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#residuals"><i class="fa fa-check"></i><b>10.4.1</b> Residuals</a></li>
+<li class="chapter" data-level="10.4.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#leverage-of-observations"><i class="fa fa-check"></i><b>10.4.2</b> Leverage of observations</a></li>
+<li class="chapter" data-level="10.4.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#influence-of-observations-cooks-distance"><i class="fa fa-check"></i><b>10.4.3</b> Influence of observations (Cook’s distance)</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#error-term-is-independent-and-has-constant-variance"><i class="fa fa-check"></i><b>10.5</b> Error term is independent and has constant variance</a><ul>
+<li class="chapter" data-level="10.5.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#heteroscedasticity"><i class="fa fa-check"></i><b>10.5.1</b> Heteroscedasticity</a></li>
+<li class="chapter" data-level="10.5.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#autocorrelation"><i class="fa fa-check"></i><b>10.5.2</b> Autocorrelation</a></li>
+<li class="chapter" data-level="10.5.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#robust-standard-errors"><i class="fa fa-check"></i><b>10.5.3</b> Robust standard errors</a></li>
+</ul></li>
+<li class="chapter" data-level="10.6" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#error-term-is-uncorrelated-to-predictors"><i class="fa fa-check"></i><b>10.6</b> Error term is uncorrelated to predictor(s)</a><ul>
+<li class="chapter" data-level="10.6.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#weak-instruments"><i class="fa fa-check"></i><b>10.6.1</b> Weak instruments</a></li>
+<li class="chapter" data-level="10.6.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#wu-hausmann-test"><i class="fa fa-check"></i><b>10.6.2</b> Wu-Hausmann test</a></li>
+<li class="chapter" data-level="10.6.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#sargan-test"><i class="fa fa-check"></i><b>10.6.3</b> Sargan test</a></li>
+</ul></li>
+<li class="chapter" data-level="10.7" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#predictors-can-not-be-linearly-predicted-from-others-no-multicollinearity"><i class="fa fa-check"></i><b>10.7</b> Predictors can not be linearly predicted from others (no multicollinearity)</a></li>
+<li class="chapter" data-level="10.8" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#todo"><i class="fa fa-check"></i><b>10.8</b> TODO</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>11</b> Generalized linear models</a><ul>
+<li class="chapter" data-level="11.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions-in-r"><i class="fa fa-check"></i><b>11.1</b> Link functions in R</a></li>
+<li class="chapter" data-level="11.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#binary"><i class="fa fa-check"></i><b>11.2</b> Binary</a></li>
+<li class="chapter" data-level="11.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#ordered-logit"><i class="fa fa-check"></i><b>11.3</b> Ordered logit</a></li>
+<li class="chapter" data-level="11.4" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#multinomial-logit"><i class="fa fa-check"></i><b>11.4</b> Multinomial logit</a></li>
+<li class="chapter" data-level="11.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#count-data"><i class="fa fa-check"></i><b>11.5</b> Count data</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html"><i class="fa fa-check"></i><b>12</b> Improving the functional form</a><ul>
+<li class="chapter" data-level="12.1" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#fixed-and-random-effects"><i class="fa fa-check"></i><b>12.1</b> Fixed and random effects</a></li>
+<li class="chapter" data-level="12.2" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#panel-data-methods"><i class="fa fa-check"></i><b>12.2</b> Panel data methods</a></li>
+<li class="chapter" data-level="12.3" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#impact-evaluation"><i class="fa fa-check"></i><b>12.3</b> Impact evaluation</a><ul>
+<li class="chapter" data-level="12.3.1" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#basic"><i class="fa fa-check"></i><b>12.3.1</b> Basic</a></li>
+<li class="chapter" data-level="12.3.2" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#instrumental-variable"><i class="fa fa-check"></i><b>12.3.2</b> Instrumental variable</a></li>
+<li class="chapter" data-level="12.3.3" data-path="improving-the-functional-form.html"><a href="improving-the-functional-form.html#regression-discontinuity"><i class="fa fa-check"></i><b>12.3.3</b> Regression discontinuity</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Data and statistics with R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ordinary-least-squares-regression" class="section level1">
+<h1><span class="header-section-number">Chapter 10</span> Ordinary least squares regression</h1>
+<p>The requirements for a BLUE (<strong>b</strong>est <strong>l</strong>inear <strong>u</strong>nbiased <strong>e</strong>stimator) will be outlined.</p>
+<p>Dependent variables will be referred to as <strong>response</strong> and independent variable(s) as <strong>predictor(s)</strong>.</p>
+<p>We’ll be using the pipe operator for better readability so let’s first load the <code>magrittr</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="ordinary-least-squares-regression.html#cb1-1"></a><span class="kw">library</span>(magrittr)</span></code></pre></div>
+<p>The <code>mtcars</code> dataset in base R is suitable for an example. To begin with, it’s a good idea to plot the relationships between variables of interest together with a LOWESS smoothed line.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="ordinary-least-squares-regression.html#cb2-1"></a>mtcars[, <span class="kw">c</span>(<span class="st">&#39;mpg&#39;</span>, <span class="st">&#39;hp&#39;</span>, <span class="st">&#39;wt&#39;</span>, <span class="st">&#39;am&#39;</span>)] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pairs</span>(<span class="dt">lower.panel =</span> panel.smooth)</span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-3-1.png" width="960" /></p>
+<p>The relationships between variables are cleary present. Theoretically, we can expcet that horsepower (<code>hp</code>), weight (<code>wt</code>) and transmission (<code>am</code>, automatic (0) or manual (1)) influence fuel consumption (<code>mpg</code>). So let’s model this relationship.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="ordinary-least-squares-regression.html#cb3-1"></a>(mpgMod &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am), mtcars))</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ hp + wt + factor(am), data = mtcars)
+## 
+## Coefficients:
+## (Intercept)           hp           wt  factor(am)1  
+##    34.00288     -0.03748     -2.87858      2.08371</code></pre>
+<p>The resulting coefficients represent model parameters. We can also get 95% confidence intervals for these coefficients.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="ordinary-least-squares-regression.html#cb5-1"></a><span class="kw">confint</span>(mpgMod)</span></code></pre></div>
+<pre><code>##                   2.5 %      97.5 %
+## (Intercept) 28.58963286 39.41611738
+## hp          -0.05715454 -0.01780291
+## wt          -4.73232353 -1.02482730
+## factor(am)1 -0.73575874  4.90317900</code></pre>
+<p>A <code>summary</code> call of the model provides a lot of information that will be further explained.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="ordinary-least-squares-regression.html#cb7-1"></a><span class="kw">summary</span>(mpgMod)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ hp + wt + factor(am), data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3.4221 -1.7924 -0.3788  1.2249  5.5317 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 34.002875   2.642659  12.867 2.82e-13 ***
+## hp          -0.037479   0.009605  -3.902 0.000546 ***
+## wt          -2.878575   0.904971  -3.181 0.003574 ** 
+## factor(am)1  2.083710   1.376420   1.514 0.141268    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.538 on 28 degrees of freedom
+## Multiple R-squared:  0.8399, Adjusted R-squared:  0.8227 
+## F-statistic: 48.96 on 3 and 28 DF,  p-value: 2.908e-11</code></pre>
+<div id="model-explains-the-data-well" class="section level2">
+<h2><span class="header-section-number">10.1</span> Model explains the data well</h2>
+<p>A model does not always have to explain the variation of response but in often this is useful, e.g. when comparing models. For linear least squares models goodness of fit can be measured by the coefficient of determination (<span class="math inline">\(R^{2}\)</span>). Because it indicates the <strong>part of variation that is explained by the model</strong>, it can be represented by three measures:</p>
+<ul>
+<li>the sum of the squares of differences of each observed value and the mean value of response (<strong>t</strong>otal sum of squares, <span class="math inline">\(TSS\)</span>), i.e. <span class="math inline">\(\sum_{i = 1}^{n} (y_{i} - \overline{y}_{i})^2\)</span></li>
+<li>the sum of the squares of differences of the predicted values and the mean value of response (<strong>e</strong>xplained sum of squares, <span class="math inline">\(ESS\)</span>), i.e. <span class="math inline">\(\sum_{i = 1}^{n} (\hat{y}_{i} - \overline{y})^2\)</span></li>
+<li>the sum of the squares of differences of the predicted values and observed values (<strong>r</strong>esidual sum of squares, <span class="math inline">\(RSS\)</span>), i.e. <span class="math inline">\(\sum_{i = 1}^{n} (y_{i} - \hat{y}_{i})^2\)</span>.</li>
+</ul>
+<p>The <span class="math inline">\(R^{2}\)</span> is represented by these measures as follows:</p>
+<p><span class="math display">\[R^{2} = \frac{ESS}{TSS} = 1 - \frac{RSS}{TSS}\]</span></p>
+<p>To penalize a model for the number of predictors (<span class="math inline">\(K\)</span>) while considering the number of observations (<span class="math inline">\(N\)</span>), the adjusted <span class="math inline">\(R^{2}\)</span> can also be used, particularly for model comparison:</p>
+<p><span class="math display">\[\overline{R^{2}} = 1 - \frac{RSS/(N-K)}{TSS/(N-K)}\]</span></p>
+<p>In our model, the values of <span class="math inline">\(R^{2}\)</span> and <span class="math inline">\(\overline{R^{2}}\)</span> show that our model fits data very well and the predictors describe large part of the variation of the response:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="ordinary-least-squares-regression.html#cb9-1"></a><span class="kw">summary</span>(mpgMod)<span class="op">$</span>r.squared <span class="co"># R-squared</span></span></code></pre></div>
+<pre><code>## [1] 0.8398903</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="ordinary-least-squares-regression.html#cb11-1"></a><span class="kw">summary</span>(mpgMod)<span class="op">$</span>adj.r.squared <span class="co"># Adjusted R-squared</span></span></code></pre></div>
+<pre><code>## [1] 0.8227357</code></pre>
+</div>
+<div id="functional-form-of-the-model-is-correct" class="section level2">
+<h2><span class="header-section-number">10.2</span> Functional form of the model is correct</h2>
+<p>The <code>pairs</code> plot seems to suggest a non-linear relationship between some variables. Thus, there is reason to expect that the transformation of observed values may result in a model with better fit. We can estimate the correctness of a model specification with a RESET test. This involves testing whether or not the coefficients of exponentiated predicted response values (e.g. <span class="math inline">\(\hat{y}^2\)</span>) are zero or not when included in the initial model.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="ordinary-least-squares-regression.html#cb13-1"></a><span class="kw">anova</span>(mpgMod, </span>
+<span id="cb13-2"><a href="ordinary-least-squares-regression.html#cb13-2"></a>      <span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am) <span class="op">+</span><span class="st"> </span><span class="kw">I</span>(mpgMod<span class="op">$</span>fitted<span class="op">^</span><span class="dv">2</span>) <span class="op">+</span><span class="st"> </span><span class="kw">I</span>(mpgMod<span class="op">$</span>fitted<span class="op">^</span><span class="dv">3</span>), mtcars))</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: mpg ~ hp + wt + factor(am)
+## Model 2: mpg ~ hp + wt + factor(am) + I(mpgMod$fitted^2) + I(mpgMod$fitted^3)
+##   Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)  
+## 1     28 180.29                              
+## 2     26 126.79  2    53.502 5.4857 0.01029 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<blockquote>
+<p>H0: Functional form of the model is correct<br />
+H1: Functional form of the model is not correct</p>
+</blockquote>
+<p>A <span class="math inline">\(p\)</span> value of F-test lower than a a critical value (<span class="math inline">\(\alpha = 0.05\)</span>) suggests that the model is incorrectly specified.</p>
+<div id="log-linear-or-log-log-relationship" class="section level3">
+<h3><span class="header-section-number">10.2.1</span> Log-linear or log-log relationship</h3>
+<p>Model fit might be improved by using logged values of the response or predictor variables. For example, we can compare logged and not logged values of fuel consumption (<code>mpg</code>) in their relationship with other variables.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="ordinary-least-squares-regression.html#cb15-1"></a><span class="kw">list</span>(<span class="dt">mpgLog =</span> <span class="kw">log</span>(mtcars<span class="op">$</span>mpg), </span>
+<span id="cb15-2"><a href="ordinary-least-squares-regression.html#cb15-2"></a>     mtcars[, <span class="kw">c</span>(<span class="st">&#39;mpg&#39;</span>, <span class="st">&#39;hp&#39;</span>, <span class="st">&#39;wt&#39;</span>, <span class="st">&#39;am&#39;</span>)]) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb15-3"><a href="ordinary-least-squares-regression.html#cb15-3"></a><span class="st">  </span><span class="kw">pairs</span>(<span class="dt">lower.panel =</span> panel.smooth)</span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
+<p>Logged fuel consumption (<code>mpg</code>) does seem to be more linearly related to weight (<code>wt</code>) than not logged values, so we can try to estimate a model with logged response variable.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="ordinary-least-squares-regression.html#cb16-1"></a><span class="kw">lm</span>(<span class="kw">I</span>(<span class="kw">log</span>(mpg)) <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am), mtcars) <span class="op">%&gt;%</span><span class="st"> </span>summary</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = I(log(mpg)) ~ hp + wt + factor(am), data = mtcars)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.17137 -0.06955 -0.03865  0.07218  0.26567 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.7491397  0.1165798  32.159  &lt; 2e-16 ***
+## hp          -0.0016850  0.0004237  -3.976 0.000448 ***
+## wt          -0.1757558  0.0399224  -4.402 0.000142 ***
+## factor(am)1  0.0516749  0.0607202   0.851 0.401970    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1119 on 28 degrees of freedom
+## Multiple R-squared:  0.8724, Adjusted R-squared:  0.8587 
+## F-statistic: 63.79 on 3 and 28 DF,  p-value: 1.24e-12</code></pre>
+<p>Here we can’t use <code>anova</code> to test or <span class="math inline">\(R^{2}\)</span> to estimate the improvement of model specification as the variances of response variables are different. It’s important to note that in log-linear and log-log models the coefficients represent elasticities, i.e. not absolute values but <em>per cent</em> changes in values of response (log-linear) or both, predictors and response (log-log).</p>
+</div>
+<div id="polynomials" class="section level3">
+<h3><span class="header-section-number">10.2.2</span> Polynomials</h3>
+<p>Another way to obtain a better model fit is by using polynomials. Commonly, exponentiated values of predictors are used. For example, we can add the exponents of 2 of horsepower (<code>hp</code>) and weight (<code>wt</code>) to the model and test the result.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="ordinary-least-squares-regression.html#cb18-1"></a><span class="kw">anova</span>(mpgMod, </span>
+<span id="cb18-2"><a href="ordinary-least-squares-regression.html#cb18-2"></a>      <span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span><span class="kw">I</span>(hp<span class="op">^</span><span class="dv">2</span>) <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">I</span>(wt<span class="op">^</span><span class="dv">2</span>) <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am), mtcars))</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: mpg ~ hp + wt + factor(am)
+## Model 2: mpg ~ hp + I(hp^2) + wt + I(wt^2) + factor(am)
+##   Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)   
+## 1     28 180.29                               
+## 2     26 122.86  2    57.436 6.0776 0.00683 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<blockquote>
+<p>H0: Model with polynomials does not have lower residual sum of squares<br />
+H1: Model with polynomials does have lower residual sum of squares</p>
+</blockquote>
+<p>Here, a statistically significant difference at <span class="math inline">\(\alpha = 0.05\)</span> suggests a better fit with exponentiated values.</p>
+</div>
+</div>
+<div id="model-parameters-are-statistically-significant" class="section level2">
+<h2><span class="header-section-number">10.3</span> Model parameters are statistically significant</h2>
+<p>Determining that the parameters in the model are statistically significant allows us to interpret the values of coefficients and to a certain extent makes sure that they represent more than just random noise in the data.</p>
+<div id="individual-significance-of-parameters-t-test" class="section level3">
+<h3><span class="header-section-number">10.3.1</span> Individual significance of parameters (t-test)</h3>
+<p>To test the significane of the parameters separately we can use t-test. For each coefficient, we can calculate the value of the t-statistic using estimated value and corresponding standard errors and then estimate the probability of the aquired t value. The <code>lm</code> function does all this for us:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="ordinary-least-squares-regression.html#cb20-1"></a><span class="kw">summary</span>(mpgMod)<span class="op">$</span>coefficients</span></code></pre></div>
+<pre><code>##                Estimate  Std. Error   t value     Pr(&gt;|t|)
+## (Intercept) 34.00287512 2.642659337 12.866916 2.824030e-13
+## hp          -0.03747873 0.009605422 -3.901830 5.464023e-04
+## wt          -2.87857541 0.904970538 -3.180850 3.574031e-03
+## factor(am)1  2.08371013 1.376420152  1.513862 1.412682e-01</code></pre>
+<blockquote>
+<p>H0: The coefficient is zero, i.e. <span class="math inline">\(\beta = 0\)</span><br />
+H1: Thecoefficient is not zero, i.e. <span class="math inline">\(\beta \neq 0\)</span></p>
+</blockquote>
+<p>In our case horsepower and weight have a statistically significant effect on fuel consumption while transmisson does not (<span class="math inline">\(\alpha = 0.05\)</span>). It’s worth noting that a statistically insignificant parameter should not be excluded from a model when there is a valid causal relationship from a theoretical point of view.</p>
+</div>
+<div id="combined-significance-of-parameters-f-test" class="section level3">
+<h3><span class="header-section-number">10.3.2</span> Combined significance of parameters (f-test)</h3>
+<p>F-test can be used to compare models by comparing residual sums of squares. First, we can test if the model with parameters (full model) fits data better than a model with only the intercept (reduced model). Although this is also reported by <code>summary.lm</code>, we can use analysis of variance to test this explicitly:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="ordinary-least-squares-regression.html#cb22-1"></a><span class="kw">anova</span>(<span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am), mtcars), <span class="co"># Full model</span></span>
+<span id="cb22-2"><a href="ordinary-least-squares-regression.html#cb22-2"></a>      <span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, mtcars)) <span class="co"># Reduced model</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: mpg ~ hp + wt + factor(am)
+## Model 2: mpg ~ 1
+##   Res.Df     RSS Df Sum of Sq     F    Pr(&gt;F)    
+## 1     28  180.29                                 
+## 2     31 1126.05 -3   -945.76 48.96 2.908e-11 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<blockquote>
+<p>H0: All coefficients are simultaineously zero<br />
+H1: At least one of the coefficients is not zero 0</p>
+</blockquote>
+<p>In our model at least one of the coefficients is not zero. But we could, for example, also estimate the effect of weight of a car (<code>wt</code>) on it’s 1/4 mile time (<code>qsec</code>). In addition to an F-test, we can also visually confirm that the slope is not very different from zero.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="ordinary-least-squares-regression.html#cb24-1"></a><span class="co"># F-test</span></span>
+<span id="cb24-2"><a href="ordinary-least-squares-regression.html#cb24-2"></a>redMod &lt;-<span class="st"> </span><span class="kw">lm</span>(qsec <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, mtcars) <span class="co"># Reduced model</span></span>
+<span id="cb24-3"><a href="ordinary-least-squares-regression.html#cb24-3"></a>fullMod &lt;-<span class="st"> </span><span class="kw">lm</span>(qsec <span class="op">~</span><span class="st"> </span>wt, mtcars) <span class="co"># Full model</span></span>
+<span id="cb24-4"><a href="ordinary-least-squares-regression.html#cb24-4"></a><span class="kw">anova</span>(fullMod, redMod)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: qsec ~ wt
+## Model 2: qsec ~ 1
+##   Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+## 1     30 95.966                           
+## 2     31 98.988 -1   -3.0217 0.9446 0.3389</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ordinary-least-squares-regression.html#cb26-1"></a><span class="co"># Visual</span></span>
+<span id="cb26-2"><a href="ordinary-least-squares-regression.html#cb26-2"></a><span class="kw">plot</span>(mtcars<span class="op">$</span>wt, mtcars<span class="op">$</span>qsec)</span>
+<span id="cb26-3"><a href="ordinary-least-squares-regression.html#cb26-3"></a><span class="kw">abline</span>(redMod) <span class="co"># Reduced model</span></span>
+<span id="cb26-4"><a href="ordinary-least-squares-regression.html#cb26-4"></a><span class="kw">abline</span>(fullMod, <span class="dt">col =</span> <span class="st">&#39;red&#39;</span>) <span class="co"># Full model</span></span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-14-1.png" width="960" /></p>
+<p>A second use for the F-test is to compare nested models. We can test if the coefficients for horsepower (<code>hp</code>) and transmission (<code>am</code>) are <strong>simultaineously</strong> significantly different from zero.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="ordinary-least-squares-regression.html#cb27-1"></a><span class="kw">anova</span>(<span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am), mtcars), </span>
+<span id="cb27-2"><a href="ordinary-least-squares-regression.html#cb27-2"></a>      <span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>wt, mtcars))</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: mpg ~ hp + wt + factor(am)
+## Model 2: mpg ~ wt
+##   Res.Df    RSS Df Sum of Sq      F   Pr(&gt;F)   
+## 1     28 180.29                                
+## 2     30 278.32 -2   -98.031 7.6123 0.002291 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<blockquote>
+<p>H0: All coefficients in full but not in reduced model are zero<br />
+H1: At least one of the coefficients in full but not in reduced model are not zero</p>
+</blockquote>
+<p>Insignificant F-statistic shows that we can reject the null hypothesis that the coefficients of <code>hp</code> and <code>factor(am)</code> are simultaineously zero.</p>
+</div>
+</div>
+<div id="model-is-not-sensitive-to-individual-observations" class="section level2">
+<h2><span class="header-section-number">10.4</span> Model is not sensitive to individual observations</h2>
+<p>Even a small number of extreme observations can substantially alter model parameters in least squares estimation. Thus, it’s important to be aware of atypical observatons and deal with them.</p>
+<div id="residuals" class="section level3">
+<h3><span class="header-section-number">10.4.1</span> Residuals</h3>
+<p>A simple approach is to take a look at residuals at different fitted values. Residuals can be visualized by calling the 1st plot of <code>plot.lm</code> function. The function accepts <code>labels.id</code> and <code>id.n</code> as argumets which respectively set the vector used for point labels and the number of labels to add (starting from extreme values). This allows to understand which observations represent
+outliers in modelled relationship.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="ordinary-least-squares-regression.html#cb29-1"></a><span class="kw">plot</span>(mpgMod, <span class="dt">which =</span> <span class="dv">1</span>, <span class="dt">labels.id =</span> <span class="kw">rownames</span>(mtcars), <span class="dt">id.n =</span> <span class="dv">5</span>) <span class="co"># Residuals vs fitted</span></span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-16-1.png" width="960" /></p>
+<p>The observations with residuals that markedly diverge from 0 are outliers and may have a large influence on model parameters.</p>
+</div>
+<div id="leverage-of-observations" class="section level3">
+<h3><span class="header-section-number">10.4.2</span> Leverage of observations</h3>
+<p>A more reliable method for detecting influential observations is to calculate leverage for each observation. Because predicted responses <span class="math inline">\(\hat{y}\)</span> are equal to matrix <span class="math inline">\(H = X(X^{T}X)^{-1}X^{T}\)</span> multiplied by observed responses <span class="math inline">\(y\)</span>, the value of <span class="math inline">\(h_{ii} = [H]_{ii}\)</span> expresses the leverage of <span class="math inline">\(i\)</span>th observation. That is, the leverage score <span class="math inline">\(h_{ii}\)</span> represents the weight of <span class="math inline">\(i\)</span>th observaton on predicted response <span class="math inline">\(\hat{y}_{i}\)</span>. Leverages (along with residuals) can be visualized by calling the 5th plot of <code>plot.lm</code>.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="ordinary-least-squares-regression.html#cb30-1"></a><span class="kw">plot</span>(mpgMod, <span class="dt">which =</span> <span class="dv">5</span>, <span class="dt">id.n =</span> <span class="dv">5</span>) <span class="co"># Residuals vs leverage</span></span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-17-1.png" width="960" /></p>
+<p>The value of leverage score <span class="math inline">\(h_{ii}\)</span> is between 0 and 1, thus a leverage over 0.4 (Maserati Bora) is rather high.</p>
+</div>
+<div id="influence-of-observations-cooks-distance" class="section level3">
+<h3><span class="header-section-number">10.4.3</span> Influence of observations (Cook’s distance)</h3>
+<p>Influence of obsevations can also be determined by calculating how much model parameters change if an observation is omitted. This is what Cook’s distance estimate <span class="math inline">\(D_{i}\)</span> for observation <span class="math inline">\(i\)</span> represents:</p>
+<p><span class="math display">\[D_{i} = \frac{\sum_{j=i}^{n}(\hat{y}_{j} - \hat{y}_{j(i)})^2} {p s^{2}}\]</span>,</p>
+<p>which, put plainly, is the sum of all differences in <span class="math inline">\(\hat{y}\)</span> when observation <span class="math inline">\(i\)</span> is omitted, divided by number of parameters <span class="math inline">\(p\)</span> multiplied by mean squared error <span class="math inline">\(s^{2}\)</span>. Cook’s distance can be plotted by calling 4th plot of <code>plot.lm</code>. A Cook’s distance value that is higher than 4 divided by number of observations may be considered as influential, although there are less conservative suggestions for tresholds.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="ordinary-least-squares-regression.html#cb31-1"></a><span class="kw">plot</span>(mpgMod, <span class="dt">which =</span> <span class="dv">4</span>, <span class="dt">id.n =</span> <span class="dv">5</span>) <span class="co"># Cook&#39;s distance</span></span>
+<span id="cb31-2"><a href="ordinary-least-squares-regression.html#cb31-2"></a><span class="kw">abline</span>(<span class="dt">h =</span> <span class="dv">4</span><span class="op">/</span><span class="kw">nrow</span>(mtcars), <span class="dt">col =</span> <span class="st">&#39;red&#39;</span>)</span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-18-1.png" width="960" /></p>
+<p>When following the suggestion of 4/N for treshold, there are 4 influential observations in our model.</p>
+</div>
+</div>
+<div id="error-term-is-independent-and-has-constant-variance" class="section level2">
+<h2><span class="header-section-number">10.5</span> Error term is independent and has constant variance</h2>
+<p>Serial correlation and non-constant variance of residuals imply that model standard errors and thus respective p-values for coefficients are incorrect. In order to interpret the model parameters it’s important to make sure that homoscedasticity nor autocorrelation are present and use corrected standard errors if otherwise.</p>
+<div id="heteroscedasticity" class="section level3">
+<h3><span class="header-section-number">10.5.1</span> Heteroscedasticity</h3>
+<p>Heteroscedasticity occurs when variance of error term for each observation might be different, i.e. is not constant, i.e. <span class="math inline">\(var(\varepsilon|X) \neq \sigma^{2}\)</span>. Heteroscedasticity is usually evident when variables are plotted against each other or when residuals are plotted at different values of response variables.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="ordinary-least-squares-regression.html#cb32-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</span>
+<span id="cb32-2"><a href="ordinary-least-squares-regression.html#cb32-2"></a><span class="kw">plot</span>(mtcars<span class="op">$</span>hp, mtcars<span class="op">$</span>mpg)</span>
+<span id="cb32-3"><a href="ordinary-least-squares-regression.html#cb32-3"></a><span class="kw">plot</span>(mpgMod, <span class="dt">which =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="datastatsr_files/figure-html/unnamed-chunk-19-1.png" width="960" /></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="ordinary-least-squares-regression.html#cb33-1"></a><span class="kw">dev.off</span>()</span></code></pre></div>
+<pre><code>## null device 
+##           1</code></pre>
+<p>We can notice the lower variance of fuel consumption (<code>mpg</code>) at higher values of horsepower (<code>hp</code>).</p>
+<p>One way to assess heteroscedasticity is to test whether variance of residuals is dependent on values of the predictors. This procedure is called Breusch-Pagan test.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="ordinary-least-squares-regression.html#cb35-1"></a>modBp &lt;-<span class="st"> </span><span class="kw">lm</span>(mpgMod<span class="op">$</span>residuals<span class="op">^</span><span class="dv">2</span> <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span><span class="kw">factor</span>(am), mtcars)</span>
+<span id="cb35-2"><a href="ordinary-least-squares-regression.html#cb35-2"></a>bpTest &lt;-<span class="st"> </span><span class="kw">nobs</span>(modBp) <span class="op">*</span><span class="st"> </span><span class="kw">summary</span>(modBp)<span class="op">$</span>r.squared <span class="co"># Test statistic</span></span>
+<span id="cb35-3"><a href="ordinary-least-squares-regression.html#cb35-3"></a><span class="kw">pchisq</span>(bpTest, <span class="dt">df =</span> modBp<span class="op">$</span>rank <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>## [1] 0.1366163</code></pre>
+<p>An alternative is to use the <code>bptest</code> function from <code>lmtest</code> package.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="ordinary-least-squares-regression.html#cb37-1"></a>lmtest<span class="op">::</span><span class="kw">bptest</span>(mpgMod)</span></code></pre></div>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  mpgMod
+## BP = 5.534, df = 3, p-value = 0.1366</code></pre>
+<blockquote>
+<p>H0: Homoscedasticity<br />
+H1: Heteroscedasticity</p>
+</blockquote>
+<p>A <span class="math inline">\(\chi^2\)</span>-test indicates that variance of residuals is independent of values of the predictors (<span class="math inline">\(\alpha = 0.05\)</span>) and we can assume homoscedasticity.</p>
+</div>
+<div id="autocorrelation" class="section level3">
+<h3><span class="header-section-number">10.5.2</span> Autocorrelation</h3>
+<p>Autocorrelation occurs when error terms of different observations are correlated with each other, i.e. <span class="math inline">\(cov(\varepsilon_{i}\varepsilon_{j}|X) \neq 0, i \neq j\)</span>. Autocorrelatoin can be tested with Breusch-Godfrey test (<code>bgtest</code>) from <code>lmtest</code> package.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="ordinary-least-squares-regression.html#cb39-1"></a>lmtest<span class="op">::</span><span class="kw">bgtest</span>(mpgMod)</span></code></pre></div>
+<pre><code>## 
+##  Breusch-Godfrey test for serial correlation of order up to 1
+## 
+## data:  mpgMod
+## LM test = 2.156, df = 1, p-value = 0.142</code></pre>
+<blockquote>
+<p>H0: No autocorrelation<br />
+H1: Autocorrelation</p>
+</blockquote>
+<p>A p-value of 0.142 indicates lack of autocorrelation in our model (<span class="math inline">\(\alpha = 0.05\)</span>).</p>
+</div>
+<div id="robust-standard-errors" class="section level3">
+<h3><span class="header-section-number">10.5.3</span> Robust standard errors</h3>
+<p>Suppose that we have a model where heteroscedasticity is present (<code>wt ~ hp</code>, adding horsepower makes cars heavier).</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="ordinary-least-squares-regression.html#cb41-1"></a>wtMod &lt;-<span class="st"> </span><span class="kw">lm</span>(wt <span class="op">~</span><span class="st"> </span>hp, mtcars)</span>
+<span id="cb41-2"><a href="ordinary-least-squares-regression.html#cb41-2"></a><span class="kw">summary</span>(wtMod)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = wt ~ hp, data = mtcars)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.41757 -0.53122 -0.02038  0.42536  1.56455 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 1.838247   0.316520   5.808 2.39e-06 ***
+## hp          0.009401   0.001960   4.796 4.15e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.7483 on 30 degrees of freedom
+## Multiple R-squared:  0.4339, Adjusted R-squared:  0.4151 
+## F-statistic:    23 on 1 and 30 DF,  p-value: 4.146e-05</code></pre>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="ordinary-least-squares-regression.html#cb43-1"></a>lmtest<span class="op">::</span><span class="kw">bptest</span>(wtMod)</span></code></pre></div>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  wtMod
+## BP = 7.6716, df = 1, p-value = 0.00561</code></pre>
+<p>We can expect that these standard errors are not reliable, so they need to be corrected. This involves calculating heteroscedasticity consistent (HC) standard errors. This can be done by plugging a defined symmetric diagonal matrix <span class="math inline">\(\Omega = diag(\omega_{1},...,\omega_{i})\)</span> into coefficient covariance matrix and calculating standard errors from the result (Zeileis 2004<a href="references.html#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>). There are different estimators for <span class="math inline">\(\omega{i}\)</span> but in most cases we can use <span class="math inline">\(\varepsilon^{2}_{i}\)</span>. Such covariance matrix with can be calculated with <code>vcovHC</code> function from <code>sandwhich</code> package setting <code>HC0</code> as type. We can get the t- and p-values with HC standard errors with <code>coeftest</code> function from <code>lmtest</code> pacakge by inserting the new covariance matrix into initial model.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="ordinary-least-squares-regression.html#cb45-1"></a>wtModVcov &lt;-<span class="st"> </span>sandwich<span class="op">::</span><span class="kw">vcovHC</span>(wtMod, <span class="st">&#39;HC0&#39;</span>) <span class="co"># Calculate covariance matrix</span></span>
+<span id="cb45-2"><a href="ordinary-least-squares-regression.html#cb45-2"></a>wtModVcov <span class="op">%&gt;%</span><span class="st"> </span>diag <span class="op">%&gt;%</span><span class="st"> </span>sqrt <span class="co"># Get robust standard errors</span></span></code></pre></div>
+<pre><code>## (Intercept)          hp 
+## 0.339692165 0.002611827</code></pre>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="ordinary-least-squares-regression.html#cb47-1"></a>lmtest<span class="op">::</span><span class="kw">coeftest</span>(wtMod, <span class="dt">vcov =</span> wtModVcov) <span class="co"># Find p-values</span></span></code></pre></div>
+<pre><code>## 
+## t test of coefficients:
+## 
+##              Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 1.8382467  0.3396922  5.4115 7.288e-06 ***
+## hp          0.0094010  0.0026118  3.5994  0.001133 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>We can see that while the p-value for <code>hp</code> coefficient calculated with robust standard errors is still statistically significant (<span class="math inline">\(\alpha = 0.05\)</span>), it’s much higher than before.</p>
+</div>
+</div>
+<div id="error-term-is-uncorrelated-to-predictors" class="section level2">
+<h2><span class="header-section-number">10.6</span> Error term is uncorrelated to predictor(s)</h2>
+<p>When error term is correlated to a predictor, i.e. <span class="math inline">\(cov(x_{i},\varepsilon) \neq 0\)</span>, the model parameters are biased and not consistent. The predictors causing this are endogenous to the model and in such cases we need to find an instrumental variable (instrument) that is correlated to the endogenous predictors but not the error term.</p>
+<p>Let’s estimate the effect of engine size (<code>disp</code>, displacement) and horsepower (<code>hp</code>) on fuel consumption (<code>mpg</code>).</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="ordinary-least-squares-regression.html#cb49-1"></a>olsMod &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>disp, mtcars)</span>
+<span id="cb49-2"><a href="ordinary-least-squares-regression.html#cb49-2"></a><span class="kw">summary</span>(olsMod)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ hp + disp, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.7945 -2.3036 -0.8246  1.8582  6.9363 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 30.735904   1.331566  23.083  &lt; 2e-16 ***
+## hp          -0.024840   0.013385  -1.856 0.073679 .  
+## disp        -0.030346   0.007405  -4.098 0.000306 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.127 on 29 degrees of freedom
+## Multiple R-squared:  0.7482, Adjusted R-squared:  0.7309 
+## F-statistic: 43.09 on 2 and 29 DF,  p-value: 2.062e-09</code></pre>
+<p>There’s a statistically significant relationship. However, theoretically more weight (<code>wt</code>) and number of carburetors (<code>carb</code>) require a larger engine (<code>disp</code>), so it could actually be these two variables that increase fuel consumption. We can estimate the instrumental variable regression by two-stage least squares (2SLS) either manually or use the <code>ivreg</code> function from <code>AER</code> package. In the second stage there’s an option to either replace the endogenous variable with predicted values from 1st stage or just add residuals from the 1st stage. Note that the standard errors in the 2nd stage are incorrect when calculated manually as below.</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="ordinary-least-squares-regression.html#cb51-1"></a><span class="co"># Manually</span></span>
+<span id="cb51-2"><a href="ordinary-least-squares-regression.html#cb51-2"></a>ivModS1 &lt;-<span class="st"> </span><span class="kw">lm</span>(disp <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span>carb, mtcars)</span>
+<span id="cb51-3"><a href="ordinary-least-squares-regression.html#cb51-3"></a>(ivModS2Fit &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>ivModS1<span class="op">$</span>fitted, mtcars)) <span class="co"># Replace disp</span></span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ hp + ivModS1$fitted, data = mtcars)
+## 
+## Coefficients:
+##    (Intercept)              hp  ivModS1$fitted  
+##       30.88810        -0.01447        -0.03760</code></pre>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="ordinary-least-squares-regression.html#cb53-1"></a>(ivModS2Res &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>ivModS1<span class="op">$</span>residuals, mtcars)) <span class="co"># Add residuals</span></span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ hp + disp + ivModS1$residuals, data = mtcars)
+## 
+## Coefficients:
+##       (Intercept)                 hp               disp  
+##          30.88810           -0.01447           -0.03760  
+## ivModS1$residuals  
+##           0.03368</code></pre>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="ordinary-least-squares-regression.html#cb55-1"></a><span class="co"># AER::ivreg</span></span>
+<span id="cb55-2"><a href="ordinary-least-squares-regression.html#cb55-2"></a>ivModS2Ivreg &lt;-<span class="st"> </span>AER<span class="op">::</span><span class="kw">ivreg</span>(mpg <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>disp <span class="op">|</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span>carb, <span class="dt">data =</span> mtcars)</span>
+<span id="cb55-3"><a href="ordinary-least-squares-regression.html#cb55-3"></a><span class="kw">summary</span>(ivModS2Ivreg, <span class="dt">vcov =</span> sandwich<span class="op">::</span>sandwich, <span class="dt">diagnostics =</span> T)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## AER::ivreg(formula = mpg ~ hp + disp | hp + wt + carb, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.0066 -2.3808 -0.3478  1.8353  6.6258 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 30.888099   1.367368  22.589  &lt; 2e-16 ***
+## hp          -0.014474   0.009231  -1.568    0.128    
+## disp        -0.037596   0.007120  -5.280 1.16e-05 ***
+## 
+## Diagnostic tests:
+##                  df1 df2 statistic  p-value    
+## Weak instruments   2  28    66.105 2.48e-11 ***
+## Wu-Hausman         1  28     5.122   0.0316 *  
+## Sargan             1  NA     6.028   0.0141 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.178 on 29 degrees of freedom
+## Multiple R-Squared: 0.7399,  Adjusted R-squared: 0.722 
+## Wald test:  52.6 on 2 and 29 DF,  p-value: 2.252e-10</code></pre>
+<p>The <code>summary</code> output of <code>ivreg</code> includes three diagnostic tests given that <code>diagnostics = T</code> is passed to the function.</p>
+<div id="weak-instruments" class="section level3">
+<h3><span class="header-section-number">10.6.1</span> Weak instruments</h3>
+<p>The weakness of instruments can be estimated with an F-test to determine weather the instrument has an effect on the endogenous variable.</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="ordinary-least-squares-regression.html#cb57-1"></a><span class="kw">anova</span>(<span class="kw">lm</span>(disp <span class="op">~</span><span class="st"> </span>hp, mtcars), <span class="co"># Model without instruments</span></span>
+<span id="cb57-2"><a href="ordinary-least-squares-regression.html#cb57-2"></a>      <span class="kw">lm</span>(disp <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span>carb, mtcars)) <span class="co"># Model with instruments</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: disp ~ hp
+## Model 2: disp ~ hp + wt + carb
+##   Res.Df    RSS Df Sum of Sq      F    Pr(&gt;F)    
+## 1     30 178284                                  
+## 2     28  38378  2    139906 51.037 4.587e-10 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<blockquote>
+<p>H0: All instruments have no effect<br />
+H1: At least one of the instruments has an effect</p>
+</blockquote>
+</div>
+<div id="wu-hausmann-test" class="section level3">
+<h3><span class="header-section-number">10.6.2</span> Wu-Hausmann test</h3>
+<p>The coefficient for <code>disp</code> is efficient but potentially inconsistent. We can assess the consistency of the predictors in the OLS model by testing whether the model parameters given by OLS and IV models are different. This can be done with the (Durbin-)Wu-Hausman test where the test statistic is as follows.</p>
+<p><span class="math display">\[H = (b_{IV} - b_{OLS})^T(var(b_{IV}) - var(b_{OLS}))^{+}(b_{IV} - b_{OLS})\]</span></p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="ordinary-least-squares-regression.html#cb59-1"></a>(coefDiff &lt;-<span class="st"> </span><span class="kw">coef</span>(ivModS2Ivreg) <span class="op">-</span><span class="st"> </span><span class="kw">coef</span>(olsMod)) <span class="co"># Difference in coefficient vectors</span></span></code></pre></div>
+<pre><code>##  (Intercept)           hp         disp 
+##  0.152194751  0.010365781 -0.007249964</code></pre>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="ordinary-least-squares-regression.html#cb61-1"></a>(covDiff &lt;-<span class="st"> </span><span class="kw">vcov</span>(ivModS2Ivreg) <span class="op">-</span><span class="st"> </span><span class="kw">vcov</span>(olsMod)) <span class="co"># Difference of covariance matrices of coefficients</span></span></code></pre></div>
+<pre><code>##               (Intercept)            hp          disp
+## (Intercept)  0.0654566494  1.955037e-04 -3.642333e-04
+## hp           0.0001955037  3.768635e-05 -2.480745e-05
+## disp        -0.0003642333 -2.480745e-05  1.735066e-05</code></pre>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="ordinary-least-squares-regression.html#cb63-1"></a>(whStat &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">t</span>(coefDiff) <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(covDiff) <span class="op">%*%</span><span class="st"> </span>coefDiff)) <span class="co"># Wu-Hausman statistic</span></span></code></pre></div>
+<pre><code>## [1] 3.029394</code></pre>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="ordinary-least-squares-regression.html#cb65-1"></a><span class="kw">pchisq</span>(whStat, <span class="dt">df =</span> olsMod<span class="op">$</span>rank <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">lower.tail =</span> F) <span class="co"># Find the significance of the test statistic</span></span></code></pre></div>
+<pre><code>## [1] 0.2198747</code></pre>
+<blockquote>
+<p>H0: The predictor in the OLS model is not correlated to the error term and consistent<br />
+H1: The predictor in the OLS model is correlated to the error term and not consistent</p>
+</blockquote>
+<p><strong>!!! Different results !!!</strong></p>
+</div>
+<div id="sargan-test" class="section level3">
+<h3><span class="header-section-number">10.6.3</span> Sargan test</h3>
+<p>When we use more than one instrument, the restrictions may be overidentified. We can test this by calculationg a test statistic from the effects of exogenous variables on the residuals from the 2nd stage of IV model.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="ordinary-least-squares-regression.html#cb67-1"></a>sarMod &lt;-<span class="st"> </span><span class="kw">lm</span>(ivModS2Ivreg<span class="op">$</span>resid <span class="op">~</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>wt <span class="op">+</span><span class="st"> </span>carb, mtcars)</span>
+<span id="cb67-2"><a href="ordinary-least-squares-regression.html#cb67-2"></a>sarStat &lt;-<span class="st"> </span><span class="kw">summary</span>(sarMod)<span class="op">$</span>r.squared <span class="op">*</span><span class="st"> </span><span class="kw">nobs</span>(sarMod)</span>
+<span id="cb67-3"><a href="ordinary-least-squares-regression.html#cb67-3"></a>sarDf &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span> <span class="co"># Degrees of freedom: number of instruments - number of endogenous variables</span></span>
+<span id="cb67-4"><a href="ordinary-least-squares-regression.html#cb67-4"></a><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">pchisq</span>(sarStat, sarDf)</span></code></pre></div>
+<pre><code>## [1] 0.01407694</code></pre>
+<blockquote>
+<p>H0: All instruments are valid<br />
+H1: At least one of the instruments is not valid</p>
+</blockquote>
+<p>Here we reject the null hypothesis (<span class="math inline">\(\alpha = 0.05\)</span>) and assume that either <code>wt</code> or <code>carb</code> is not a valid instrument.</p>
+</div>
+</div>
+<div id="predictors-can-not-be-linearly-predicted-from-others-no-multicollinearity" class="section level2">
+<h2><span class="header-section-number">10.7</span> Predictors can not be linearly predicted from others (no multicollinearity)</h2>
+<p>When one predictor variable can be linearly predicted from others, the model parameters are sensitive to changes in model or data. We can evaluate multicollinearity by calculating a variance inflation factor (VIF) for each predictor. VIF expresses the variaton of a predictor that can be explained by other predictors in the model.</p>
+<p><span class="math display">\[VIF_{i} = \frac{1}{1 - R^{2}_{i}}\]</span></p>
+<p>Hence, it’s simple to caluculate manulally but we can also use the <code>vif</code> function from package <code>car</code>.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="ordinary-least-squares-regression.html#cb69-1"></a><span class="co"># Manually</span></span>
+<span id="cb69-2"><a href="ordinary-least-squares-regression.html#cb69-2"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">attributes</span>(mpgMod<span class="op">$</span>terms)<span class="op">$</span>term.labels) {</span>
+<span id="cb69-3"><a href="ordinary-least-squares-regression.html#cb69-3"></a>  formula &lt;-<span class="st"> </span><span class="kw">paste</span>(i, <span class="st">&quot;~&quot;</span>, </span>
+<span id="cb69-4"><a href="ordinary-least-squares-regression.html#cb69-4"></a>                   <span class="kw">paste</span>(<span class="kw">setdiff</span>(<span class="kw">attributes</span>(mpgMod<span class="op">$</span>terms)<span class="op">$</span>term.labels, i), <span class="dt">collapse =</span> <span class="st">&quot;+&quot;</span>))</span>
+<span id="cb69-5"><a href="ordinary-least-squares-regression.html#cb69-5"></a>  model &lt;-<span class="st"> </span><span class="kw">lm</span>(formula, mtcars)</span>
+<span id="cb69-6"><a href="ordinary-least-squares-regression.html#cb69-6"></a>  <span class="kw">print</span>(<span class="dv">1</span><span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">summary</span>(model)<span class="op">$</span>r.squared))</span>
+<span id="cb69-7"><a href="ordinary-least-squares-regression.html#cb69-7"></a>}</span></code></pre></div>
+<pre><code>## [1] 2.088124
+## [1] 3.774838
+## [1] NA</code></pre>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="ordinary-least-squares-regression.html#cb71-1"></a><span class="co"># car::vif</span></span>
+<span id="cb71-2"><a href="ordinary-least-squares-regression.html#cb71-2"></a>car<span class="op">::</span><span class="kw">vif</span>(mpgMod)</span></code></pre></div>
+<pre><code>##         hp         wt factor(am) 
+##   2.088124   3.774838   2.271082</code></pre>
+<p>The manual calculation did not yield a VIF value for <code>factor(am)</code> which should not be a problem since VIF is not very meaningful for nominal variables. A VIF value of &gt;10 is usually considered as a sign of high multicollinearity.</p>
+</div>
+<div id="todo" class="section level2">
+<h2><span class="header-section-number">10.8</span> TODO</h2>
+<ul>
+<li>Explain log-linear etc. models</li>
+</ul>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="measures-of-association.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="generalized-linear-models.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["datastatsr.pdf"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

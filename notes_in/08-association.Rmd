@@ -1,0 +1,7 @@
+# Measures of association
+
+## Correlation
+
+## Goodness of fit and coefficent of determination 
+
+## Regression
