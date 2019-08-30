@@ -1,0 +1,15 @@
+# Measures of association
+
+## Contingency table
+
+table()
+
+### Odds ratio
+
+### Chi2 test
+
+## Correlation
+
+## Goodness of fit and coefficent of determination 
+
+## Regression

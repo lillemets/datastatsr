@@ -1,0 +1,43 @@
+# R in practice
+
+## RStudio
+
+Installation and interface
+
+## Data preparation and tidying
+
+### Wide and long format
+
+reshape()
+
+### Combining
+
+cbind, rbind
+
+merge
+
+## Aggregation
+
+aggregate
+
+### Duplication
+
+unique, duplicated
+
+### String manipulation
+
+substr, substring, grep, grepl, sub, gsub
+
+xkcd: perl_problems
+
+## Functions
+
+Brief introduction
+
+Arguments etc.
+
+## Repetitive processing
+
+For loops, the apply family
+
+ifelse, for, lapply, sapply

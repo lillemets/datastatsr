@@ -1,0 +1,8 @@
+# Inferential statistics
+
+## Sample and population, distributions
+
+## Hypothesis testing
+
+Parametric vs non-parametric tests.
+

@@ -1,0 +1,8 @@
+# Generalized linear models
+
+## Link functions in R
+
+## Binary
+
+Logit, probit, ROC curve etc
+

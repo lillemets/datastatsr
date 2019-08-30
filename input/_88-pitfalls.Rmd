@@ -1,0 +1,17 @@
+# Pitfalls in quantitative analysis
+
+See https://www.statisticsdonewrong.com/index.html. 
+
+## Time series
+
+xkcd: cell_phones
+
+### Extrapolating
+
+xkcd: extrapolating
+
+## Causality
+
+## Ecological fallacy
+
+## Percentage and percentage points
