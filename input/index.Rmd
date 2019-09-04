@@ -22,20 +22,17 @@ Getting help: ? command, Stackoverflow
 
 Based on S language orginating from 1970's. Developed during 1990's and became public around 2000.
 
-Language and environment. Programming language similar to any other but developed paricularly for data analysis. Flexible and extensible environment as opposed to many statistical packages. Command line interface.
+Language and environment. 
 
-Statistical computing and graphics. Includes many statistical procedures for various fields. Constantly extended by the community with novel methods. Abundant possibilities for plotting data
+- Programming language similar to any other but developed paricularly for data analysis. 
+- Flexible and extensible environment as opposed to many statistical packages. 
+- Command line interface.
 
-![http://r4stats.com/2016/06/08/r-passes-sas-in-scholarly-use-finally/](../img/ruse.png)
+Statistical computing and graphics.
 
-Free and open source as opposed to most statistical packages. Powerful. Allows for reproducibile analysis. Extensible. Active community. 
-
-Command line interface
-
-![](../img/rconsole.png)
-
-Apply functions on objects. Data is not constantly visible. No undo. Multiple ways to get the same result.
-
+- Includes many statistical procedures for various fields. 
+- Constantly extended by the community with novel methods. 
+- Abundant possibilities for plotting data
 
 ```{r include=FALSE}
 # automatically create a bib database for R packages

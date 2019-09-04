@@ -1,0 +1,354 @@
+# Basic data management in R
+
+## Basic R use
+
+### Arithmetics
+
+R is a functional programming language. One of the implications of this is that R evaluates expressions and returns the result instead of assigning values to variables through statements. This functionality of R includes basic arithmetic functions. 
+
+``` {r, eval = F}
+5 + 2 # Addition
+5 - 2 # Subtraction
+5 * 2 # Multiplication
+5 / 2 # Division
+```
+
+Some less common arithmetic operators can also be used.
+
+``` {r}
+5 %% 2 # Return only the remainder of division
+5 %/% 2 # Return the result of division without remainder
+```
+
+Some more advanced mathematical expressions can also be evaluated using R. Most of these require input to be explicitly passed to functions instead of using operators as in the previous example.
+
+``` {r}
+5 ^ 2 # 5 to the power of 2
+sqrt(25) # Square root of 25
+exp(1) # Exponent
+log(5) # Natural logarithm
+```
+
+Finally, the order of operations can be set with parenthesis.
+
+``` {r}
+5 - 2 * 3
+5 - (2 * 3)
+```
+
+Thus, for users comfortable with typing, R can also function as a very handy and advanced calculator.
+
+### Relational operators
+
+For the comparison of two objects, relational operators are used in R. 
+
+``` {r, eval = F}
+5 > 2 # 5 is greater than 2
+5 < 2 # 5 is less than 2
+2 >= 2 # 2 is equal to or greater than 2
+2 >= 5 # 5 is equal to or less than 2
+5 == 2 # 5 is equal to 2
+2 != 2 # 2 is not equal to 2
+```
+
+If the sides of the operator contain uneven number of elements, these will be recycled. 
+
+``` {r, eval = F}
+5 > c(2, 5) # 5 is greater than 2, 5 is greater than 5
+```
+
+Naturally, all of these operators also work on character objects.  
+
+``` {r}
+"String" == "String"
+"String" != "String"
+```
+
+A very useful operator `%in%` can also be considered as a relational operator, evaluating whether or not an identical element is included in another object.
+
+``` {r}
+5 %in% c(2, 5) # 5 is an element of a vector containing 2 and 
+"String" %in% c(2, 5)
+```
+
+### Logical operators
+
+Boolean logic is useful to compare objects of type logical (i.e. `TRUE` and `FALSE`)
+
+``` {r}
+TRUE | FALSE # True or false is true
+TRUE & FALSE # True and false are both true
+!TRUE # The opposite of true
+```
+
+![https://r4ds.had.co.nz/transform.html#introduction-2](../img/logop.png)
+
+Of course, these operators are not very useful for comparison of logical objects explicitly but are helpful together with expressions. 
+
+``` {r, eval = F}
+5 == 2 | 5 > 2 # 5 equals 2 or 5 is larger than 2
+```
+
+### Assignment
+
+Data in R is stored in objects. In most cases, values are assigned to objects by assignment operators. In a lot of programming languages, `=` is used for assignment. This works in R, too (which is why `==` must not be confused with `=`). However, for historical reasons it is customary to use ` <- ` for assignment in R. Object names can contain numbers, letters and punctuation marks but never start with a number. 
+
+``` {r}
+(a <- 5)
+(a = 5)
+```
+
+When an assignment is passed to R in parenthesis, it will also be printed in addition to the assignment.
+
+Note that the assignment operator must always be enclosed with spaces, otherwise R might evaluate the assignment as a comparison if you accidentally type a space.
+
+``` {r}
+a <- 5 # Assign 5 to a
+a< -5 # a is greater than -5
+```
+
+Another way to assign values is to use the `assign()` function but this usually better to be avoided.
+
+### Set operations
+
+Although rarely necessary, operations on sets can be helpful to return specific elements from vectors.
+
+``` {r}
+a <- c(2, 2, 5, "String")
+b <- c(1:3)
+union(a, b) # All elements of a and b
+intersect(a, b) # Elements in both a and b
+setdiff(a, b) # Elements in a but not in b
+setdiff(a, b) # a and b contain the same elements
+```
+
+While `union()` and `setdiff()` may seem to be the same as `c()` and `identical()` respectively, the set functions presented here behave differenly because they ignore duplications and ordering of elements. 
+
+## Data structures
+
+### Levels of measurement
+
+Traditional (S. S. Stevens)
+
+- Nominal
+- Ordinal
+- Interval
+- Ratio
+
+Conventional scales
+
+- Categorical/qualitative
+  - Binary/dichotomous/boolean/logical
+  - Nominal
+  - Ordinal/ranked
+- Numeric/quantitative
+  - Continuous
+  - Discrete
+    - Interval
+    - Ratio
+
+In R
+
+- Logical
+- Character
+- (Factor)
+- Integer
+- Double
+
+Missing values in R
+
+- NA - Not available/applicable
+- NaN - Not a number
+- Inf - positive infinite
+- -Inf - Negative infinite
+
+### Types of objects in R
+
+Dimensions | Homogenous | Heterogenous |
+| --- | --- | --- |
+| 1 | Vector, c() | List, list() |
+| 2 | Matrix, matrix() | Data frame, data.frame() |
+| >2 | Array, array() | |
+
+To determine type and class of an object: `typeof()`, `class()`, `is.*...()*`
+
+To treat object as if it was of a certain type: `as.*...()*`.
+
+### Subsetting
+
+Vectors
+
+``` {r}
+a <- letters[1:12]
+a[2]
+a[-2]
+a[c(1, 3, 5)]
+```
+
+Lists
+
+``` {r}
+a <- list(Letters = letters[1:12], Numbers = 1:10)
+a$Letters
+a[1]
+a[[1]]
+a[[1]][1]
+```
+
+Matrices
+
+``` {r}
+(a <- matrix(1:9, 3, 3))
+a[1]
+a[1, ]
+a[, 1]
+```
+
+Data.frames
+
+``` {r}
+mtcars$mpg
+mtcars[, 1]
+mtcars[1:10, ]
+```
+
+Using logical operators. 
+
+```
+mtcars$mpg > 20
+mtcars[mtcars$mpg > 20, ]
+```
+
+Using indexes. 
+
+``` {r}
+order(mtcars$mpg)
+mtcars[order(mtcars$mpg), ]
+```
+
+`order()` returns indexes while `sort()` returns the elements.
+
+## Workspace management
+
+To set working directory for the session: `setwd()`. On Windows filesystem, `\` needs to be escaped (`\\`) or replaced with `/`. When working directory is set, all file paths must be relative to the specified directory. To return current working directory: `getwd()`. 
+
+To list all objects on workspace: `ls()`. To remove an object: `rm()`; and to remove all objects: `rm(list = ls())`. 
+
+## Data sources and managing data
+
+Natively R supports only plain text (e.g. `.csv`) and its native (`.Rdata` and `.Rds`) data formats. Most widely used plain text data format, the Comma-Separated Values (`.csv`) can be loaded by a dedicated function `read.csv()` by providing a location on disk or a url. For an alternative `.csv` where values are separated by semicolons is the `read.csv2()` function. For other plain text formats, `read.table()` allows to specify various attributes. When values are separated by tabs use `sep = \t`. 
+
+``` {r, eval = F}
+mtCars <- read.csv('some_file.csv`, stringsAsFactors = F)
+```
+
+When some data is used exclusively in R, the native R data formats should be used as these allow more efficient data compression. All objects currently on workspace can be saved with `save.image()` function and loaded afterwards using `load()`. In this case, `.Rdata` file should be used. 
+
+``` {r, eval = F}
+save.image('some_data.Rdata')
+load('some_data.Rdata')
+```
+
+Sometimes it is necessary to only save a single object on workspace. Then the extension should be `.Rds` and the corresponding commands are `saveRDS` and `readRDS`. 
+
+``` {r, eval = F}
+saveRDS(a, 'some_data.Rds')
+readRDS('some_data.Rds')
+```
+
+All common data formats native to other software can also be loaded into R, but this requires relevant libraries to be loaded. The `foreign` package contains functions to load data of other statistical packages, e.g. SAS, SPSS and Stata. For Excel formats, `readxl::read_excel` loads `.xlx` as well as `.xlsx` files while the `openxlsx` library provides functions to meticulously edit and save Excel workbooks.
+
+### Understanding a dataset
+
+Once a dataset is loaded into R, it's a good idea to get an understanding of it. While an entire object can be viewed using `View()`, this is not feasible for anything but small tables. Instead, `structure()` (`str()`) displays an overview of all columns in a data frame, `names()` lists the names of all columns and `summary()` gives some statistics on the values of each column. 
+
+``` {r}
+str(mtcars)
+summary(mtcars)
+names(mtcars)
+head(mtcars)
+tail(mtcars)
+```
+
+## R style guide
+
+See: [adv-r.had.co.nz](http://adv-r.had.co.nz/Style.html) 
+
+## Some R principles
+
+### Objects and functions
+
+[*John Chambers*](http://adv-r.had.co.nz/Functions.html):
+
+> To understand computations in R, two slogans are helpful:
+>
+> - Everything that exists is an object.
+> - Everything that happens is a function call.
+
+### Function arguments
+
+Function arguments are read by (1) complete name, (2) partial name, or (3) position.
+
+``` {r, eval = F}
+# All of these give the same result
+quantile(x = mtcars$mpg, probs = .9, na.rm = F)
+quantile(probs = .9, na.rm = F, x = mtcars$mpg)
+quantile(pr = .9, nam = F, x = mtcars$mpg)
+quantile(mtcars$mpg, .9, F)
+```
+
+### Vectors need to be explicity defined as such
+
+Any vector needs to be passed inside the `c()` function.
+
+``` {r, eval = F}
+a <- 1:12
+a[1,2,3,5,8] # This is does not work
+a[c(1,2,3,5,8)] # This is does work
+```
+
+### Characters must be in quotation marks
+
+Othewise R will interpret them as references to objects and attempts to find them.
+
+``` {r, eval = F}
+a <- c(a, b, c) # This attempts to add existing objects a, b and c
+a <- c('a', 'b', 'c') # This adds character elements
+```
+
+### Environments
+
+R searches for objects in an environment where an operation is done. When it does not find an object there, it will incrementally search in higher environments.
+
+This means that when you give an object a name that already exists in base R and then refer to it, R will use the object in workspace.
+
+``` {r}
+sum(1, 10)
+sum <- function(...) Reduce(`-`, ...)
+sum(1, 10)
+```
+
+It also means that R first look for objects inside function calls and when not found, look at workspace.
+
+``` {r}
+a <- "Cow"
+say <- function() print(a)
+say()
+say <- function() {a <- "Sheep"; print(a)}
+say()
+```
+
+### Recycling
+
+``` {r}
+(a <- 1:2)
+(b <- 1:3)
+a + b
+```
+
+### Lazy evaluation
+
+``` {r}
+someFun <- function(x, y) print(x)
+someFun(x = "Hello world!")
+```

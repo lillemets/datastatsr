@@ -4,7 +4,7 @@
     <title>Introduction</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jüri Lillemets" />
-    <meta name="date" content="2019-08-19" />
+    <meta name="date" content="2019-09-04" />
     <link rel="stylesheet" href="minimal.css" type="text/css" />
     <link rel="stylesheet" href="fonts.css" type="text/css" />
   </head>
@@ -15,16 +15,34 @@ class: center, middle, inverse, title-slide
 # Introduction
 ## Research Methods <br> Data and statistics with R <br><br>
 ### Jüri Lillemets
-### 2019-08-19
+### 2019-09-04
 
 ---
 
 
 
 
-class: center middle
+# Time schedule of the meeting
 
-## *"There are three kinds of lies: lies, damned lies, and statistics"*
+![](00_introduction_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+
+---
+
+# Quiz on previous knowledge
+
+The results are irrelevant for your final grade.
+
+11 questions, 30 minutes.
+
+Multiple choice questions.
+
+There may be multiple correct answers or only one.
+
+---
+
+class: middle
+
+&gt; "There are three kinds of lies: lies, damned lies, and statistics"
 
 ???
 Quantitative vs data and statistics
@@ -129,6 +147,22 @@ Command line interface
 
 ---
 
+# Why not?
+
+--
+
+A steep learining curve
+
+--
+
+Inconsistencies
+
+--
+
+Limited use of hardware
+
+---
+
 # How?
 
 Apply functions on objects
@@ -149,7 +183,135 @@ Multiple ways to get the same result
 
 class: center middle inverse
 
-# Aims of the course
+# Some dichotomies in statistics
+
+---
+
+# Descriptive vs inferential statistics
+
+.pull-left[Descriptive
+
+- Population
+- Simple measures, e.g. mean
+- Describing
+]
+
+
+.pull-right[Inferential
+
+- Sample
+- Point estimates and intervals
+- Drawing inferences and generalizing
+]
+
+---
+
+# Frequentist vs bayesian approach
+
+
+.pull-left[Frequentist
+
+- Traditional
+- What's the probability of data given some estimate?
+- Prior information is not relevant
+- Single parametric inference
+]
+
+
+.pull-right[Bayesian
+
+- Modern application
+- What's the probability of an estimate?
+- Construction of a prior
+- Multiplication of an inference to get a posterior estimate
+]
+
+We will focus on the Frequentist approach.
+
+---
+
+class: center
+
+.width-40[![https://imgs.xkcd.com/comics/frequentists_vs_bayesians.png](../img/frequentists_vs_bayesians.png)]
+
+---
+
+# Statistics vs data *science*, machine learning, aritficial intelligence ...
+
+.pull-left[Statistics
+
+- Less data
+- Clean datasets
+- Traditonal methods
+- Mathematics and calculations
+- Aim is to explain
+]
+
+
+.pull-left[Data *science*
+
+- Big data
+- Data in various formats and untidy
+- New methods
+- Programming approach
+- Aim is to predict
+]
+
+---
+
+class: center
+
+![https://imgs.xkcd.com/comics/machine_learning.png](../img/machine_learning.png)
+
+---
+
+class: center middle inverse
+
+# About the course
+
+---
+
+# Topics
+
+- R use
+  - Basic data management in R
+  - R in practice
+  - Extending basic R functionality
+- Descriptive statistics
+  - Introduction to descriptive statistics
+  - Data visualization
+  - Measures of association
+- Inferential statistics and regression modelling
+  - Introduction to inferential statistics
+  - Ordinary least squares (OLS)
+  - Generalized linear models (GLM)
+  - GLM for categorical variables
+  - Panel data methods
+
+---
+
+# What you should learn
+
+--
+
+Acquire skills on how to use R for managing and analyzing data
+
+--
+
+Become able to solve common problems in data management and preparation for analysis
+
+--
+
+Gain an understanding of the underlying ideas and concepts in statistics, especially inferential statistics
+
+--
+
+Get acquainted with some most common methods in statistics and know when to implement them
+
+--
+
+
+Be prepared to choose and apply a suitable statistical method for the research problem your master's thesis (and perhaps in your future career)
 
 ---
 
@@ -169,7 +331,7 @@ class: center middle
 hist(mtcars$hp, 20)
 ```
 
-![](00_introduction_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+![](00_introduction_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
 
 ```r
 summary(mtcars$hp)
@@ -211,9 +373,37 @@ summary(lm(hp ~ cyl, mtcars))
 
 ---
 
-class: center middle inverse
+# Grading
 
-That's it!
+The final grade for the course consists of the following elements
+
+Qua**nt**itative part: 50%
+
+&gt; 10 short tests, 5% each
+
+Qua**l**itative part: 20%
+
+&gt; Individual assignments
+
+Master's thesis project: 30%
+
+&gt; Project document and presentation
+
+---
+
+# Moodle
+
+Please register to the course.
+
+Quizzes
+
+Reading
+
+Slides
+
+---
+
+class: center middle inverse
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

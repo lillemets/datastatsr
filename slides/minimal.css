@@ -28,6 +28,10 @@ h3 {
     font-size: 28px;
 }
 
+a, a:link, a:visited, a:focus, a:hover, a:active{
+  color: #0086B3;
+}
+
 
 .inverse {
   background-color: #222;
@@ -86,6 +90,9 @@ h3 {
   color: #998;
 }
 
+.width-90 img {
+  max-width: 90%;
+}
 .width-80 img {
   max-width: 80%;
 }
@@ -97,6 +104,12 @@ h3 {
 }
 .width-50 img {
   max-width: 50%;
+}
+.width-40 img {
+  max-width: 40%;
+}
+.width-30 img {
+  max-width: 30%;
 }
 
 /* Two-column layout */

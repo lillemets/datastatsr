@@ -1,0 +1,68 @@
+# R in practice
+
+## RStudio
+
+See: [rstudio.com](https://www.rstudio.com/products/rstudio/)
+
+## Wide and long format
+
+See: [en.wikipedia.org](https://en.wikipedia.org/wiki/Wide_and_narrow_data)
+
+Reshape with `reshape()`
+
+See: [stats.idre.ucla.edu](https://stats.idre.ucla.edu/r/faq/how-can-i-reshape-my-data-in-r/)
+
+## Combining
+
+Combine columns and rows with `cbind()` and `rbind()`
+
+Merge data frames with `merge()`
+
+## Aggregation
+
+Aggregate data with `aggregate()`
+
+## Duplication
+
+Determine the uniqueness of values with `unique()` and `duplicated()`
+
+## String manipulation
+
+Get a part of a string with `substr()`, substring() 
+
+Match a pattern with `grep()` and `grepl()`
+
+Substitute a pattern with `sub()` and `gsub()`
+
+### Regular expressions
+
+See: [stat545.com](https://stat545.com/block022_regular-expression.html)
+
+![https://imgs.xkcd.com/comics/perl_problems.png](../img/perl_problems.png)
+
+## Functions
+
+See: [adv-r.had.co.nz](http://adv-r.had.co.nz/Functions.html)
+
+## Repetitive processing
+
+### Replicate
+
+Replicate an expression with `replicate()`
+
+### Ifelse
+
+Evaluate a logical expression and apply a function when `TRUE` with `ifelse()`. Vectorized, i.e. requires and returns an element or a vector.
+
+### For-loops
+
+``` {r}
+for (i in 1:4) {
+  print(1 + i)
+}
+```
+
+### Apply functions
+
+See: [stakoverflow.com](https://stackoverflow.com/questions/3505701/grouping-functions-tapply-by-aggregate-and-the-apply-family)
+

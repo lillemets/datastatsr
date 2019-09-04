@@ -1,0 +1,9 @@
+# GLM for categorical variables
+
+## Ordered logit
+
+## Multinomial logit
+
+## Count data
+
+

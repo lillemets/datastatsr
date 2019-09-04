@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Basic data management in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-04" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Basic data management in R
+## Research Methods <br> Data and statistics with R <br><br>
+### Jüri Lillemets
+### 2019-09-04
+
+---
+
+
+
+
+class: center middle inverse
+
+# Basic R use
+
+---
+
+# Arithmetics
+
+R recognizes basic aritmetic operators.
+
+
+```r
+5 + 2 # Addition
+5 - 2 # Subtraction
+5 * 2 # Multiplication
+5 / 2 # Division
+```
+
+--
+
+Some less common operations are also possible.
+
+
+```r
+5 %% 2 # Return only the remainder of division
+```
+
+```
+## [1] 1
+```
+
+```r
+5 %/% 2 # Return the result of division without remainder
+```
+
+```
+## [1] 2
+```
+
+---
+
+A bit more advanced mathematical expressions.
+
+
+```r
+5 ^ 2 # 5 to the power of 2
+```
+
+```
+## [1] 25
+```
+
+```r
+sqrt(25) # Square root of 25
+```
+
+```
+## [1] 5
+```
+
+```r
+exp(1) # Exponent
+```
+
+```
+## [1] 2.718282
+```
+
+```r
+log(5) # Natural logarithm
+```
+
+```
+## [1] 1.609438
+```
+
+---
+
+Finally, the order of operations can be set with parenthesis.
+
+
+```r
+5 - 2 * 3
+```
+
+```
+## [1] -1
+```
+
+```r
+(5 - 2) * 3
+```
+
+```
+## [1] 9
+```
+
+---
+
+# Relational operators
+
+For the comparison of two objects, relational operators are used in R. 
+
+
+```r
+5 &gt; 2 # 5 is greater than 2
+5 &lt; 2 # 5 is less than 2
+2 &gt;= 2 # 2 is equal to or greater than 2
+2 &gt;= 5 # 5 is equal to or less than 2
+5 == 2 # 5 is equal to 2
+2 != 2 # 2 is not equal to 2
+```
+
+--
+
+If the sides of the operator contain uneven number of elements, these will be recycled. 
+
+
+```r
+5 &gt; c(2, 5, 12) # 5 is greater than 2, 5 is greater than 5
+```
+
+```
+## [1]  TRUE FALSE FALSE
+```
+
+---
+
+Naturally, all of these operators also work on character objects.  
+
+
+```r
+"String" == "String"
+```
+
+```
+## [1] TRUE
+```
+
+```r
+"String" != "String"
+```
+
+```
+## [1] FALSE
+```
+
+---
+
+Operator `%in%` evaluates whether or not an identical element is also included in another object.
+
+
+```r
+5 %in% c(2, 5) # 5 is an element of a vector containing 2 and 
+```
+
+```
+## [1] TRUE
+```
+
+```r
+"String" %in% c(2, 5)
+```
+
+```
+## [1] FALSE
+```
+
+---
+
+# Logical operators
+
+Boolean logic is useful to compare objects of type logical (i.e. `TRUE` and `FALSE`)
+
+
+```r
+TRUE | FALSE # True or false is true
+```
+
+```
+## [1] TRUE
+```
+
+```r
+TRUE &amp; FALSE # True and false are both true
+```
+
+```
+## [1] FALSE
+```
+
+```r
+!TRUE # The opposite of true
+```
+
+```
+## [1] FALSE
+```
+
+---
+
+![https://r4ds.had.co.nz/transform.html#introduction-2](../img/logop.png)
+
+---
+
+# Common use for the operators
+
+Subsetting
+
+
+```r
+beans &lt;- agridat::besag.beans
+beans[beans$gen ==  'Metissa' &amp; beans$yield &gt; 400, ]
+```
+
+```
+##         gen height yield row rep col
+## 24  Metissa     61   540   1  R4  24
+## 27  Metissa     58   510   1  R5  27
+## 40  Metissa     52   470   2  R1   2
+## 56  Metissa     54   450   2  R3  18
+## 67  Metissa     63   425   2  R5  29
+## 75  Metissa     57   435   2  R6  37
+## 76  Metissa     56   550   2  R0  38
+## 88  Metissa     53   465   3  R2  12
+## 91  Metissa     51   455   3  R3  15
+## 99  Metissa     61   470   3  R4  23
+## 107 Metissa     63   520   3  R5  31
+## 126 Metissa     49   405   4  R2  12
+## 145 Metissa     54   555   4  R5  31
+```
+
+---
+
+For `ifelse()`
+
+
+```r
+head(beans)
+```
+
+```
+##       gen height yield row rep col
+## 1   Maris     92   395   1  R0   1
+## 2   Maris     90   350   1  R1   2
+## 3   Dwarf     37   230   1  R1   3
+## 4  Minica     66   355   1  R1   4
+## 5  Stella     98   370   1  R1   5
+## 6 Topless     66   280   1  R1   6
+```
+
+```r
+beans$yield &lt;- ifelse(beans$col &gt;= 4, beans$yield + 100, beans$yield)
+head(beans)
+```
+
+```
+##       gen height yield row rep col
+## 1   Maris     92   395   1  R0   1
+## 2   Maris     90   350   1  R1   2
+## 3   Dwarf     37   230   1  R1   3
+## 4  Minica     66   455   1  R1   4
+## 5  Stella     98   470   1  R1   5
+## 6 Topless     66   380   1  R1   6
+```
+
+---
+
+Control structures
+
+
+```r
+someSwitch &lt;- 2
+if (exists('someSwitch') &amp; someSwitch &gt; 1) print("&gt;1") else print("&lt;=1 or NA")
+```
+
+```
+## [1] "&gt;1"
+```
+
+---
+
+# Assignment
+
+Data in R is stored in objects. 
+
+
+```r
+(someElement &lt;- 5)
+```
+
+```
+## [1] 5
+```
+
+```r
+(someElement = 5)
+```
+
+```
+## [1] 5
+```
+
+```r
+someElement == 5
+```
+
+```
+## [1] TRUE
+```
+
+---
+
+class: middle
+
+&gt; There are only two hard things in Computer Science: cache invalidation and naming things.
+
+.right[Phil Karlton]
+
+---
+
+Object names can contain numbers, letters and punctuation marks but never start with a number. 
+
+
+```r
+1number &lt;- 12
+oneNumber &lt;- 1
+a.number &lt;- 2
+a_number &lt;- 5
+number10 &lt;- 10
+```
+
+```
+## Error: &lt;text&gt;:1:2: unexpected symbol
+## 1: 1number
+##      ^
+```
+
+---
+
+Note that the assignment operator must always be enclosed with spaces, otherwise R might evaluate the assignment as a comparison if you accidentally type a space.
+
+
+```r
+someNum &lt;- 5 # Assign 5 to someNum
+someNum&lt; -5 # someNum is greater than -5
+```
+
+```
+## [1] FALSE
+```
+
+---
+
+# Set operations
+
+Although rarely necessary, operations on sets can be helpful to return specific elements from vectors.
+
+
+```r
+a &lt;- c(2, 2, 5, "String")
+b &lt;- c(1:3)
+union(a, b) # All elements of a and b
+```
+
+```
+## [1] "2"      "5"      "String" "1"      "3"
+```
+
+```r
+intersect(a, b) # Elements in both a and b
+```
+
+```
+## [1] 2
+```
+
+```r
+setdiff(a, b) # Elements in a but not in b
+```
+
+```
+## [1] "5"      "String"
+```
+
+```r
+setequal(a, b) # Do a and b contain all the same elements?
+```
+
+```
+## [1] FALSE
+```
+
+The set functions ignore duplications and ordering of elements. 
+
+---
+
+# Help
+
+To get help on any function, type its name preceded by a question mark, e.g. `?union`
+
+---
+
+class: center middle inverse
+
+# Data types and structures
+
+---
+
+# Levels of measurement
+
+Traditional ([S. S. Stevens](http://psychology.okstate.edu/faculty/jgrice/psyc3214/Stevens_FourScales_1946.pdf))
+
+- Nominal
+- Ordinal
+- Interval
+- Ratio
+
+---
+
+# Conventional scales
+
+- Categorical/qualitative
+  - Binary/dichotomous/boolean/logical
+  - Nominal
+  - Ordinal/ranked
+- Numeric/quantitative
+  - Discrete
+  - Continuous
+      - Interval
+      - Ratio
+
+---
+
+# In R
+
+Levels of measurement
+
+- Logical
+- Character
+- Integer
+- Double (floating point numbers)
+
+--
+
+Types of data
+
+- logical
+- character
+- factor
+- numeric
+    - integer
+    - double
+
+
+---
+
+# Factors
+
+---
+
+# Missing values in R
+
+- NA - Not available/applicable
+- NaN - Not a number
+- Inf - positive infinite
+- -Inf - Negative infinite
+
+--
+
+Subsetting missing values: `is.na()`, `is.nan()`, `is.infinite()`, `is.finite()`.
+
+---
+
+How to remove missing values from data.frame?
+
+
+```r
+potatoes &lt;- agridat::yates.missing
+potatoes[is.na(potatoes$y), ] # Return rows where infection intensity is missing
+```
+
+```
+##    trt block  y
+## 5   NK   B01 NA
+## 17   0   B03 NA
+## 40 NKP   B05 NA
+## 47  KP   B06 NA
+## 48 NKP   B06 NA
+## 50   N   B07 NA
+## 54  NP   B07 NA
+## 60   P   B08 NA
+## 62  NP   B08 NA
+```
+
+```r
+potatoes &lt;- potatoes[!is.na(potatoes$y), ]
+```
+
+---
+
+# Types of objects in R
+
+| Dimensions | Homogenous | Heterogenous |
+| --- | --- | --- |
+| 1 | Vector, `c()` | List, `list()` |
+| 2 | Matrix, `matrix()` | Data frame, `data.frame()` |
+| &gt;2 | Array, `array()` | |
+
+--
+
+To determine type and class of an object: `typeof()`, `class()`, `is.*...()*`
+
+---
+
+To treat object as if it was of a certain type: `as.*...()*`.
+
+
+```r
+(someNumbers &lt;- c(1, 2, 5, 10))
+```
+
+```
+## [1]  1  2  5 10
+```
+
+```r
+as.list(someNumbers)
+```
+
+```
+## [[1]]
+## [1] 1
+## 
+## [[2]]
+## [1] 2
+## 
+## [[3]]
+## [1] 5
+## 
+## [[4]]
+## [1] 10
+```
+
+---
+
+class: center middle inverse
+
+# Subsetting
+
+---
+
+# Vectors
+
+
+```r
+(someVector &lt;- letters[1:12])
+```
+
+```
+##  [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l"
+```
+
+```r
+someVector[2]
+```
+
+```
+## [1] "b"
+```
+
+```r
+someVector[-2]
+```
+
+```
+##  [1] "a" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l"
+```
+
+```r
+someVector[c(1, 3, 5)]
+```
+
+```
+## [1] "a" "c" "e"
+```
+
+---
+
+# Lists
+
+
+```r
+(someList &lt;- list(Letters = letters[1:12], Numbers = 1:10))
+```
+
+```
+## $Letters
+##  [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l"
+## 
+## $Numbers
+##  [1]  1  2  3  4  5  6  7  8  9 10
+```
+
+```r
+someList$Letters
+```
+
+```
+##  [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l"
+```
+
+```r
+someList[1]
+```
+
+```
+## $Letters
+##  [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l"
+```
+
+---
+
+
+```r
+someList[[1]]
+```
+
+```
+##  [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l"
+```
+
+```r
+someList[[1]][1]
+```
+
+```
+## [1] "a"
+```
+
+---
+
+# Matrices
+
+
+```r
+(someMatrix &lt;- matrix(1:9, 3, 3))
+```
+
+```
+##      [,1] [,2] [,3]
+## [1,]    1    4    7
+## [2,]    2    5    8
+## [3,]    3    6    9
+```
+
+```r
+someMatrix[1]
+```
+
+```
+## [1] 1
+```
+
+```r
+someMatrix[1, ]
+```
+
+```
+## [1] 1 4 7
+```
+
+```r
+someMatrix[, 1]
+```
+
+```
+## [1] 1 2 3
+```
+
+---
+
+# Data.frames
+
+
+```r
+barley &lt;- agridat::student.barley[1:6, ]
+barley
+```
+
+```
+##   year   farmer        place     district    gen yield income
+## 1 1901 McCarthy Ballinacurra         Cork Archer   180    180
+## 2 1901  Hawkins    Whitegate         Cork Archer   163    163
+## 3 1901     Dwan      Thurles CentralPlain Archer   242    233
+## 4 1901    Wolfe       Nenagh CentralPlain Archer   176    173
+## 5 1902 McCarthy Ballinacurra         Cork Archer   198    173
+## 6 1902  Hawkins    Whitegate         Cork Archer   224    212
+```
+
+---
+
+
+```r
+barley[1]
+```
+
+```
+##   year
+## 1 1901
+## 2 1901
+## 3 1901
+## 4 1901
+## 5 1902
+## 6 1902
+```
+
+```r
+barley[[1]]
+```
+
+```
+## [1] 1901 1901 1901 1901 1902 1902
+```
+
+---
+
+
+```r
+barley$year
+```
+
+```
+## [1] 1901 1901 1901 1901 1902 1902
+```
+
+```r
+barley[, 1]
+```
+
+```
+## [1] 1901 1901 1901 1901 1902 1902
+```
+
+```r
+barley[, 1, drop = F]
+```
+
+```
+##   year
+## 1 1901
+## 2 1901
+## 3 1901
+## 4 1901
+## 5 1902
+## 6 1902
+```
+
+```r
+barley[1:3, ]
+```
+
+```
+##   year   farmer        place     district    gen yield income
+## 1 1901 McCarthy Ballinacurra         Cork Archer   180    180
+## 2 1901  Hawkins    Whitegate         Cork Archer   163    163
+## 3 1901     Dwan      Thurles CentralPlain Archer   242    233
+```
+
+---
+
+# Using logical operators or indexes
+
+.pull-left[
+Using logical operators. 
+
+
+```r
+barley$farmer == 'McCarthy'
+```
+
+```
+## [1]  TRUE FALSE FALSE FALSE  TRUE FALSE
+```
+
+```r
+barley[barley$farmer == 'McCarthy', ]
+```
+
+```
+##   year   farmer        place district    gen yield income
+## 1 1901 McCarthy Ballinacurra     Cork Archer   180    180
+## 5 1902 McCarthy Ballinacurra     Cork Archer   198    173
+```
+]
+
+.pull-right[
+Using indexes. 
+
+
+```r
+which(barley$farmer == 'McCarthy')
+```
+
+```
+## [1] 1 5
+```
+
+```r
+barley[which(barley$farmer == 'McCarthy'), ]
+```
+
+```
+##   year   farmer        place district    gen yield income
+## 1 1901 McCarthy Ballinacurra     Cork Archer   180    180
+## 5 1902 McCarthy Ballinacurra     Cork Archer   198    173
+```
+]
+
+---
+
+# Sorting data frame rows
+
+`order()` returns indexes while `sort()` returns the elements.
+
+
+```r
+sort(barley$yield)
+```
+
+```
+## [1] 163 176 180 198 224 242
+```
+
+```r
+order(barley$yield)
+```
+
+```
+## [1] 2 4 1 5 6 3
+```
+
+```r
+barley[order(barley$yield), ]
+```
+
+```
+##   year   farmer        place     district    gen yield income
+## 2 1901  Hawkins    Whitegate         Cork Archer   163    163
+## 4 1901    Wolfe       Nenagh CentralPlain Archer   176    173
+## 1 1901 McCarthy Ballinacurra         Cork Archer   180    180
+## 5 1902 McCarthy Ballinacurra         Cork Archer   198    173
+## 6 1902  Hawkins    Whitegate         Cork Archer   224    212
+## 3 1901     Dwan      Thurles CentralPlain Archer   242    233
+```
+
+---
+
+# Workspace management
+
+To set working directory for the session: `setwd()`. 
+
+To return current working directory: `getwd()`. 
+
+To list all objects on workspace: `ls()`. 
+
+To remove an object: `rm()`, and to remove all objects: `rm(list = ls())`. 
+
+On Windows filesystem, `\` needs to be escaped (`\\`) or replaced with `/`. 
+
+---
+
+# File management
+
+To remove file: `file.remove()`
+
+To move file: `file.copy()`
+
+To test if file exists: `file.exists()`
+
+---
+
+# Data sources and managing data
+
+Natively R supports only plain text (e.g. `.csv`) and its native (`.Rdata` and `.Rds`) data formats. 
+
+
+```r
+someData &lt;- read.csv('some_file.csv`, stringsAsFactors = F)
+someData &lt;- read.table('some_file.csv`, header = T, sep = ',', stringsAsFactors = F)
+```
+
+--
+
+Data can also be downloaded directly from a url.
+
+
+```r
+sharma &lt;- read.csv('https://raw.githubusercontent.com/kwstat/agridat/master/data-unused/sharma.mutation1.csv')
+head(sharma)
+```
+
+```
+##   gen dose rep mortality height
+## 1   A    0  R1         9      4
+## 2   A   20  R1        24      4
+## 3   A   40  R1        33      3
+## 4   A   60  R1        50      2
+## 5   B    0  R1         6      6
+## 6   B   20  R1        12      5
+```
+
+---
+
+It's usually easier to save data in a plain text format before loading to R. But this is not always possible.
+
+To load data created by statistical packages (Stata, SPSS, SAS): functions in the `foreign()` package.
+
+To read *.xls* and *.xlsx*: `read_excel()` from the `readxl` package.
+
+To edit *.xlsx* workbooks: the `openxlsx` package.
+
+---
+
+class: center middle
+
+![https://xkcd.com/1906/](../img/making_progress.png)
+
+
+---
+
+class: center middle
+
+![https://xkcd.com/1667/](../img/algorithms.png)
+---
+
+When some data is used exclusively in R, the native R data formats should be used as these allow more efficient data compression. 
+
+To save all objects on workspace:
+
+
+```r
+save.image('some_file.Rdata') # Save all objects on workspace
+load('some_file.Rdata') # Load all saved objects to workspace
+```
+
+--
+
+Sometimes it is necessary to only save a single object from workspace.
+
+
+```r
+saveRDS(someObject, 'some_file.Rds')
+readRDS('some_file.Rds')
+```
+
+---
+
+# Understanding a dataset
+
+Get the first or last (by default 6) rows with `head()` or `tail()`.
+
+
+```r
+soy &lt;- agridat::nass.soybean
+head(soy)
+```
+
+```
+##   year    state  acres yield
+## 1 1924  Alabama   3000   6.5
+## 2 1924 Arkansas   3000   6.5
+## 3 1924 Delaware  12000  11.0
+## 4 1924  Georgia  10000   5.5
+## 5 1924 Illinois 115000  12.0
+## 6 1924  Indiana  66000   9.9
+```
+
+```r
+tail(soy)
+```
+
+```
+##      year         state   acres yield
+## 2523 2011  South Dakota 4070000    37
+## 2524 2011     Tennessee 1250000    32
+## 2525 2011         Texas   90000    19
+## 2526 2011      Virginia  550000    39
+## 2527 2011 West Virginia   19000    43
+## 2528 2011     Wisconsin 1600000    46
+```
+
+---
+
+Print the structure of an object with `structure()` or `str()`.
+
+
+```r
+str(soy)
+```
+
+```
+## 'data.frame':	2528 obs. of  4 variables:
+##  $ year : int  1924 1924 1924 1924 1924 1924 1924 1924 1924 1924 ...
+##  $ state: Factor w/ 31 levels "Alabama","Arkansas",..: 1 2 3 5 6 7 8 9 10 11 ...
+##  $ acres: num  3000 3000 12000 10000 115000 66000 10000 2000 9000 8000 ...
+##  $ yield: num  6.5 6.5 11 5.5 12 9.9 12 11 9.5 8 ...
+```
+---
+
+Get summary statistics for each column in a data frame using `summary()`.
+
+
+```r
+summary(soy)
+```
+
+```
+##       year           state          acres              yield     
+##  Min.   :1924   Alabama :  88   Min.   :    1000   Min.   : 3.0  
+##  1st Qu.:1948   Arkansas:  88   1st Qu.:   60000   1st Qu.:15.5  
+##  Median :1969   Delaware:  88   Median :  337000   Median :23.0  
+##  Mean   :1969   Georgia :  88   Mean   : 1302321   Mean   :23.4  
+##  3rd Qu.:1991   Illinois:  88   3rd Qu.: 1632500   3rd Qu.:30.0  
+##  Max.   :2011   Indiana :  88   Max.   :10920000   Max.   :54.5  
+##                 (Other) :2000
+```
+
+---
+
+List names of all the columns of data frame with `names().`
+
+
+```r
+names(soy)
+```
+
+```
+## [1] "year"  "state" "acres" "yield"
+```
+
+---
+
+class: center middle inverse
+
+# Some R principles
+
+---
+
+class: middle
+
+&gt; To understand computations in R, two slogans are helpful:
+&gt;
+&gt; - Everything that exists is an object.
+&gt; - Everything that happens is a function call.
+
+.right[John Chambers]
+
+---
+
+# Function arguments
+
+Function arguments are read by (1) complete name, (2) partial name, or (3) position.
+
+
+```r
+quantile(x = mtcars$mpg, probs = .9, na.rm = F, names = T)
+```
+
+```
+##   90% 
+## 30.09
+```
+
+```r
+quantile(probs = .9, names = T, na.rm = F, x = mtcars$mpg)
+```
+
+```
+##   90% 
+## 30.09
+```
+
+```r
+quantile(mtcars$mpg, .9, F, T)
+```
+
+```
+##   90% 
+## 30.09
+```
+
+```r
+quantile(pr = .9, x = mtcars$mpg, na = T)
+```
+
+```
+## Error in quantile.default(pr = 0.9, x = mtcars$mpg, na = T): argument 3 matches multiple formal arguments
+```
+
+---
+
+# Vectors need to be explicity defined as such
+
+Any vector needs to be passed inside the `c()` function.
+
+
+```r
+someVector &lt;- letters[1:12]
+someVector[1,2,3,5,8] # This is does NOT work
+```
+
+```
+## Error in someVector[1, 2, 3, 5, 8]: incorrect number of dimensions
+```
+
+```r
+someVector[c(1,2,3,5,8)] # This is does work
+```
+
+```
+## [1] "a" "b" "c" "e" "h"
+```
+
+---
+
+# Characters must be in quotation marks
+
+Othewise R will interpret them as references to objects and attempts to find them.
+
+
+```r
+someVector &lt;- c(a, b, c) # This attempts to add existing objects a, b and c
+someVector &lt;- c('a', 'b', 'c') # This adds character elements
+```
+
+---
+
+# Environments
+
+R searches for objects in an environment where an operation is done. When it does not find an object there, it will incrementally search in higher environments.
+
+
+```r
+sum(1, 10)
+```
+
+```
+## [1] 11
+```
+
+```r
+sum &lt;- function(...) Reduce(`-`, ...)
+sum(1, 10)
+```
+
+```
+## [1] 9
+```
+
+---
+
+
+```r
+a &lt;- "Cow" 
+say &lt;- function() print(a)
+say()
+```
+
+```
+## [1] "Cow"
+```
+
+```r
+say &lt;- function() {a &lt;- "Sheep"; print(a)}
+say()
+```
+
+```
+## [1] "Sheep"
+```
+
+---
+
+# Recycling
+
+
+```r
+(a &lt;- 1:2)
+```
+
+```
+## [1] 1 2
+```
+
+```r
+(b &lt;- 1:5)
+```
+
+```
+## [1] 1 2 3 4 5
+```
+
+```r
+a + b
+```
+
+```
+## Warning in a + b: longer object length is not a multiple of shorter object
+## length
+```
+
+```
+## [1] 2 4 4 6 6
+```
+
+---
+
+# Lazy evaluation
+
+
+```r
+someFun &lt;- function(x, y) print(x)
+someFun(x = "Hello world!")
+```
+
+```
+## [1] "Hello world!"
+```
+
+---
+
+class: center middle inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

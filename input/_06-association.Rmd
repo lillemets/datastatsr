@@ -1,0 +1,17 @@
+# Measures of association
+
+## Contingency table
+
+### Odds and risk ratios
+
+### Chi2 test
+
+### Fischer's exact test
+
+### Cramer's V
+
+## Correlation
+
+### Goodness of fit and coefficent of determination 
+
+### Regression

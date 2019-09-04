@@ -1,0 +1,41 @@
+# Descriptive statistics
+
+## Some elementary concepts
+
+Absolute and relative numbers.
+
+![https://xkcd.com/558/](../img/1000_times.png)
+
+Percentages and percentage points.
+
+![https://xkcd.com/985/](percentage_points.png)
+
+## Normalizing and scaling
+
+Normalization rescales values so that they range from 0 to 1. 
+
+$$x_{normalized} = \frac{x - x_{min}{x_{max} - x_{min}}$$
+
+Standarization rescales values so that the mean is 0 and standard deviation 1. Thus, the resulting values indicate how many standard deviations a value is from the mean.
+
+$$x_{rescaled} = \frac{x - \mu}{\sigma}$$
+
+`scale()`
+
+![https://xkcd.com/1162/](../img/log_scale.png)
+
+## Frequency tables
+
+`table()`, `prop.table()`, 
+
+`aggregate()`, `by()`
+
+## Measures of central tendency and quantiles...
+
+`summary()`, `mean()`, `median()`, `mode()`, `sd()`,`var()`, `max()`, `min()`
+
+`quantile()`
+
+## Distributions
+
+See: [www.stat.umn.edu](http://www.stat.umn.edu/geyer/old/5101/rlook.html)

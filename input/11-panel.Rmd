@@ -1,7 +1,0 @@
-# Panel data methods
-
-## Fixed and random effects
-
-## Panel data methods
-
-Static, dynamic
