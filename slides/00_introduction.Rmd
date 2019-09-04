@@ -13,6 +13,16 @@ knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = F)
 knitr::opts_knit$set(root.dir = '/home/jrl/rcrs/slides')
 ```
 
+# Moodle
+
+Go to **moodle.hitsa.ee**.
+
+Register to **MS.0825 Research methods**.
+
+Tests, slides, reading materials.
+
+---
+
 # Time schedule of the meeting
 
 ``` {r, echo = F}
@@ -352,18 +362,6 @@ Qua**l**itative part: 20%
 Master's thesis project: 30%
 
 > Project document and presentation
-
----
-
-# Moodle
-
-Please register to the course.
-
-Quizzes
-
-Reading
-
-Slides
 
 ---
 
