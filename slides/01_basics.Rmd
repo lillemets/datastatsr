@@ -449,8 +449,8 @@ To test if file exists: `file.exists()`
 Natively R supports only plain text (e.g. `.csv`) and its native (`.Rdata` and `.Rds`) data formats. 
 
 ``` {r, eval = F}
-someData <- read.csv('some_file.csv`, stringsAsFactors = F)
-someData <- read.table('some_file.csv`, header = T, sep = ',', stringsAsFactors = F)
+someData <- read.csv('some_file.csv', stringsAsFactors = F)
+someData <- read.table('some_file.csv', header = T, sep = ',', stringsAsFactors = F)
 ```
 
 --
@@ -501,7 +501,7 @@ Sometimes it is necessary to only save a single object from workspace.
 
 ``` {r, eval = F}
 saveRDS(someObject, 'some_file.Rds')
-readRDS('some_file.Rds')
+someObject <- readRDS('some_file.Rds')
 ```
 
 ---

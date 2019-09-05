@@ -3,25 +3,33 @@
   text-decoration: none;
 }*/
 body { 
-  font-family: 'Yanone Kaffeesatz';
-  font-size: 1.4em;
+  font-family: "Yanone Kaffeesatz", sans-serif;
+  font-size: 1.5em;
 } 
 h1 {
   color: #222;
   margin: 0.2em 0em;
-  font-size: 1.6em;
+  font-size: 1.7em;
 }
 h2 {
   color: #222;
   margin: 0.2em 0em;
-  font-size: 1.5em;
+  font-size: 1.6em;
   font-weight: 300; 
 }
 h3 {
   color: #666;
   margin: 0.1em 0em;
-  font-size: 1.5em;
+  font-size: 1.6em;
   font-weight: 300; 
+}
+
+.remark-code, .remark-inline-code {
+  font-family: "Inconsolata", monospace;
+  font-size: 0.8em; 
+}
+.remark-code-line-highlighted {
+  background-color: #afbfcf
 }
 
 .remark-slide-content {
@@ -60,14 +68,6 @@ a, a:link, a:visited, a:focus, a:hover, a:active{
 }
 .title-slide .remark-slide-number {
   display: none;
-}
-
-.remark-code, .remark-inline-code {
-  font-family: 'Inconsolata';
-  font-size: 0.6em; 
-}
-.remark-code-line-highlighted {
-  background-color: #afbfcf
 }
 
 .footnote {

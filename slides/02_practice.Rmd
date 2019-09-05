@@ -1,0 +1,530 @@
+---
+title: R in practice
+subtitle: Research Methods <br> Data and statistics with R <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T, error = T)
+
+# Working directory
+knitr::opts_knit$set(root.dir = '/home/jrl/rcrs/slides')
+
+# Packages
+library('dplyr'); library('tidyr'); library('agridat')
+```
+
+# In practice
+
+Use data frames.
+
+Store values in objects with ` <- `.
+
+To return certain rows use the operators:
+
+- relational, e.g. `==`, `!=`, 
+- logical, e.g. `&`, `|`.
+
+To select columns, subset with `$var`, `[, #]`, `[, 'var']`.
+
+---
+
+# Adding functions to base R
+
+Install a package with `install.packages()` function.
+
+Load using `library()` function.
+
+---
+
+# RStudio
+
+Graphical user interface.
+
+Requires R to be already installed.
+
+Download from [rstudio.com](https://www.rstudio.com/products/rstudio/) and install.
+
+---
+
+class: center middle
+
+#.width-70[![http://rprogramming.net/download-and-install-rstudio/](../img/ide.png)]
+
+---
+
+class: center middle inverse
+
+# Creating new variables
+
+---
+
+You can provide the values yourself.
+
+``` {r}
+maize <- agridat::dasilva.maize
+head(maize, 3)
+maize$price <- ifelse(maize$gen == 'G01', 12, 8)
+head(maize, 3)
+```
+
+---
+
+Or you can calculate them based on existing values.
+
+``` {r}
+head(maize, 3)
+maize$value <- maize$yield * maize$price
+head(maize, 3)
+```
+
+---
+
+class: center middle inverse
+
+# Wide and long format data
+
+---
+
+# Data in wide format
+
+An example:
+
+``` {r, echo = F}
+spread(adugna.sorghum, year, yield) %>% head
+```
+
+---
+
+# Data in long/narrow format
+
+``` {r, echo = F}
+adugna.sorghum %>% head
+```
+
+--
+
+Most functions assume that a data frame is in this format.
+
+---
+
+# Conversion between wide and long formats
+
+This can be done with `reshape()`.
+
+``` {r, echo = F} 
+args(reshape)
+```
+
+--
+
+> Good luck figuring out what the arguments do!
+
+---
+
+# An alternative way to reshape
+
+Use `spread()` and `gather()` from `tidyr` package.
+
+``` {r, eval = F} 
+install.packages('tidyr')
+library('tidyr')
+```
+
+---
+
+# Long to wide with `spread()`
+
+``` {r, echo = F} 
+args(spread)
+```
+
+---
+
+``` {r}
+rapeseed <- agridat::brandle.rape
+head(rapeseed, 3)
+rapeseed <- spread(rapeseed, key = year, value = yield)
+head(rapeseed, 3)
+```
+
+---
+
+# Wide to long with `gather()`
+
+``` {r, echo = F} 
+args(gather)
+```
+
+---
+
+``` {r}
+head(rapeseed, 3)
+rapeseed <- gather(rapeseed, key = 'year.8385', value = 'yield.kg.ha', c('1983', '1984', '1985'))
+head(rapeseed, 3)
+```
+---
+
+class: center middle inverse
+
+# Binding data frames
+
+---
+
+# Bind by columns
+
+Join columns using `cbind()`.
+
+``` {r, echo = F} 
+args(cbind)
+```
+
+---
+
+``` {r, echo = c(1, 4:6)}
+potato <- agridat::connolly.potato
+potatoYield <- potato[, c('row', 'col', 'yield')]
+potatoMaturity <- potato[, 'matur', drop = F]
+head(potatoYield, 3)
+head(potatoMaturity, 3)
+```
+
+---
+
+``` {r}
+head(cbind(potatoYield, potatoMaturity), 3)
+```
+
+--
+
+Make sure the objects have equal lengths, otherwise the shorter object will be recycled!
+
+---
+
+# Bind by rows
+
+``` {r, echo = F} 
+args(rbind)
+```
+
+---
+
+``` {r, echo = c(1, 4:6)}
+potato <- agridat::connolly.potato
+potatoM1 <- potato[potato$matur == 'M1', ][1:3, ]
+potatoM2 <- potato[potato$matur == 'M2', ][1:3, ]
+head(potatoM1)
+head(potatoM2)
+```
+
+---
+
+``` {r}
+rbind(potatoM1, potatoM2)
+```
+
+---
+
+What if data frames contain different variables?
+
+``` {r, echo = -1}
+potatoM1 <- potatoM1[, -1]
+head(potatoM1)
+head(potatoM2)
+```
+
+--
+
+``` {r}
+rbind(potatoM1, potatoM2)
+```
+
+--
+
+The `cbind()` function does not work when variable names differ.
+
+---
+
+To bind rows with different names use `bind_rows()` from `dplyr` package.
+
+``` {r} 
+args(bind_rows)
+```
+
+--
+
+``` {r}
+bind_rows(potatoM1, potatoM2)
+```
+
+---
+
+class: center middle inverse
+
+# Joining data frames
+
+---
+
+Join data frames with `merge()`.
+
+``` {r} 
+args(merge.data.frame)
+```
+
+---
+
+``` {r, echo = c(1, 4:5)}
+crops <- agridat::bose.multi.uniformity
+cropsType <- crops[, c('year', 'row', 'col', 'crop')]
+cropsYield <- crops[sample(nrow(crops), nrow(crops)), c('year', 'row', 'col', 'yield')]
+head(cropsType, 3)
+head(cropsYield, 3)
+```
+
+---
+
+``` {r}
+merge(cropsType, cropsYield, by = c('row', 'col', 'year'), all.x = T) %>% head
+```
+
+---
+
+Or you can use one of the *join* functins from `dplyr` package.
+
+![https://r4ds.had.co.nz/relational-data.html](../img/join.png)
+
+---
+
+class: center middle inverse
+
+# Aggregation
+
+---
+
+# What is it?
+
+Summarising values by group.
+
+``` {r, echo = F}
+cattle <- agridat::kenward.cattle
+head(cattle, 3)
+tail(cattle, 3)
+aggregate(weight ~ trt, cattle, mean)
+```
+
+---
+
+You can use function `aggregate()` to summarise one variable by another. 
+
+``` {r, echo = F} 
+args(aggregate.data.frame)
+```
+
+---
+
+``` {r}
+head(cattle)
+```
+
+---
+
+Sum weight by day.
+
+--
+
+``` {r}
+aggregate(weight ~ day, cattle, sum)
+```
+
+---
+
+Get the mean weight by treatment.
+
+--
+
+``` {r}
+aggregate(weight ~ trt, cattle, mean)
+```
+
+---
+
+class: center middle inverse
+
+# Duplication
+
+---
+
+# Find out unique values with `unique()`.
+
+``` {r, echo = F} 
+args(unique)
+```
+
+---
+
+``` {r}
+carrots <- agridat::jansen.carrot
+head(carrots)
+unique(carrots$gen)
+```
+
+---
+
+# Return duplicated values
+
+Use the function `duplicated()` to return logical vector of duplicates.
+
+``` {r, echo = F} 
+args(duplicated)
+```
+
+---
+
+``` {r}
+head(carrots)
+duplicated(carrots$block)[1:6]
+```
+
+---
+
+# Remove duplicated rows
+
+Keep only those values that are not duplicated.
+
+``` {r}
+carrotsUni <- carrots[!duplicated(carrots$gen), ]
+str(carrotsUni)
+```
+
+--
+
+You probably want to order before removing duplicates (`order()`).
+
+---
+
+class: center middle inverse
+
+# String manipulation
+
+---
+
+# Return only a part of a string
+
+Get a part of a string with `substr()` or `substring()`. 
+
+Regular expressions can be used to define patterns.
+
+``` {r} 
+args(substr)
+```
+
+``` {r} 
+args(substring)
+```
+
+---
+
+You can use this to subset data according to part of a string.
+
+``` {r}
+trees <- agridat::lavoranti.eucalyptus
+sample(trees$gen, 10) %>% as.character
+treesG1 <- trees[substr(trees$gen, 1, 2) == 'G1', ]
+sample(treesG1$gen, 10) %>% as.character
+```
+
+---
+
+# Matching using strings
+
+Match a pattern with `grep()` and `grepl()`.
+
+``` {r, echo = F}
+args(grep)
+```
+
+``` {r}
+unique(trees$origin)
+treesBell <- trees[grep('Bell', trees$origin), ]
+unique(treesBell$origin)
+```
+
+---
+
+class: center middle
+
+![https://imgs.xkcd.com/comics/perl_problems.png](../img/perl_problems.png)
+
+---
+
+class: center middle inverse
+
+# Repetitive processing
+
+---
+
+# Ifelse
+
+``` {r} 
+args(ifelse)
+```
+
+---
+
+Input must be a vector and also returns a vector.
+
+---
+
+``` {r}
+str(rapeseed)
+rapeseed$new.yield <- ifelse(rapeseed$loc == 'Dauphin', rapeseed$yield + 100, rapeseed$yield)
+rapeseed[!duplicated(rapeseed$loc), ]
+```
+
+---
+
+# For-loops
+
+``` {r}
+for (i in 1:3) {
+  print(1 + i)
+}
+```
+
+---
+
+# Functions
+
+You can create functions yourself.
+
+``` {r}
+add10pc <- function(x) {
+  x + x * .1
+}
+nitroData <- gomez.wetdry[1:6, ]
+nitroData$nitrogen
+add10pc(nitroData$nitrogen)
+```
+
+---
+
+# Apply functions
+
+``` {r}
+names(nitroData)
+lapply(nitroData[, c('nitrogen', 'yield')], add10pc)
+```
+
+---
+
+``` {r}
+sapply(nitroData[, c('nitrogen', 'yield')], add10pc)
+```
+
+---
+
+class: inverse

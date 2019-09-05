@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>R in practice</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-05" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# R in practice
+## Research Methods <br> Data and statistics with R <br><br>
+### Jüri Lillemets
+### 2019-09-05
+
+---
+
+
+
+
+# In practice
+
+Use data frames.
+
+Store values in objects with ` &lt;- `.
+
+To return certain rows use the operators:
+
+- relational, e.g. `==`, `!=`, 
+- logical, e.g. `&amp;`, `|`.
+
+To select columns, subset with `$var`, `[, #]`, `[, 'var']`.
+
+---
+
+# Adding functions to base R
+
+Install a package with `install.packages()` function.
+
+Load using `library()` function.
+
+---
+
+# RStudio
+
+Graphical user interface.
+
+Requires R to be already installed.
+
+Download from [rstudio.com](https://www.rstudio.com/products/rstudio/) and install.
+
+---
+
+class: center middle
+
+#.width-70[![http://rprogramming.net/download-and-install-rstudio/](../img/ide.png)]
+
+---
+
+class: center middle inverse
+
+# Creating new variables
+
+---
+
+You can provide the values yourself.
+
+
+```r
+maize &lt;- agridat::dasilva.maize
+head(maize, 3)
+```
+
+```
+##   env rep gen  yield
+## 1  E1  R1 G01 7.9107
+## 2  E1  R1 G02 6.4057
+## 3  E1  R1 G03 5.8616
+```
+
+```r
+maize$price &lt;- ifelse(maize$gen == 'G01', 12, 8)
+head(maize, 3)
+```
+
+```
+##   env rep gen  yield price
+## 1  E1  R1 G01 7.9107    12
+## 2  E1  R1 G02 6.4057     8
+## 3  E1  R1 G03 5.8616     8
+```
+
+---
+
+Or you can calculate them based on existing values.
+
+
+```r
+head(maize, 3)
+```
+
+```
+##   env rep gen  yield price
+## 1  E1  R1 G01 7.9107    12
+## 2  E1  R1 G02 6.4057     8
+## 3  E1  R1 G03 5.8616     8
+```
+
+```r
+maize$value &lt;- maize$yield * maize$price
+head(maize, 3)
+```
+
+```
+##   env rep gen  yield price   value
+## 1  E1  R1 G01 7.9107    12 94.9284
+## 2  E1  R1 G02 6.4057     8 51.2456
+## 3  E1  R1 G03 5.8616     8 46.8928
+```
+
+---
+
+class: center middle inverse
+
+# Wide and long format data
+
+---
+
+# Data in wide format
+
+An example:
+
+
+```
+##   gen trial env      loc 2001 2002 2003 2004 2005
+## 1 G01    T1 E06    Mieso   NA   NA 4800   NA   NA
+## 2 G01    T1 E07     Kobo   NA   NA 7650   NA   NA
+## 3 G01    T1 E08 Melkassa   NA   NA 4475   NA   NA
+## 4 G01    T1 E09 Melkassa   NA   NA   NA 6275   NA
+## 5 G01    T1 E10    Mieso   NA   NA   NA 3600   NA
+## 6 G01    T1 E11     Kobo   NA   NA   NA 5218   NA
+```
+
+---
+
+# Data in long/narrow format
+
+
+```
+##   gen trial env yield year   loc
+## 1 G16    T2 E01   590 2001 Mieso
+## 2 G17    T2 E01   554 2001 Mieso
+## 3 G18    T2 E01   586 2001 Mieso
+## 4 G19    T2 E01   738 2001 Mieso
+## 5 G20    T2 E01   489 2001 Mieso
+## 6 G21    T2 E01   684 2001 Mieso
+```
+
+--
+
+Most functions assume that a data frame is in this format.
+
+---
+
+# Conversion between wide and long formats
+
+This can be done with `reshape()`.
+
+
+```
+## function (data, varying = NULL, v.names = NULL, timevar = "time", 
+##     idvar = "id", ids = 1L:NROW(data), times = seq_along(varying[[1L]]), 
+##     drop = NULL, direction, new.row.names = NULL, sep = ".", 
+##     split = if (sep == "") {
+##         list(regexp = "[A-Za-z][0-9]", include = TRUE)
+##     } else {
+##         list(regexp = sep, include = FALSE, fixed = TRUE)
+##     }) 
+## NULL
+```
+
+--
+
+&gt; Good luck figuring out what the arguments do!
+
+---
+
+# An alternative way to reshape
+
+Use `spread()` and `gather()` from `tidyr` package.
+
+
+```r
+install.packages('tidyr')
+library('tidyr')
+```
+
+---
+
+# Long to wide with `spread()`
+
+
+```
+## function (data, key, value, fill = NA, convert = FALSE, drop = TRUE, 
+##     sep = NULL) 
+## NULL
+```
+
+---
+
+
+```r
+rapeseed &lt;- agridat::brandle.rape
+head(rapeseed, 3)
+```
+
+```
+##      gen year    loc yield
+## 1  Altex 1983 Souris  1868
+## 2  Andor 1983 Souris  2256
+## 3 Regent 1983 Souris  2808
+```
+
+```r
+rapeseed &lt;- spread(rapeseed, key = year, value = yield)
+head(rapeseed, 3)
+```
+
+```
+##     gen        loc 1983 1984 1985
+## 1 Altex      Bagot  657 1979 1774
+## 2 Altex Beausejour 1860 1677 2225
+## 3 Altex    Dauphin 2704 2472 3473
+```
+
+---
+
+# Wide to long with `gather()`
+
+
+```
+## function (data, key = "key", value = "value", ..., na.rm = FALSE, 
+##     convert = FALSE, factor_key = FALSE) 
+## NULL
+```
+
+---
+
+
+```r
+head(rapeseed, 3)
+```
+
+```
+##     gen        loc 1983 1984 1985
+## 1 Altex      Bagot  657 1979 1774
+## 2 Altex Beausejour 1860 1677 2225
+## 3 Altex    Dauphin 2704 2472 3473
+```
+
+```r
+rapeseed &lt;- gather(rapeseed, key = 'year.8385', value = 'yield.kg.ha', c('1983', '1984', '1985'))
+head(rapeseed, 3)
+```
+
+```
+##     gen        loc year.8385 yield.kg.ha
+## 1 Altex      Bagot      1983         657
+## 2 Altex Beausejour      1983        1860
+## 3 Altex    Dauphin      1983        2704
+```
+---
+
+class: center middle inverse
+
+# Binding data frames
+
+---
+
+# Bind by columns
+
+Join columns using `cbind()`.
+
+
+```
+## function (..., deparse.level = 1) 
+## NULL
+```
+
+---
+
+
+```r
+potato &lt;- agridat::connolly.potato
+head(potatoYield, 3)
+```
+
+```
+##   row col yield
+## 1   4   1  13.2
+## 2   4   2   9.9
+## 3   4   3  14.0
+```
+
+```r
+head(potatoMaturity, 3)
+```
+
+```
+##   matur
+## 1    M3
+## 2    M1
+## 3    M3
+```
+
+---
+
+
+```r
+head(cbind(potatoYield, potatoMaturity), 3)
+```
+
+```
+##   row col yield matur
+## 1   4   1  13.2    M3
+## 2   4   2   9.9    M1
+## 3   4   3  14.0    M3
+```
+
+--
+
+Make sure the objects have equal lengths, otherwise the shorter object will be recycled!
+
+---
+
+# Bind by rows
+
+
+```
+## function (..., deparse.level = 1) 
+## NULL
+```
+
+---
+
+
+```r
+potato &lt;- agridat::connolly.potato
+head(potatoM1)
+```
+
+```
+##    rep gen row col yield matur
+## 2   R1 V06   4   2   9.9    M1
+## 8   R1 V03   4   8  10.2    M1
+## 11  R1 V15   4  11  10.4    M1
+```
+
+```r
+head(potatoM2)
+```
+
+```
+##    rep gen row col yield matur
+## 7   R1 V20   4   7  11.6    M2
+## 13  R1 V01   4  13  11.0    M2
+## 15  R1 V04   4  15   8.7    M2
+```
+
+---
+
+
+```r
+rbind(potatoM1, potatoM2)
+```
+
+```
+##    rep gen row col yield matur
+## 2   R1 V06   4   2   9.9    M1
+## 8   R1 V03   4   8  10.2    M1
+## 11  R1 V15   4  11  10.4    M1
+## 7   R1 V20   4   7  11.6    M2
+## 13  R1 V01   4  13  11.0    M2
+## 15  R1 V04   4  15   8.7    M2
+```
+
+---
+
+What if data frames contain different variables?
+
+
+```r
+head(potatoM1)
+```
+
+```
+##    gen row col yield matur
+## 2  V06   4   2   9.9    M1
+## 8  V03   4   8  10.2    M1
+## 11 V15   4  11  10.4    M1
+```
+
+```r
+head(potatoM2)
+```
+
+```
+##    rep gen row col yield matur
+## 7   R1 V20   4   7  11.6    M2
+## 13  R1 V01   4  13  11.0    M2
+## 15  R1 V04   4  15   8.7    M2
+```
+
+--
+
+
+```r
+rbind(potatoM1, potatoM2)
+```
+
+```
+## Error in rbind(deparse.level, ...): numbers of columns of arguments do not match
+```
+
+--
+
+The `cbind()` function does not work when variable names differ.
+
+---
+
+To bind rows with different names use `bind_rows()` from `dplyr` package.
+
+
+```r
+args(bind_rows)
+```
+
+```
+## function (..., .id = NULL) 
+## NULL
+```
+
+--
+
+
+```r
+bind_rows(potatoM1, potatoM2)
+```
+
+```
+##   gen row col yield matur  rep
+## 1 V06   4   2   9.9    M1 &lt;NA&gt;
+## 2 V03   4   8  10.2    M1 &lt;NA&gt;
+## 3 V15   4  11  10.4    M1 &lt;NA&gt;
+## 4 V20   4   7  11.6    M2   R1
+## 5 V01   4  13  11.0    M2   R1
+## 6 V04   4  15   8.7    M2   R1
+```
+
+---
+
+class: center middle inverse
+
+# Joining data frames
+
+---
+
+Join data frames with `merge()`.
+
+
+```r
+args(merge.data.frame)
+```
+
+```
+## function (x, y, by = intersect(names(x), names(y)), by.x = by, 
+##     by.y = by, all = FALSE, all.x = all, all.y = all, sort = TRUE, 
+##     suffixes = c(".x", ".y"), no.dups = TRUE, incomparables = NULL, 
+##     ...) 
+## NULL
+```
+
+---
+
+
+```r
+crops &lt;- agridat::bose.multi.uniformity
+head(cropsType, 3)
+```
+
+```
+##   year row col   crop
+## 1 1930   1   1 barley
+## 2 1930   2   1 barley
+## 3 1930   3   1 barley
+```
+
+```r
+head(cropsYield, 3)
+```
+
+```
+##      year row col yield
+## 14   1930  14   1   790
+## 270  1930  10  11   540
+## 1036 1932  22  10   259
+```
+
+---
+
+
+```r
+merge(cropsType, cropsYield, by = c('row', 'col', 'year'), all.x = T) %&gt;% head
+```
+
+```
+##   row col year   crop yield
+## 1   1   1 1930 barley   880
+## 2   1   1 1931  wheat    70
+## 3   1   1 1932 lentil   412
+## 4   1  10 1930 barley   455
+## 5   1  10 1931  wheat   225
+## 6   1  10 1932 lentil   166
+```
+
+---
+
+Or you can use one of the *join* functins from `dplyr` package.
+
+![https://r4ds.had.co.nz/relational-data.html](../img/join.png)
+
+---
+
+class: center middle inverse
+
+# Aggregation
+
+---
+
+# What is it?
+
+Summarising values by group.
+
+
+```
+##   animal trt day weight
+## 1     A1   A   0    233
+## 2     A2   A   0    231
+## 3     A3   A   0    232
+```
+
+```
+##     animal trt day weight
+## 658    A58   B 133    294
+## 659    A59   B 133    322
+## 660    A60   B 133    326
+```
+
+```
+##   trt   weight
+## 1   A 284.3030
+## 2   B 282.6424
+```
+
+---
+
+You can use function `aggregate()` to summarise one variable by another. 
+
+
+```
+## function (x, by, FUN, ..., simplify = TRUE, drop = TRUE) 
+## NULL
+```
+
+---
+
+
+```r
+head(cattle)
+```
+
+```
+##   animal trt day weight
+## 1     A1   A   0    233
+## 2     A2   A   0    231
+## 3     A3   A   0    232
+## 4     A4   A   0    239
+## 5     A5   A   0    215
+## 6     A6   A   0    236
+```
+
+---
+
+Sum weight by day.
+
+--
+
+
+```r
+aggregate(weight ~ day, cattle, sum)
+```
+
+```
+##    day weight
+## 1    0  13524
+## 2   14  13747
+## 3   28  14712
+## 4   42  15844
+## 5   56  16728
+## 6   70  17550
+## 7   84  18119
+## 8   98  18916
+## 9  112  19044
+## 10 126  19530
+## 11 133  19378
+```
+
+---
+
+Get the mean weight by treatment.
+
+--
+
+
+```r
+aggregate(weight ~ trt, cattle, mean)
+```
+
+```
+##   trt   weight
+## 1   A 284.3030
+## 2   B 282.6424
+```
+
+---
+
+class: center middle inverse
+
+# Duplication
+
+---
+
+# Find out unique values with `unique()`.
+
+
+```
+## function (x, incomparables = FALSE, ...) 
+## NULL
+```
+
+---
+
+
+```r
+carrots &lt;- agridat::jansen.carrot
+head(carrots)
+```
+
+```
+##   trt gen block  n  y
+## 1  T1 G01    B1 53 44
+## 2  T1 G01    B2 48 42
+## 3  T1 G01    B3 51 27
+## 4  T1 G02    B1 48 24
+## 5  T1 G02    B2 42 35
+## 6  T1 G02    B3 52 45
+```
+
+```r
+unique(carrots$gen)
+```
+
+```
+##  [1] G01 G02 G03 G04 G05 G06 G07 G08 G09 G10 G11 G12 G13 G14 G15 G16
+## 16 Levels: G01 G02 G03 G04 G05 G06 G07 G08 G09 G10 G11 G12 G13 G14 ... G16
+```
+
+---
+
+# Return duplicated values
+
+Use the function `duplicated()` to return logical vector of duplicates.
+
+
+```
+## function (x, incomparables = FALSE, ...) 
+## NULL
+```
+
+---
+
+
+```r
+head(carrots)
+```
+
+```
+##   trt gen block  n  y
+## 1  T1 G01    B1 53 44
+## 2  T1 G01    B2 48 42
+## 3  T1 G01    B3 51 27
+## 4  T1 G02    B1 48 24
+## 5  T1 G02    B2 42 35
+## 6  T1 G02    B3 52 45
+```
+
+```r
+duplicated(carrots$block)[1:6]
+```
+
+```
+## [1] FALSE FALSE FALSE  TRUE  TRUE  TRUE
+```
+
+---
+
+# Remove duplicated rows
+
+Keep only those values that are not duplicated.
+
+
+```r
+carrotsUni &lt;- carrots[!duplicated(carrots$gen), ]
+str(carrotsUni)
+```
+
+```
+## 'data.frame':	16 obs. of  5 variables:
+##  $ trt  : Factor w/ 2 levels "T1","T2": 1 1 1 1 1 1 1 1 1 1 ...
+##  $ gen  : Factor w/ 16 levels "G01","G02","G03",..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ block: Factor w/ 3 levels "B1","B2","B3": 1 1 1 1 1 1 1 1 1 1 ...
+##  $ n    : int  53 48 49 51 52 50 52 47 52 51 ...
+##  $ y    : int  44 24 8 4 11 15 18 5 11 0 ...
+```
+
+--
+
+You probably want to order before removing duplicates (`order()`).
+
+---
+
+class: center middle inverse
+
+# String manipulation
+
+---
+
+# Return only a part of a string
+
+Get a part of a string with `substr()` or `substring()`. 
+
+Regular expressions can be used to define patterns.
+
+
+```r
+args(substr)
+```
+
+```
+## function (x, start, stop) 
+## NULL
+```
+
+
+```r
+args(substring)
+```
+
+```
+## function (text, first, last = 1000000L) 
+## NULL
+```
+
+---
+
+You can use this to subset data according to part of a string.
+
+
+```r
+trees &lt;- agridat::lavoranti.eucalyptus
+sample(trees$gen, 10) %&gt;% as.character
+```
+
+```
+##  [1] "G187" "G303" "G300" "G686" "G184" "G681" "G671" "G683" "G677" "G305"
+```
+
+```r
+treesG1 &lt;- trees[substr(trees$gen, 1, 2) == 'G1', ]
+sample(treesG1$gen, 10) %&gt;% as.character
+```
+
+```
+##  [1] "G199" "G196" "G183" "G187" "G190" "G184" "G189" "G194" "G193" "G193"
+```
+
+---
+
+# Matching using strings
+
+Match a pattern with `grep()` and `grepl()`.
+
+
+```
+## function (pattern, x, ignore.case = FALSE, perl = FALSE, value = FALSE, 
+##     fixed = FALSE, useBytes = FALSE, invert = FALSE) 
+## NULL
+```
+
+
+```r
+unique(trees$origin)
+```
+
+```
+## [1] Ravenshoe  Atherton   Bellthorpe
+## Levels: Atherton Bellthorpe Ravenshoe
+```
+
+```r
+treesBell &lt;- trees[grep('Bell', trees$origin), ]
+unique(treesBell$origin)
+```
+
+```
+## [1] Bellthorpe
+## Levels: Atherton Bellthorpe Ravenshoe
+```
+
+---
+
+class: center middle
+
+![https://imgs.xkcd.com/comics/perl_problems.png](../img/perl_problems.png)
+
+---
+
+class: center middle inverse
+
+# Repetitive processing
+
+---
+
+# Ifelse
+
+
+```r
+args(ifelse)
+```
+
+```
+## function (test, yes, no) 
+## NULL
+```
+
+---
+
+Input must be a vector and also returns a vector.
+
+---
+
+
+```r
+str(rapeseed)
+```
+
+```
+## 'data.frame':	135 obs. of  4 variables:
+##  $ gen        : Factor w/ 5 levels "Altex","Andor",..: 1 1 1 1 1 1 1 1 1 2 ...
+##  $ loc        : Factor w/ 9 levels "Bagot","Beausejour",..: 1 2 3 4 5 6 7 8 9 1 ...
+##  $ year.8385  : chr  "1983" "1983" "1983" "1983" ...
+##  $ yield.kg.ha: int  657 1860 2704 1275 2390 2003 1868 2235 2145 604 ...
+```
+
+```r
+rapeseed$new.yield &lt;- ifelse(rapeseed$loc == 'Dauphin', rapeseed$yield + 100, rapeseed$yield)
+rapeseed[!duplicated(rapeseed$loc), ]
+```
+
+```
+##     gen        loc year.8385 yield.kg.ha new.yield
+## 1 Altex      Bagot      1983         657       657
+## 2 Altex Beausejour      1983        1860      1860
+## 3 Altex    Dauphin      1983        2704      2804
+## 4 Altex Mariapolis      1983        1275      1275
+## 5 Altex     Roblin      1983        2390      2390
+## 6 Altex  ShoalLake      1983        2003      2003
+## 7 Altex     Souris      1983        1868      1868
+## 8 Altex  SwanRiver      1983        2235      2235
+## 9 Altex     Teulon      1983        2145      2145
+```
+
+---
+
+# For-loops
+
+
+```r
+for (i in 1:3) {
+  print(1 + i)
+}
+```
+
+```
+## [1] 2
+## [1] 3
+## [1] 4
+```
+
+---
+
+# Functions
+
+You can create functions yourself.
+
+
+```r
+add10pc &lt;- function(x) {
+  x + x * .1
+}
+nitroData &lt;- gomez.wetdry[1:6, ]
+nitroData$nitrogen
+```
+
+```
+## [1]  0  0  0 60 60 60
+```
+
+```r
+add10pc(nitroData$nitrogen)
+```
+
+```
+## [1]  0  0  0 66 66 66
+```
+
+---
+
+# Apply functions
+
+
+```r
+names(nitroData)
+```
+
+```
+## [1] "season"   "nitrogen" "rep"      "yield"
+```
+
+```r
+lapply(nitroData[, c('nitrogen', 'yield')], add10pc)
+```
+
+```
+## $nitrogen
+## [1]  0  0  0 66 66 66
+## 
+## $yield
+## [1] 5.3801 2.8347 4.9951 6.6099 7.2875 6.2392
+```
+
+---
+
+
+```r
+sapply(nitroData[, c('nitrogen', 'yield')], add10pc)
+```
+
+```
+##      nitrogen  yield
+## [1,]        0 5.3801
+## [2,]        0 2.8347
+## [3,]        0 4.9951
+## [4,]       66 6.6099
+## [5,]       66 7.2875
+## [6,]       66 6.2392
+```
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

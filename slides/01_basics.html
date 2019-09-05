@@ -4,7 +4,7 @@
     <title>Basic data management in R</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jüri Lillemets" />
-    <meta name="date" content="2019-09-04" />
+    <meta name="date" content="2019-09-05" />
     <link rel="stylesheet" href="minimal.css" type="text/css" />
     <link rel="stylesheet" href="fonts.css" type="text/css" />
   </head>
@@ -15,7 +15,7 @@ class: center, middle, inverse, title-slide
 # Basic data management in R
 ## Research Methods <br> Data and statistics with R <br><br>
 ### Jüri Lillemets
-### 2019-09-04
+### 2019-09-05
 
 ---
 
@@ -910,8 +910,8 @@ Natively R supports only plain text (e.g. `.csv`) and its native (`.Rdata` and `
 
 
 ```r
-someData &lt;- read.csv('some_file.csv`, stringsAsFactors = F)
-someData &lt;- read.table('some_file.csv`, header = T, sep = ',', stringsAsFactors = F)
+someData &lt;- read.csv('some_file.csv', stringsAsFactors = F)
+someData &lt;- read.table('some_file.csv', header = T, sep = ',', stringsAsFactors = F)
 ```
 
 --
@@ -975,7 +975,7 @@ Sometimes it is necessary to only save a single object from workspace.
 
 ```r
 saveRDS(someObject, 'some_file.Rds')
-readRDS('some_file.Rds')
+someObject &lt;- readRDS('some_file.Rds')
 ```
 
 ---
