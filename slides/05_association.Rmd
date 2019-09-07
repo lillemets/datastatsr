@@ -1,0 +1,52 @@
+---
+  title: Measures of association
+subtitle: Research Methods <br> Data and statistics with R <br><br>
+  author: Jüri Lillemets
+date: "`r Sys.Date()`"
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T, error = T)
+
+# Working directory
+knitr::opts_knit$set(root.dir = '/home/jrl/rcrs/slides')
+
+milktr <- agridat::brandt.switchback # Switchback trial of milk yield for two feed mixtures in cattle
+```
+
+# Frequency tables
+
+Frequency tables represent absolute (count) or relative (percentage) frequencies by groups.
+
+In R generate with `table()` function.
+
+``` {r, echo = F}
+args(table)
+```
+
+---
+  
+```{r}
+head(milktr) # Switchback trial of milk yield for two feed mixtures in cattle
+```
+
+---
+  
+`table()` returns counts by a single or multiple categorical variable.
+
+```{r}
+table(milktr$group)
+```
+
+--
+  
+```{r}
+table(milktr$group, milktr$trt)
+```
+
+---
+  
+```{r}
+table(milktr$group, milktr$trt, milktr$period)
+```

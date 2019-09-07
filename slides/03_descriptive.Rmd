@@ -1,0 +1,258 @@
+---
+title: Descriptive statistics
+subtitle: Research Methods <br> Data and statistics with R <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T, error = T)
+
+# Working directory
+knitr::opts_knit$set(root.dir = '/home/jrl/rcrs/slides')
+
+# Load data
+landval <- agridat::wallace.iowaland[1:6, ] # Iowa farmland values by county in 1925
+```
+
+# Overview of today's meeting
+
+1. Recap of previous meetings
+1. Descriptive statistics
+1. Solving a task
+
+
+
+---
+
+class: center middle inverse
+
+# Recap
+
+---
+
+class: center middle
+
+# RStudio
+
+#.width-70[![http://rprogramming.net/download-and-install-rstudio/](../img/ide.png)]
+
+---
+
+# Importing data to R workspace
+
+Use the `read.csv()` command.
+
+``` {r, echo = F}
+args(summary)
+```
+
+--
+
+```{r, eval = F}
+landval <- read.csv('wallace_iowaland.csv')
+```
+
+
+On Windows filesystem, `\` needs to be replaced with `/`. 
+
+---
+
+# How to use certain variables?
+
+To select columns, subset with one of the following: 
+
+- `data$var`, 
+- `data[, 1]`, 
+- `data[, 'var']`.
+
+---
+
+Our sample data.
+
+```{r}
+head(landval) # Iowa farmland values by county in 1925
+```
+
+---
+
+All of the commands below give an identical result.
+
+```{r, eval = F}
+landval$corn
+landval[, 'corn']
+landval[, 6]
+```
+
+--
+
+To use multiple columns use `[]` with column names or numbers.
+
+```{r, eval = F}
+landval[, c('corn', 'grain')]
+landval[, 6:7]
+```
+
+---
+
+# Add a new variable
+
+``` {r}
+landval[, c('fedval', 'stval')][1:3, ]
+landval$val.diff <- landval$fedval - landval$stval
+landval[, c('fedval', 'stval', 'val.diff')][1:3, ]
+```
+
+---
+
+# How to use functions?
+
+``` {r, echo = F}
+args(summary)
+```
+
+To use a function you need to specify arguments.
+
+To get help on a function use `?`, e.g. `?summary`
+
+---
+
+``` {r}
+summary(object = landval$val.diff)
+summary(landval$val.diff)
+```
+
+---
+
+class: center middle inverse
+
+# Descriptive statistics
+
+```{r, echo = F}
+landval <- agridat::wallace.iowaland
+landval <- rbind(landval, landval[nrow(landval), ])
+```
+
+
+---
+
+# A quick and easy overview of values 
+
+Use the `summary()` command.
+
+```{r}
+summary(landval$yield)
+```
+
+---
+
+# Measures of central tendency
+
+```{r}
+mean(landval$grain)
+median(landval$grain)
+```
+
+---
+
+The difference between mean and median.
+
+```{r, echo = F}
+hist(landval$untillable, 30)
+abline(v = mean(landval$untillable), col = 'red')
+abline(v = median(landval$untillable), col = 'blue')
+legend('topright', legend = c("Mean", "Median"), fill = c('red', 'blue'))
+```
+
+---
+
+# Measures of spread
+
+Absolute measures of spread.
+
+```{r}
+min(landval$corn)
+max(landval$corn)
+range(landval$corn)
+```
+
+---
+
+Quantiles divide values into equal intervals, e.g. 4.
+
+```{r}
+nrow(landval)/4
+quantile(landval$corn)
+median(landval$corn)
+```
+
+---
+
+We can specify intervals using `probs = ...`, e.g. 10.
+
+```{r}
+nrow(landval)/10
+quantile(landval$corn, probs = seq(0,1,.1))
+```
+
+---
+
+```{r}
+hist(landval$corn, 30)
+abline(v = quantile(landval$corn), col = 'red')
+```
+
+
+---
+
+Use of quantiles.
+
+```{r}
+quantile(landval$corn, .9)
+```
+
+In 90% of counties share of corn is `r quantile(landval$corn, .9)`% or less.
+
+--
+
+```{r}
+quantile(landval$yield, .6)
+```
+
+Corn yield per acre is at least `r quantile(landval$yield, .6)` bu/acre in 60% of counties.
+
+---
+
+Standard deviation is an **approximation** of the average difference from the mean.
+
+For population:
+
+$\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_{i} - \mu)^2}$
+
+---
+
+.pull-left[
+```{r}
+mean(landval$yield)
+sd(landval$yield)
+```
+]
+
+.pull-right[
+```{r, echo = F}
+hist(landval$yield, 30)
+abline(v = c(mean(landval$yield), 
+             mean(landval$yield) - sd(landval$yield), 
+             mean(landval$yield) + sd(landval$yield)), 
+       col = c('red', 'blue', 'blue'))
+```
+]
+
+---
+
+# Next meeting
+
+## Test on data management with R.
+
+Based on the reading materials on Moodle and today's exercise.

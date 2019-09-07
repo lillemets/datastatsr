@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Descriptive statistics</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-07" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Descriptive statistics
+## Research Methods <br> Data and statistics with R <br><br>
+### Jüri Lillemets
+### 2019-09-07
+
+---
+
+
+
+
+# Overview of today's meeting
+
+1. Recap of previous meetings
+1. Descriptive statistics
+1. Solving a task
+
+
+
+---
+
+class: center middle inverse
+
+# Recap
+
+---
+
+class: center middle
+
+# RStudio
+
+#.width-70[![http://rprogramming.net/download-and-install-rstudio/](../img/ide.png)]
+
+---
+
+# Importing data to R workspace
+
+Use the `read.csv()` command.
+
+
+```
+## function (object, ...) 
+## NULL
+```
+
+--
+
+
+```r
+landval &lt;- read.csv('wallace_iowaland.csv')
+```
+
+
+On Windows filesystem, `\` needs to be replaced with `/`. 
+
+---
+
+# How to use certain variables?
+
+To select columns, subset with one of the following: 
+
+- `data$var`, 
+- `data[, 1]`, 
+- `data[, 'var']`.
+
+---
+
+Our sample data.
+
+
+```r
+head(landval) # Iowa farmland values by county in 1925
+```
+
+```
+##      county  fips    lat    long yield corn grain untillable fedval stval
+## 1     adair 19001 41.327 -94.466    36   32    16         19     93    88
+## 2     adams 19003 41.033 -94.702    33   30    14         14     90    89
+## 3 allamakee 19005 43.280 -91.373    42   13    15         44     66    49
+## 4 appanoose 19007 40.741 -92.869    35   19    10         28     68    60
+## 5   audubon 19009 41.685 -94.905    40   34    21          9    115   111
+## 6    benton 19011 42.080 -92.066    42   35    22         17    143   125
+```
+
+---
+
+All of the commands below give an identical result.
+
+
+```r
+landval$corn
+landval[, 'corn']
+landval[, 6]
+```
+
+--
+
+To use multiple columns use `[]` with column names or numbers.
+
+
+```r
+landval[, c('corn', 'grain')]
+landval[, 6:7]
+```
+
+---
+
+# Add a new variable
+
+
+```r
+landval[, c('fedval', 'stval')][1:3, ]
+```
+
+```
+##   fedval stval
+## 1     93    88
+## 2     90    89
+## 3     66    49
+```
+
+```r
+landval$val.diff &lt;- landval$fedval - landval$stval
+landval[, c('fedval', 'stval', 'val.diff')][1:3, ]
+```
+
+```
+##   fedval stval val.diff
+## 1     93    88        5
+## 2     90    89        1
+## 3     66    49       17
+```
+
+---
+
+# How to use functions?
+
+
+```
+## function (object, ...) 
+## NULL
+```
+
+To use a function you need to specify arguments.
+
+To get help on a function use `?`, e.g. `?summary`
+
+---
+
+
+```r
+summary(object = landval$val.diff)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.000   4.250   6.500   8.833  14.750  18.000
+```
+
+```r
+summary(landval$val.diff)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.000   4.250   6.500   8.833  14.750  18.000
+```
+
+---
+
+class: center middle inverse
+
+# Descriptive statistics
+
+
+
+
+---
+
+# A quick and easy overview of values 
+
+Use the `summary()` command.
+
+
+```r
+summary(landval$yield)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   30.00   36.75   39.00   39.11   42.00   46.00
+```
+
+---
+
+# Measures of central tendency
+
+
+```r
+mean(landval$grain)
+```
+
+```
+## [1] 21.64
+```
+
+```r
+median(landval$grain)
+```
+
+```
+## [1] 22
+```
+
+---
+
+The difference between mean and median.
+
+![](03_descriptive_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+# Measures of spread
+
+Absolute measures of spread.
+
+
+```r
+min(landval$corn)
+```
+
+```
+## [1] 13
+```
+
+```r
+max(landval$corn)
+```
+
+```
+## [1] 48
+```
+
+```r
+range(landval$corn)
+```
+
+```
+## [1] 13 48
+```
+
+---
+
+Quantiles divide values into equal intervals, e.g. 4.
+
+
+```r
+nrow(landval)/4
+```
+
+```
+## [1] 25
+```
+
+```r
+quantile(landval$corn)
+```
+
+```
+##    0%   25%   50%   75%  100% 
+## 13.00 27.75 33.50 38.00 48.00
+```
+
+```r
+median(landval$corn)
+```
+
+```
+## [1] 33.5
+```
+
+---
+
+We can specify intervals using `probs = ...`, e.g. 10.
+
+
+```r
+nrow(landval)/10
+```
+
+```
+## [1] 10
+```
+
+```r
+quantile(landval$corn, probs = seq(0,1,.1))
+```
+
+```
+##   0%  10%  20%  30%  40%  50%  60%  70%  80%  90% 100% 
+## 13.0 22.0 27.0 29.0 30.6 33.5 36.0 38.0 39.0 40.1 48.0
+```
+
+---
+
+
+```r
+hist(landval$corn, 30)
+abline(v = quantile(landval$corn), col = 'red')
+```
+
+![](03_descriptive_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+
+---
+
+Use of quantiles.
+
+
+```r
+quantile(landval$corn, .9)
+```
+
+```
+##  90% 
+## 40.1
+```
+
+In 90% of counties share of corn is 40.1% or less.
+
+--
+
+
+```r
+quantile(landval$yield, .6)
+```
+
+```
+## 60% 
+##  40
+```
+
+Corn yield per acre is at least 40 bu/acre in 60% of counties.
+
+---
+
+Standard deviation is an **approximation** of the average difference from the mean.
+
+For population:
+
+`\(\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_{i} - \mu)^2}\)`
+
+---
+
+.pull-left[
+
+```r
+mean(landval$yield)
+```
+
+```
+## [1] 39.11
+```
+
+```r
+sd(landval$yield)
+```
+
+```
+## [1] 3.384143
+```
+]
+
+.pull-right[
+![](03_descriptive_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+]
+
+---
+
+# Next meeting
+
+## Test on data management with R.
+
+Based on the reading materials on Moodle and today's exercise.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
