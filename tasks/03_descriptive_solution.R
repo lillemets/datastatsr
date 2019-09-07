@@ -74,10 +74,11 @@ soy$new.height <- ifelse(soy$loc == "Lawes", soy$height + .1, soy$height)
 head(soy)
 
 # Merge the data frame with another data frame containing yields.
-# Download data from ...
-### Use the function merge()
+# Download data set to use for merging from the address below.
+# https://raw.githubusercontent.com/lillemets/datastatsr/master/data/australia_soybean_yield.csv
+### Use read.csv() to get data from url and the function merge() to join datasets.
 
-soyYi <- read.csv('/home/jrl/rcrs/data/australia_soybean_yield.csv')
+soyYi <- read.csv('https://raw.githubusercontent.com/lillemets/datastatsr/master/data/australia_soybean_yield.csv')
 
 soy <- merge(soy, soyYi, by = c('loc', 'year', 'gen'), all.x = T, all.y = F)
 head(soy)

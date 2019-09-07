@@ -38,8 +38,9 @@
 ### Use function ifelse()
 
 # Merge the data frame with another data frame containing yields.
-# Download data from ...
-### Use the function merge()
+# Download data set to use for merging from the address below.
+# https://raw.githubusercontent.com/lillemets/datastatsr/master/data/australia_soybean_yield.csv
+### Use read.csv() to get data from url and the function merge() to join datasets.
 
 # Find the mean yield for all genotypes ("gen").
 # Then find total height by location ("loc") and year.
