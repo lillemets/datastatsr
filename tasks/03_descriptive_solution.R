@@ -31,7 +31,7 @@ summary(soy)
 ### Use function mean(). Use "?mean" if you run into problems.
 
 mean(soy$height)
-?height
+?mean
 mean(soy$height, na.rm = T)
 
 # See which unique genotype ("gen") are in the data.frame

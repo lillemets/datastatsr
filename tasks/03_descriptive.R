@@ -1,6 +1,7 @@
 #? Task 3
 
-# Import data and store it in an object with a name of your own choosing
+# Download dataset on multi-environment trial of soybean in Australia
+# Import and store it in an object with a name of your own choosing
 ### Use function read.csv().
 
 # Get an overview of the data set.

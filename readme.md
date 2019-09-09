@@ -21,8 +21,3 @@ The course covers the following topics:
   - GLM for categorical variables
   - Panel data methods
   - Impact analysis
-
----
-
-[Course notes](www.lillemets.ee/datastatsr/notes)
-[Lecture slides](www.lillemets.ee/datastatsr/slides)

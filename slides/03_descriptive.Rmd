@@ -22,8 +22,6 @@ landval <- agridat::wallace.iowaland[1:6, ] # Iowa farmland values by county in 
 1. Descriptive statistics
 1. Solving a task
 
-
-
 ---
 
 class: center middle inverse
@@ -33,8 +31,6 @@ class: center middle inverse
 ---
 
 class: center middle
-
-# RStudio
 
 #.width-70[![http://rprogramming.net/download-and-install-rstudio/](../img/ide.png)]
 
