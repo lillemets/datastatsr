@@ -88,7 +88,7 @@ head(soy)
 ### Use function aggregate() and specify formula, e.g. "yield ~ gen".
 
 aggregate(yield ~ gen, soy, mean)
-aggregate(height  ~ loc + year, soy, sum)
+aggregate(height ~ loc + year, soy, sum)
 
 # Save
 

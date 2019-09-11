@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Measures of association</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-10" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Measures of association
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-10
+
+---
+
+  
+
+
+# Association
+
+Association, relationship, correlation, causation.
+
+We look only some more common measures between two categorical variables and between two continuous variables.
+
+Relationship can be described by:
+
+- magnitude
+- direction
+- significance
+
+---
+
+class: center middle
+
+![](../img/correlation.png)
+
+---
+
+Data in the following examples: counts of webworms in a beet field, with insecticide treatments.
+
+See `?beall.webworms"` for details.
+
+
+```r
+webw &lt;- agridat::beall.webworms
+head(webw, 3)
+```
+
+```
+##   row col y block trt spray lead
+## 1   1   1 1    B1  T1     N    N
+## 2   2   1 0    B1  T1     N    N
+## 3   3   1 1    B1  T1     N    N
+```
+
+---
+
+class: center middle inverse
+
+# Contingency tables in R
+
+---
+
+
+```r
+head(webw, 3)
+```
+
+```
+##   row col y block trt spray lead
+## 1   1   1 1    B1  T1     N    N
+## 2   2   1 0    B1  T1     N    N
+## 3   3   1 1    B1  T1     N    N
+```
+
+```r
+table(webw$spray, webw$lead)
+```
+
+```
+##    
+##       N   Y
+##   N 325 325
+##   Y 325 325
+```
+
+---
+
+Add names for dimensions with `dnn = `.
+
+
+```r
+table(webw$spray, webw$lead, dnn = c('Spray', 'Lead'))
+```
+
+```
+##      Lead
+## Spray   N   Y
+##     N 325 325
+##     Y 325 325
+```
+
+---
+
+You can add more dimensions.
+
+
+```r
+table(webw$spray, webw$lead, webw$trt, dnn = c('Spray', 'Lead', 'Treatment'))
+```
+
+```
+## , , Treatment = T1
+## 
+##      Lead
+## Spray   N   Y
+##     N 325   0
+##     Y   0   0
+## 
+## , , Treatment = T2
+## 
+##      Lead
+## Spray   N   Y
+##     N   0   0
+##     Y 325   0
+## 
+## , , Treatment = T3
+## 
+##      Lead
+## Spray   N   Y
+##     N   0 325
+##     Y   0   0
+## 
+## , , Treatment = T4
+## 
+##      Lead
+## Spray   N   Y
+##     N   0   0
+##     Y   0 325
+```
+
+---
+
+You can also get perctentages instead of counts with `prop.table(table())`. Change margins that sum to 1 with `margin = ` (`1` for row margins, `2` for column margins).
+
+
+```r
+prop.table(table(webw$trt, webw$y &gt; 1), margin = 1)
+```
+
+```
+##     
+##           FALSE       TRUE
+##   T1 0.62769231 0.37230769
+##   T2 0.88923077 0.11076923
+##   T3 0.76923077 0.23076923
+##   T4 0.91384615 0.08615385
+```
+
+---
+
+class: center middle inverse
+
+# Categorical variables
+
+---
+
+# An example problem
+
+
+```r
+webw$spray &lt;- webw$spray == 'Y'
+webw$worms &lt;- webw$y &gt; 1
+conTab &lt;- table(webw$spray, webw$worms, dnn = c('Sprayed', 'Webworms present'))
+conTab
+```
+
+```
+##        Webworms present
+## Sprayed FALSE TRUE
+##   FALSE   454  196
+##   TRUE    586   64
+```
+
+--
+
+## **Did spray treatment help reduce the presence of webworms?**
+
+---
+
+# Odds
+
+Odds of something happening vs not happening.
+
+`$$Odds = \frac{Event\space{}happens}{Event\space{}does\space{}not\space{}happen}$$`
+
+---
+
+
+```
+##        Webworms present
+## Sprayed FALSE TRUE
+##   FALSE   454  196
+##   TRUE    586   64
+```
+
+Odds of webworms present when spraying
+
+
+```r
+sum(webw$worms[webw$spray]) # Had worms when sprayed
+```
+
+```
+## [1] 64
+```
+
+```r
+sum(!webw$worms[webw$spray]) # Didn't have worms when sprayed
+```
+
+```
+## [1] 586
+```
+
+```r
+sum(webw$worms[webw$spray]) / sum(!webw$worms[webw$spray])
+```
+
+```
+## [1] 0.109215
+```
+
+---
+
+
+```
+##        Webworms present
+## Sprayed FALSE TRUE
+##   FALSE   454  196
+##   TRUE    586   64
+```
+
+Odds of webworms present when not spraying
+
+
+```r
+sum(webw$worms[!webw$spray]) # Had worms when didn't spray
+```
+
+```
+## [1] 196
+```
+
+```r
+sum(!webw$worms[!webw$spray]) # Didn't have worms when didn't spray
+```
+
+```
+## [1] 454
+```
+
+```r
+sum(webw$worms[!webw$spray]) / sum(!webw$worms[!webw$spray])
+```
+
+```
+## [1] 0.4317181
+```
+
+---
+
+# Odds ratio
+
+Odds of something happening vs not happening with treatment vs without it.
+
+`$$Odds\space{}ratio = \frac{Odds\space{}of\space{}event\space{}happening\space{}with\space{}treatment}{Odds\space{}of\space{}event\space{}happening\space{}without\space{}treatment}$$`
+
+
+```r
+(sum(webw$worms[webw$spray]) / sum(!webw$worms[webw$spray])) / 
+  (sum(webw$worms[!webw$spray]) / sum(!webw$worms[!webw$spray]))
+```
+
+```
+## [1] 0.2529776
+```
+
+---
+
+# Risk
+
+Probability of an event happening.
+
+`$$Risk = \frac{Event\space{}happens}{Event\space{}happens + event\space{}does\space{}not\space{}happen}$$`
+
+---
+
+
+```
+##        Webworms present
+## Sprayed FALSE TRUE
+##   FALSE   454  196
+##   TRUE    586   64
+```
+
+Risk of webworms present when sprayed
+
+
+```r
+sum(webw$worms[webw$spray]) # Had worms when sprayed
+```
+
+```
+## [1] 64
+```
+
+```r
+sum(webw$spray) # Sprayed
+```
+
+```
+## [1] 650
+```
+
+```r
+sum(webw$worms[webw$spray]) / sum(webw$spray)
+```
+
+```
+## [1] 0.09846154
+```
+
+---
+
+
+```
+##        Webworms present
+## Sprayed FALSE TRUE
+##   FALSE   454  196
+##   TRUE    586   64
+```
+
+Risk of webworms present when not sprayed
+
+
+```r
+sum(webw$worms[!webw$spray]) # Had worms when didn't spray
+```
+
+```
+## [1] 196
+```
+
+```r
+sum(!webw$spray) # Did not spray
+```
+
+```
+## [1] 650
+```
+
+```r
+sum(webw$worms[!webw$spray]) / sum(!webw$spray)
+```
+
+```
+## [1] 0.3015385
+```
+
+---
+
+# Risk ratio
+
+Sometimes referred to as *relative risk*.
+
+`$$Relative\space{}risk = \frac{Relative\space{}risk\space{}with\space{}treatment}{Relative\space{}risk\space{}without\space{}treatment}$$`
+
+
+```r
+(sum(webw$worms[webw$spray]) / sum(webw$spray)) / 
+  (sum(webw$worms[!webw$spray]) / sum(!webw$spray))
+```
+
+```
+## [1] 0.3265306
+```
+
+---
+
+# Measures of association for categorical variables
+
+Phi coefficient
+
+Goodman and Kruskal’s lambda
+
+Cramer's V
+
+Fisher's exact test, `fisher.test()`
+
+**Chi-squared test, `chisq.test()`**
+
+---
+
+# Chi-squared test
+
+
+Chi-squared test statistic:
+
+`$$\chi^2 = \sum_{i = 1} \frac{n_{obs, i} - n_{expected, i}}{n_{expected, i}}$$`
+
+Basically, sum of all differences between observed and expected values.
+
+---
+
+
+```r
+conTab
+```
+
+```
+##        Webworms present
+## Sprayed FALSE TRUE
+##   FALSE   454  196
+##   TRUE    586   64
+```
+
+```r
+chisq.test(conTab)
+```
+
+```
+## 
+## 	Pearson's Chi-squared test with Yates' continuity correction
+## 
+## data:  conTab
+## X-squared = 82.505, df = 1, p-value &lt; 2.2e-16
+```
+
+P-value of 1.0541342\times 10^{-19} is below treshold of 0.05, so there's a statistically significant relationship.
+
+---
+
+
+```r
+curve(dchisq(x, df = chisq.test(conTab)$parameter), from = 0, to = 100)
+abline(v = qchisq(.95, df = chisq.test(conTab)$parameter), col = 'red') # Critical value
+abline(v = chisq.test(conTab)$statistic, col = 'blue') # Our value
+```
+
+![](05_association_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+
+It's very unlikely to get a test statistic with value 82.5048077 or greater if there was no relationship.
+
+---
+
+class: center middle inverse
+
+# Continuous variables
+
+---
+
+# Pearson’s correlation coefficient
+
+Evaluates linear relationship (when x increases by 1, y also increases by 1). Values should be normally distributed.
+
+`$$r = \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^{n}(x_i-\bar{x})^2 \sum_{i=1}^{n}(y_i-\bar{y})^2}$$`
+
+---
+
+# Spearman rank-order correlation coefficient
+
+Evaluation is based on the ranking of values. Evaluates a monotonic relationship (when x increases, y also increases).
+
+`$$r = 1 - \frac{6\sum d_{i}^{2}}{n(n^{2}-1)},$$`
+
+where `\(d_{i}\)` is the difference between the two ranks of each observation and `\(n\)` is the number of observations.
+
+---
+
+Data in the following examples: Nebraska farm income in 2007 by county.
+
+See `?agridat::nebraska.farmincome` for details.
+
+
+```r
+farmin &lt;- agridat::nebraska.farmincome
+head(farmin, 3)
+```
+
+```
+##     county   crop animal     area
+## 1    adams 130743 118514 563.5273
+## 2 antelope 147408 192425 859.2138
+## 3   arthur     NA     NA 706.5321
+```
+
+---
+
+Is income from crops related to income from livestock and poultry?
+
+
+```r
+par(pty = 's') # Force the plot area to be square
+plot(farmin$crop, farmin$animal)
+```
+
+![](05_association_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+To get a coefficient of correlation, use function `cor()`. If data has missing values, add `use = 'pairwise.complete.obs'` as an argument to only use observations where both values are not missing. 
+
+
+```r
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs')
+```
+
+```
+## [1] 0.5021147
+```
+
+--
+
+By default `cor()` computes Pearson's correlation coefficient. Use `method = 'spearman'` to calculate Spearman's version.
+
+
+```r
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs', method = 'spearman')
+```
+
+```
+## [1] 0.575783
+```
+
+---
+
+When you pass multiple data frame columns to the function, `cor()` returns a correlation table. 
+
+
+```r
+corTab &lt;- cor(farmin[, c('animal', 'crop', 'area')], use = 'pairwise.complete.obs')
+corTab
+```
+
+```
+##           animal       crop       area
+## animal 1.0000000 0.50211471 0.17100688
+## crop   0.5021147 1.00000000 0.02321347
+## area   0.1710069 0.02321347 1.00000000
+```
+
+---
+
+You can get a visual overview of correlations when you pass a correlation table to `heatmap()` function.
+
+
+```r
+heatmap(corTab)
+```
+
+![](05_association_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

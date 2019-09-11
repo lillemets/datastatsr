@@ -1,0 +1,185 @@
+---
+title: Task. Data visualization
+subtitle: Data and statistics with R <br> Research Methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T, error = T)
+```
+
+# Load and understand data
+
+The data for the exercises is on the address below. If you open it in web browser, you should see that this data is formatted as *tsv* (tab-separated value). Thus, you need to use `read.table()` command and set `sep = '\t'` to have the function treat tabs as separators. Unlike `read.csv()`, `read.table()` does not treat the first line as a header by default, so you also need to specify this with `head = T`.
+
+https://raw.githubusercontent.com/kwstat/agridat/master/data/lehner.soybeanmold.txt
+
+```{r, echo = F}
+soybm <- agridat::lehner.soybeanmold
+```
+
+```{r, eval = F}
+soybm <- read.table('https://raw.githubusercontent.com/kwstat/agridat/master/data/lehner.soybeanmold.txt', 
+                    sep = '\t', head = T)
+```
+
+Once you have managed to store the data as a `data.frame` object, take a look at it with `str()` command.
+
+``` {r}
+str(soybm)
+```
+
+This is data on yield, white mold, and sclerotia fungus for soybeans in Brazil. The variables are described as follows.
+
+- `study`, study number
+- `year`, year of harvest
+- `loc`, location name
+- `elev`, elevation
+- `region`, region
+- `trt`, treatment number
+- `yield`, crop yield, kg/ha
+- `mold`, white mold incidence, percent
+- `sclerotia`, weight of sclerotia g/ha
+
+Looking at the raw data may give you a better understanding of it. Use `head()` to see the first 10 rows.
+
+``` {r}
+head(soybm, 10)
+```
+
+# Take a look at the distribution of mold with histogram
+
+Suppose we are interested in the values of mold. Use `hist()` function to plot a histogram of `mold`.
+
+```{r}
+hist(soybm$mold)
+```
+
+Now plot heights of the bars as probability densities by setting `freq = F`. Also, add some more breaks with `breaks = 30`. Then add density lines with `lines(density())` and try to bring out the line by adding some color with `col = `. See the output of `colors()` to see the color names recognized by R.
+
+```{r}
+hist(soybm$mold, breaks = 30, freq = F)
+lines(density(soybm$mold), col = 'tomato')
+```
+
+# Plot the relationship between mold and yield
+
+If we were interested whether higher yields cause mold or not, we could plot these two variables against each other. Do this with `plot()` function and create a scatterplot where `mold` is on y-axis and `yield` on x-axis.
+
+```{r}
+plot(mold ~ yield, soybm)
+```
+
+Now also add a colored vertical line that indicates the mean value of yield. Use `abline(v = mean())` and add `col = ` as an argument to `abline()`.
+
+```{r}
+plot(mold ~ yield, soybm)
+abline(v = mean(soybm$yield), col = 'cornflowerblue')
+```
+
+# See the change over years
+
+Now see how the mean yield has changed. To get means for each year, pass the formula `mold ~ year` to `aggregate()` and use function `mean()` for aggregation. Store the result in a new data frame. Then reorder it to make sure it is ordered by `year`. 
+
+```{r}
+aggr <- aggregate(mold ~ year, soybm, mean)
+aggr <- aggr[order(aggr$year), ]
+aggr
+```
+
+Now you can use this data frame to plot `year` against `mold` as in the last plot. For time series, it is better to have a line, so set `type = 'l'`.
+
+```{r}
+plot(mold ~ year, aggr, type = 'l')
+```
+
+We can see that there has been a substatial decrease. Because the y-scale does not start from 0, this is misleading. Fix it by setting the limits of y-scale to 0 and maximum of `mold` with argument `ylim = `.
+
+```{r}
+plot(mold ~ year, aggr, type = 'l', ylim = c(0, max(aggr$mold)))
+```
+
+# Compare mean values between locations
+
+Suppose we are now interested in how different are the mean mold incidences among locations. First you need to aggregate data to get mean vaues of `mold` by `loc`. Store the results in a data frame and then reorder it by `mold`.
+
+```{r}
+aggr <- aggregate(mold ~ loc, soybm, mean)
+aggr <- aggr[order(aggr$mold), ]
+aggr
+```
+
+Next, create a barplot of the aggregated values of `mold` and use `names.arg = ` to add location names. Also, rotate the plot with `horiz = T` and make labels horizontal with `las = 1`.
+
+``` {r}
+barplot(aggr$mold, names.arg = aggr$loc, horiz = T, las = 1)
+```
+
+Since the location names are quite long, they are cropped. To fix this, widen the left margin to 10 lines and keep the rest of the margins at 2 lines by adjusting plot parameters with `par(mar = c(2,10,2,2))`. These numbers control the margins in following sequence: bottom, left, top, right.
+
+``` {r}
+par(mar = c(2,10,2,2))
+barplot(aggr$mold, names.arg = aggr$loc, horiz = T, las = 1)
+```
+
+# Compare yields in different locations
+
+Now, let's see how yield compares between locations. Aggregate the data as in previous section, except this time aggregate the values of `yield` instead of `mold`. 
+
+```{r}
+aggr <- aggregate(yield ~ loc, soybm, mean)
+aggr <- aggr[order(aggr$yield), ]
+aggr
+```
+
+This time use `dotchart()` to plot mean values of `yield` by `loc`.
+
+``` {r}
+dotchart(aggr$yield, aggr$loc)
+```
+
+# Get a better comparison by plotting quantiles
+
+In previous sections we only looked at the difference in mean values. However, that is only part of the picture. A better comparison can be achieved by plotting quantile ranges of different locations side by side. Do this with `boxplot()` and use the formula `mold ~ loc`. Also, add `horizontal = T` and `las = 1` to rotate the plot.
+
+```{r, echo = -1}
+par(mar = c(2,10,2,2))
+boxplot(mold ~ loc, soybm, horizontal = T, las = 1)
+```
+
+# Create a publication ready plot
+
+Suppose our last plot conveys some information we would like to publish. Thus, we need to add some elements to have a self-explanatory plot. Add the following elements:
+
+- title, `main = `
+- subtitle, `sub = `
+- label for x-axis, `xlab = `
+- label for y-axis, `ylab = `
+
+```{r, echo = -1}
+par(mar = c(2,10,2,2))
+boxplot(mold ~ loc, soybm, horizontal = T, las = 1, 
+        main = "White mold for soybeans in locations in Brazil", 
+        sub = "Lehner, M. S., Pethybridge, S. J., Meyer, M. C., & Del Ponte, E. M. (2016).",
+        xlab = "White mold incidence, %", 
+        ylab = "")
+```
+
+Because we decreased the bottom margin, the x-axis label and subtitle are not visible. Change the bottom margin to 6 with `par(mar = c(6,10,2,2))`. Then draw the plot again.
+
+```{r}
+par(mar = c(6,10,2,2))
+boxplot(mold ~ loc, soybm, horizontal = T, las = 1, 
+        main = "White mold for soybeans in locations in Brazil", 
+        sub = "Lehner, M. S., Pethybridge, S. J., Meyer, M. C., & Del Ponte, E. M. (2016).",
+        xlab = "White mold incidence, %", 
+        ylab = "")
+```

@@ -5,5 +5,3 @@ xaringan::moon_reader:
         highlightStyle: github
         highlightLines: true
         countIncrementalSlides: false
-editor_options: 
-  chunk_output_type: console

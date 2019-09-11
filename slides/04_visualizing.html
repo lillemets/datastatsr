@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Data visualization</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-11" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Data visualization
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-11
+
+---
+
+  
+
+
+# Visualizing data
+
+Graph, chart, **plot**.
+
+A way of describing data.
+
+Part of exploratory data analysis.
+
+---
+
+Data in the following examples: yield for two varieties of barley grown at 51 locations in the years 1901 to 1906.
+
+See `?agridat::student.barley` for details.
+
+
+```r
+barley &lt;- agridat::student.barley
+head(barley)
+```
+
+```
+##   year   farmer        place     district    gen yield income
+## 1 1901 McCarthy Ballinacurra         Cork Archer   180    180
+## 2 1901  Hawkins    Whitegate         Cork Archer   163    163
+## 3 1901     Dwan      Thurles CentralPlain Archer   242    233
+## 4 1901    Wolfe       Nenagh CentralPlain Archer   176    173
+## 5 1902 McCarthy Ballinacurra         Cork Archer   198    173
+## 6 1902  Hawkins    Whitegate         Cork Archer   224    212
+```
+
+---
+
+class: center middle inverse
+
+# Types of plots
+
+---
+
+# Histogram
+
+Displays the frequency of values by bins.
+
+.pull-left[
+Use `hist()` to create.
+
+```r
+hist(barley$income)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+Use `breaks = n` to set the number of breaks to `n`.
+
+```r
+hist(barley$income, breaks = 30)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+]
+
+---
+
+You can also plot probability densities by `freq = F` and adding density estimate line with `lines(density())`.
+
+
+```r
+hist(barley$yield, freq = F)
+lines(density(barley$yield))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+# Scatterplot
+
+Plot one continuous variable agains another.
+
+You can either pass both arguments to the function or use formula mehtod.
+
+.pull-left[
+
+```r
+plot(barley$yield, barley$income)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+```r
+plot(income ~ yield, barley)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+]
+
+---
+
+Add lines with `abline()`.
+
+
+```r
+plot(yield ~ income, barley)
+abline(h = median(barley$yield), v = median(barley$income))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+# Barplot
+
+Barplot requires you to specify values, so first we need to get aggregates.
+
+.pull-left[
+
+```r
+aggr &lt;- aggregate(income ~ farmer, barley, mean)
+head(aggr)
+```
+
+```
+##      farmer income
+## 1 Allardyce 164.00
+## 2    Dooley 199.75
+## 3      Dwan 226.50
+## 4    Gorman 142.25
+## 5   Hawkins 161.25
+## 6   Kearney 158.50
+```
+]
+
+.pull-right[
+
+```r
+barplot(aggr$income, names.arg = aggr$farmer)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+]
+
+---
+
+Order with `order()`, flip the axes with `horiz = T` and rotate labels with `las = 2`.
+
+
+```r
+aggr &lt;- aggr[order(aggr$income), ]
+barplot(aggr$income, names.arg = aggr$farmer, horiz = T, las = 2)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+# Dotchart
+
+---
+
+# Boxplot
+
+Boxplot presents mean value as well as quartiles. All values are between *whiskers* and half of the values are inside the *box* (i.e. the interquartile range).
+
+.pull-left[
+
+```r
+summary(barley$income)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    90.0   146.5   173.0   169.0   193.5   234.0
+```
+]
+
+.pull-right[
+
+```r
+boxplot(barley$income)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+]
+
+---
+
+Boxplots are very useful for comparing values between one or more groups.
+
+
+```r
+boxplot(income ~ year, barley)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+
+class: center middle inverse
+
+# Plot parameters
+
+---
+
+You can list all plot parameters with `?par`. 
+
+Use `par(mfrow = c(1,2))` to draw two plots in a single row.
+
+
+```r
+par(mfrow = c(1,2))
+hist(barley$yield)
+hist(barley$income)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+
+# Labels
+
+
+```r
+plot(income ~ yield, barley, 
+     main = "Relationship between yield and income", 
+     sub = "Source: Student. 1923. On Testing Varieties of Cereals. Biometrika, 15, 271–293.", 
+     xlab = "Yield, 'stones' per acre (1 stone = 14 pounds)", 
+     ylab = "Income per acre in shillings")
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+
+class: center middle inverse
+
+# Some principles of creating plots
+
+???
+Source: https://www.biostat.wisc.edu/~kbroman/presentations/graphs2018.pdf
+
+---
+
+# Only create a plot when needed
+
+Most people understand common fractions without a plot.
+
+
+```r
+barplot(c(32,33,34), names.arg = c("32%", "33%", "34%")) # Useless plot
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+pie(c(10,90), labels = c("10%", "90%")) # Another useless plot
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Avoid pies
+
+Becouse they make comparisons are difficult.
+
+
+```r
+pie(table(barley$farmer))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+
+---
+
+Pie plots may work if there are few categories with very different proportions.
+
+
+```r
+pie(table(barley$district))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+---
+
+# Show data points
+
+
+```r
+boxplot(yield ~ district, barley)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+boxplot(yield ~ district, barley)
+points(yield ~ district, barley)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+
+# Use color
+
+
+```r
+boxplot(yield ~ district + gen, barley, col = rainbow(4))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+
+---
+
+R recognizes most common colors. Use `colors()` to see all colors that you can pass to `color = `.
+
+
+```r
+hist(barley$yield, 30, freq = F, col = 'snow2')
+lines(density(barley$yield), col = 'firebrick')
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+
+---
+
+# Show comparisons
+
+Arrange elements to be compared side by side.
+
+What do we wish to compare? `district` or `gen`?
+
+---
+
+
+```r
+par(mfrow = 1:2)
+boxplot(yield ~ district + gen, barley, col = rep(rainbow(2), each = 4))
+boxplot(yield ~ gen + district, barley, col = rainbow(2))
+legend('topright', legend = unique(barley$gen), fill = rainbow(2))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+---
+
+# Consider the number of dimensions
+
+Use two dimensions for a two-dimensional representation.
+
+--
+
+Don't do this:
+
+![](https://i.stack.imgur.com/hLMIU.png)
+
+---
+
+Instead you could create multiple plots.
+
+
+```r
+par(mfrow = c(1,4))
+replicate(4, barplot(abs(rnorm(4,3,2)), col = rainbow(4)))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+
+```
+## , , 1
+## 
+##      [,1]
+## [1,]  0.7
+## [2,]  1.9
+## [3,]  3.1
+## [4,]  4.3
+## 
+## , , 2
+## 
+##      [,1]
+## [1,]  0.7
+## [2,]  1.9
+## [3,]  3.1
+## [4,]  4.3
+## 
+## , , 3
+## 
+##      [,1]
+## [1,]  0.7
+## [2,]  1.9
+## [3,]  3.1
+## [4,]  4.3
+## 
+## , , 4
+## 
+##      [,1]
+## [1,]  0.7
+## [2,]  1.9
+## [3,]  3.1
+## [4,]  4.3
+```
+
+---
+
+class: center middle
+
+![https://xkcd.com/1945/](../img/scientific_paper_graph_quality.png)
+
+---
+
+# Flip if too many categories
+
+
+```r
+par(mfrow = 1:2)
+boxplot(yield ~ gen + district, barley, col = rainbow(2))
+par(mar = c(0,10,0,0))
+boxplot(yield ~ gen + district, barley, col = rainbow(2), horizontal = T, las = 2, ann = F)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+
+---
+
+# Sort by values
+
+
+```r
+par(mfrow = 1:2)
+aggr &lt;- aggregate(income ~ place, barley, mean)
+dotchart(aggr[, 2], labels = aggr$place)
+aggr &lt;- aggr[order(aggr$income), ]
+dotchart(aggr[, 2], labels = aggr$place)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+
+---
+
+# Group values
+
+Arrange.
+
+
+```r
+par(mfrow = 1:2)
+aggr &lt;- aggregate(income ~ place, barley, mean)
+dotchart(aggr[, 2], labels = aggr$place)
+aggr &lt;- aggregate(income ~ place + district, barley, mean)
+aggr &lt;- aggr[order(aggr$income), ]
+dotchart(aggr[, 3], labels = aggr$place, groups = aggr$district)
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-28-1.png)&lt;!-- --&gt;
+
+---
+
+Or use colors.
+
+
+```r
+plot(barley$income, barley$yield, col = rainbow(6)[factor(barley$year)])
+legend('topright', legend = unique(barley$year), fill = rainbow(6))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-29-1.png)&lt;!-- --&gt;
+
+---
+
+# Use a common scale
+
+Different scales make comparisons difficult.
+
+
+```r
+par(mfrow = c(1,4))
+for (i in unique(barley$district)) {
+  plot(yield ~ income, barley[barley$district == i, ], main = i)
+}
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+
+---
+
+It's much easier to compare when all *facets* have the same scale.
+
+
+```r
+par(mfrow = c(1,4))
+for (i in unique(barley$district)) {
+  plot(yield ~ income, barley[barley$district == i, ], 
+       main = i, 
+       ylim = range(barley$income))
+}
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-31-1.png)&lt;!-- --&gt;
+
+---
+
+# Consider adding zero to scales
+
+Starting from an arbitrary point may distort reality.
+
+
+```r
+par(mfrow = 1:2)
+aggr &lt;- aggregate(income ~ year, barley, mean)
+aggr &lt;- aggr[order(aggr$year), ]
+plot(income ~ year, aggr, type = 'l')
+plot(income ~ year, aggr, type = 'l', ylim = c(0, max(aggr$income)))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-32-1.png)&lt;!-- --&gt;
+
+---
+
+# Use logs when the distribution is skewed
+
+
+```r
+par(mfrow = 1:2)
+incomes &lt;- rlnorm(1e3, 10, 1)
+hist(incomes)
+hist(log(incomes))
+```
+
+![](04_visualizing_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;
+
+---
+
+# Remove clutter
+
+![](https://stat545.com/img/less-is-more-darkhorse-analytics.gif)
+
+---
+
+class: center middle inverse
+
+# Make graphs great again: ggplot2
+
+---
+
+
+```r
+#install.packages('ggplot2')
+library('ggplot2')
+```
+
+Why better than base R graphics?
+
+- Consistent syntax
+- Intuitive
+- Flexible and powerful
+- Many theming options
+
+???
+https://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html
+
+---
+
+A plot is created incrementally from *building blocks*:
+
+- data
+- aesthetic mapping
+- coordinate system
+- geometric object
+- statistical transformations
+- scales
+- position adjustments
+- faceting
+
+---
+
+# An example of a ggplot2 plot
+
+
+```r
+plotYiInc &lt;- 
+ggplot(barley) + aes() + 
+  labs(title = "Relationship between yield and income", 
+       subtitle = "There is a linear relationship between yield and income. 
+       One unit increase in yield increases income by approximately one unit.", 
+       caption = "Source: Student. 1923. On Testing Varieties of Cereals. Biometrika, 15, 271–293.", 
+       color = "District") + 
+  geom_point(aes(x = yield, y = income, color = district), alpha = .8) + 
+  geom_smooth(aes(x = yield, y = income), size = .5, color = 'gray75', alpha = .2) + 
+  scale_x_continuous(name = "Yield, 'stones' per acre (1 stone = 14 pounds)") + 
+  scale_y_continuous(name = "Income per acre in shillings") + 
+  scale_color_brewer(palette = 'Set2') + 
+  scale_fill_brewer(palette = 'Set1') + 
+  facet_grid(~ year) + 
+  theme_minimal()
+```
+
+---
+
+class: center middle
+
+![](04_visualizing_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

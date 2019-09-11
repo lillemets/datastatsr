@@ -1,8 +1,10 @@
 ---
-  title: Measures of association
-subtitle: Research Methods <br> Data and statistics with R <br><br>
-  author: Jüri Lillemets
+title: Measures of association
+subtitle: Data and statistics with R <br> Research Methods <br><br>
+author: Jüri Lillemets
 date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
 ---
   
 ```{r setup, include = F}
@@ -11,42 +13,284 @@ knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T,
 
 # Working directory
 knitr::opts_knit$set(root.dir = '/home/jrl/rcrs/slides')
-
-milktr <- agridat::brandt.switchback # Switchback trial of milk yield for two feed mixtures in cattle
 ```
 
-# Frequency tables
+# Association
 
-Frequency tables represent absolute (count) or relative (percentage) frequencies by groups.
+Association, relationship, correlation, causation.
 
-In R generate with `table()` function.
+We look only some more common measures between two categorical variables and between two continuous variables.
 
-``` {r, echo = F}
-args(table)
+Relationship can be described by:
+
+- magnitude
+- direction
+- significance
+
+---
+
+class: center middle
+
+![](../img/correlation.png)
+
+---
+
+Data in the following examples: counts of webworms in a beet field, with insecticide treatments.
+
+See `?beall.webworms"` for details.
+
+```{r}
+webw <- agridat::beall.webworms
+head(webw, 3)
 ```
 
 ---
-  
+
+class: center middle inverse
+
+# Contingency tables in R
+
+---
+
 ```{r}
-head(milktr) # Switchback trial of milk yield for two feed mixtures in cattle
+head(webw, 3)
+table(webw$spray, webw$lead)
 ```
 
 ---
-  
-`table()` returns counts by a single or multiple categorical variable.
+
+Add names for dimensions with `dnn = `.
+
+``` {r}
+table(webw$spray, webw$lead, dnn = c('Spray', 'Lead'))
+```
+
+---
+
+You can add more dimensions.
+
+``` {r}
+table(webw$spray, webw$lead, webw$trt, dnn = c('Spray', 'Lead', 'Treatment'))
+```
+
+---
+
+You can also get perctentages instead of counts with `prop.table(table())`. Change margins that sum to 1 with `margin = ` (`1` for row margins, `2` for column margins).
+
+``` {r}
+prop.table(table(webw$trt, webw$y > 1), margin = 1)
+```
+
+---
+
+class: center middle inverse
+
+# Categorical variables
+
+---
+
+# An example problem
 
 ```{r}
-table(milktr$group)
+webw$spray <- webw$spray == 'Y'
+webw$worms <- webw$y > 1
+conTab <- table(webw$spray, webw$worms, dnn = c('Sprayed', 'Webworms present'))
+conTab
 ```
 
 --
-  
+
+## **Did spray treatment help reduce the presence of webworms?**
+
+---
+
+# Odds
+
+Odds of something happening vs not happening.
+
+$$Odds = \frac{Event\space{}happens}{Event\space{}does\space{}not\space{}happen}$$
+
+---
+
+```{r, echo = F}
+conTab
+```
+
+Odds of webworms present when spraying
+
 ```{r}
-table(milktr$group, milktr$trt)
+sum(webw$worms[webw$spray]) # Had worms when sprayed
+sum(!webw$worms[webw$spray]) # Didn't have worms when sprayed
+sum(webw$worms[webw$spray]) / sum(!webw$worms[webw$spray])
 ```
 
 ---
-  
-```{r}
-table(milktr$group, milktr$trt, milktr$period)
+
+```{r, echo = F}
+conTab
 ```
+
+Odds of webworms present when not spraying
+
+```{r}
+sum(webw$worms[!webw$spray]) # Had worms when didn't spray
+sum(!webw$worms[!webw$spray]) # Didn't have worms when didn't spray
+sum(webw$worms[!webw$spray]) / sum(!webw$worms[!webw$spray])
+```
+
+---
+
+# Odds ratio
+
+Odds of something happening vs not happening with treatment vs without it.
+
+$$Odds\space{}ratio = \frac{Odds\space{}of\space{}event\space{}happening\space{}with\space{}treatment}{Odds\space{}of\space{}event\space{}happening\space{}without\space{}treatment}$$
+
+```{r}
+(sum(webw$worms[webw$spray]) / sum(!webw$worms[webw$spray])) / 
+  (sum(webw$worms[!webw$spray]) / sum(!webw$worms[!webw$spray]))
+```
+
+---
+
+# Risk
+
+Probability of an event happening.
+
+$$Risk = \frac{Event\space{}happens}{Event\space{}happens + event\space{}does\space{}not\space{}happen}$$
+
+---
+
+```{r, echo = F}
+conTab
+```
+
+Risk of webworms present when sprayed
+
+```{r}
+sum(webw$worms[webw$spray]) # Had worms when sprayed
+sum(webw$spray) # Sprayed
+sum(webw$worms[webw$spray]) / sum(webw$spray)
+```
+
+---
+
+```{r, echo = F}
+conTab
+```
+
+Risk of webworms present when not sprayed
+
+```{r}
+sum(webw$worms[!webw$spray]) # Had worms when didn't spray
+sum(!webw$spray) # Did not spray
+sum(webw$worms[!webw$spray]) / sum(!webw$spray)
+```
+
+---
+
+# Risk ratio
+
+Sometimes referred to as *relative risk*.
+
+$$Relative\space{}risk = \frac{Relative\space{}risk\space{}with\space{}treatment}{Relative\space{}risk\space{}without\space{}treatment}$$
+
+```{r}
+(sum(webw$worms[webw$spray]) / sum(webw$spray)) / 
+  (sum(webw$worms[!webw$spray]) / sum(!webw$spray))
+```
+
+---
+
+# Measures of association for categorical variables
+
+Phi coefficient
+
+Goodman and Kruskal’s lambda
+
+Cramer's V
+
+Fisher's exact test, `fisher.test()`
+
+Chi-squared test, `chisq.test()`
+
+---
+
+class: center middle inverse
+
+# Continuous variables
+
+---
+
+# Pearson’s correlation coefficient
+
+Evaluates linear relationship (when x increases by 1, y also increases by 1). Values should be normally distributed.
+
+$$r = \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^{n}(x_i-\bar{x})^2 \sum_{i=1}^{n}(y_i-\bar{y})^2}$$
+
+---
+
+# Spearman rank-order correlation coefficient
+
+Evaluation is based on the ranking of values. Evaluates a monotonic relationship (when x increases, y also increases).
+
+$$r = 1 - \frac{6\sum d_{i}^{2}}{n(n^{2}-1)},$$
+
+where $d_{i}$ is the difference between the two ranks of each observation and $n$ is the number of observations.
+
+---
+
+Data in the following examples: Nebraska farm income in 2007 by county.
+
+See `?agridat::nebraska.farmincome` for details.
+
+```{r}
+farmin <- agridat::nebraska.farmincome
+head(farmin, 3)
+```
+
+---
+
+Is income from crops related to income from livestock and poultry?
+
+```{r}
+par(pty = 's') # Force the plot area to be square
+plot(farmin$crop, farmin$animal)
+```
+
+---
+
+To get a coefficient of correlation, use function `cor()`. If data has missing values, add `use = 'pairwise.complete.obs'` as an argument to only use observations where both values are not missing. 
+
+```{r}
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs')
+```
+
+--
+
+By default `cor()` computes Pearson's correlation coefficient. Use `method = 'spearman'` to calculate Spearman's version.
+
+```{r}
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs', method = 'spearman')
+```
+
+---
+
+When you pass multiple data frame columns to the function, `cor()` returns a correlation table. 
+
+```{r}
+corTab <- cor(farmin[, c('animal', 'crop', 'area')], use = 'pairwise.complete.obs')
+corTab
+```
+
+---
+
+You can get a visual overview of correlations when you pass a correlation table to `heatmap()` function.
+
+```{r, fig.height = 5}
+heatmap(corTab)
+```
+
+---
+
+class: inverse
