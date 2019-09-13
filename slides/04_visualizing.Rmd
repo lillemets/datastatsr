@@ -455,8 +455,7 @@ A plot is created incrementally from *building blocks*:
 plotYiInc <- 
 ggplot(barley) + aes() + 
   labs(title = "Relationship between yield and income", 
-       subtitle = "There is a linear relationship between yield and income. 
-       One unit increase in yield increases income by approximately one unit.", 
+       subtitle = "There is a linear relationship between yield and income. One unit increase in yield increases income by approximately one unit.", 
        caption = "Source: Student. 1923. On Testing Varieties of Cereals. Biometrika, 15, 271–293.", 
        color = "District") + 
   geom_point(aes(x = yield, y = income, color = district), alpha = .8) + 

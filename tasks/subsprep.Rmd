@@ -1,0 +1,227 @@
+---
+title: Subsetting and preparing a data frame
+subtitle: Data and statistics with R <br> Research methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+    highlight: default
+    theme: yeti
+editor_options:
+  chunk_output_type: inline
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T, error = T)
+# Libraries
+library('magrittr')
+# Functions
+headtail <- function(x) if (is.data.frame(x)) rbind(head(x, 3), tail(x, 3)) else c(head(x, 3), tail(x, 3))
+```
+
+The following outlines some basic functionality of R. These methods help you to load a data set, understand what's in a data set and prepare data for further analysis.
+
+Please ignore the `%>%` and whatever follows it in the code. It is used to avoid littering the the document with lenghty output.
+
+# Load data a data set into R workspace
+
+The data you should use for the following exercises is on the *url* below. As the file extension (*.txt*) indicates, it is a *plain text* file. Before reading this file into R, see what it looks like by opening the url.
+
+https://raw.githubusercontent.com/kwstat/agridat/master/data/ars.earlywhitecorn96.txt
+
+Note how the values are separated from each other. If they were separated by commas (*,*) you could use `read.csv()`. But in this case values are separated by tabs. So you need to use `read.table()` to read the data from this *url* and include `sep = '\t'` and `header = TRUE`. 
+
+Read the *url* using `read.table()` and store the output in an object called `corn`. If you need help using the function, try `?read.table`.
+
+```{r, echo = F}
+corn <- agridat::ars.earlywhitecorn96
+```
+
+```{r, eval = F}
+# We can first store the address as a character in an object...
+url <- 'https://raw.githubusercontent.com/kwstat/agridat/master/data/ars.earlywhitecorn96.txt'
+# ...and then point to this object as the file to be read.
+corn <- read.table(file = url, sep = '\t', header = TRUE)
+```
+
+If you wish, you can also try reading this data from your computer instead. To do this, you can either dowload it by making a right click on the *url* or copy-pasting it to a text editor and saving.
+
+The data set contans the results of a multi-environment trial of early white food corn for 60 white hybrids^[L. Darrah, R. Lundquist, D. West, C. Poneleit, B. Barry, B. Zehr, A. Bockholt, L. Maddux, K. Ziegler, and P. Martin. (1996). White Food Corn 1996 Performance Tests. Agricultural Research Service Special Report 502.]. If you're interested, the variables are described as follows:
+
+- `loc`, location, 9 levels
+- `gen`, gen, 60 levels
+- `yield`, yield, bu/ac
+- `stand`, stand, percent
+- `rootlodge`, root lodging, percent
+- `stalklodge`, stalk lodging, percent
+- `earht`, ear height, inches
+- `flower`, days to flower
+- `moisture`, moisture, percent
+
+# Have an overview of the data set
+
+Once you have loaded the data into R workspace, it is a good idea to make sure it was correcly read. Also you should get an overview of what the contains. To do this, use `str()` on the data frame to see its structure.
+
+```{r}
+str(corn)
+```
+
+Now you can see that there are 540 observations (`540 obs.`) that represent the rows of the data frame. As indicated by `10 variables`, the data frame has 10 variables, i.e. 10 columns. For each variable, you can see its name, type and some sample values it has.
+
+Another way to get an overview of the data frame is to use `head()` function. This returns you first rows (observations) of the data (by default 6 rows).  Try it.
+
+``` {r}
+head(corn)
+```
+
+You can now see what the data frame looks like, at least the beginning of it.
+
+Anther thing you might want to do is understand the possible values that the variables can take. This can be done with `summary()` function. Run this function on your data frame.
+
+```{r}
+summary(corn)
+```
+
+For numeric variables (`num` or `int`) this shows you some statistics on the distribution of values. For `character` and `factor` variables, it shows you the frequency of first 6 values. To see all the possible values that these non-numeric variables have, use `unique()` or pass them directly to `summary()` if they're factors.
+
+```{r}
+unique(corn$loc)
+summary(corn$loc)
+```
+
+You should now understand what the data frame contains.
+
+# Return only certain variables
+
+Using data frames in R involves a lot of subsetting, i.e. getting only part of a data frame. You will often want to use just one variable (column). There are several ways to extract only one variable.
+
+First, because variables in data frame have names, you can refer directly to them using the `$` operator. If you wish to get variable `flower` from data frame called `corn` you would need to type `corn$flower`. Try it.
+
+```{r}
+corn$flower %>% head
+```
+
+Another way is using the `[]` operator and specifying either the name of the variable or it's position inside brackets. Note that you also need to include a comma and put the variable name or position **after the comma**. To extract the values of variable `flower` in data frame `corn`, type `corn[, 'flower']`.
+
+```{r}
+corn[, 'flower'] %>% head
+```
+
+Because `flower` is the 8th variable of data frame `corn`, we need to pass this number when subsetting by position. Use the brackets again but this time use `8` instead of `'flower'`.
+
+``` {r}
+corn[, 8] %>% head
+```
+
+Using brackets seems more tedious than the `$` operator but it has an important advantage: it allows you to get more than one variable at once. Now extract variables `flower` and `moisture` with a single command. Remember that whenever you pass multiple words to R, they need to be defined as a vector (`c()`).
+
+```{r}
+corn[, c('flower', 'moisture')] %>% head
+```
+
+A feature of using position to subset is that it allows to omit variables by using negative numbers. Get the data frame `corn` without variable `flower` by subsetting with `-8`. 
+
+```{r}
+corn[, -8] %>% head
+```
+
+Knowing how to extract columns of data frame allows you to use specific variables in functions.
+
+# Get specific observations
+
+To get a subset of observations in data frame you again need to use brackets (`[]`). However, now you need to use a condition and put it **before the comma**. You can create a condition using any of the relational operators (e.g. `==`, `!=`, `>`, `<=`). If you would like to get all the observations where yield is more than 250, you need to use the condition `corn$yield > 205` before the comma in brackets. Try it.
+
+```{r}
+corn[corn$yield > 250, ]
+```
+
+You can add as many conditions as you like by separating them with either of the logical operators (`|`, `&`). Get observations where location (`loc`) is *Marion,IA* **and** moisture percent (`moisture`) less than 30 by using the following condition: `corn$loc == 'Marion,IA' & corn$moisture < 30`.
+
+```{r}
+corn[corn$loc == 'Marion,IA' & corn$moisture < 30, ]
+```
+
+If you wanted to get observations where location is either *Marion,IA* **or** *Knoxville,TN*, you need to write both conditions and separate them with the *or* operator (`|`). 
+
+```{r}
+corn[corn$loc == 'Marion,IA' | corn$loc == 'Knoxville,TN', ] %>% headtail
+```
+
+Of course, you can combine the selection of observations and variables by including something on the both sides of the comma. Try to get values of yield (`yield`) only for those observations where root lodging percent (`rootlodge`) is more than 10.
+
+```{r}
+corn[corn$rootlodge > 10, 'yield']
+```
+
+Because some of the values of `rootlodge` are missing, R does not know whether or not the condition `corn$rootlodge > 20` is satisfied or not for these values. In such cases it returns `NA`. If this happens, put the condition inside `which()` function so that you only get observations for which the condition is certainly true.
+
+```{r}
+corn[which(corn$rootlodge > 10), 'yield']
+```
+
+If you're curious why the above works, it's because a condition returns `TRUE` or `FALSE` for every observation, depending on whether or not it satisfies the condition. This logical vector is then used to select rows from data frame (except for the `which()` function which only returns indexes of `TRUE`s).
+
+# Remove missing values
+
+As you found out in the previous section, there are some missing values in the data. Often you might wish to remove these. To see which values of a variable are missing, use `is.na()`. Now find out the missing values of variable `stand`.
+
+```{r}
+is.na(corn$stand) %>% headtail
+```
+
+This returnes a vector which for each observation indicates if `stand` is missing or not. However, we need the opposite: `TRUE` if value is present and `FALSE` if it is missing. So use the negation operator (`!`) to get the opposite.
+
+```{r}
+!is.na(corn$stand) %>% headtail
+```
+
+You can now use this logical vector to subset observations.
+
+This is because to get rid of observations in a data frame, we're actually not going to remove them. Instead, we get the data frame without them and then replace the original data frame with it. So use the previous condition to select observations where `stand` is not missing and then replace the original data frame with the result.
+
+```{r}
+corn <- corn[!is.na(corn$stand), ]
+```
+
+# Add a new variable
+
+Another operation you might want to do is to add a variable to data frame. This can be done the same way as creating an object, by using the assignment operator (`<-`). Because now the object that you're creating is a variable in the data frame you need to refer to it accordingly, i.e. using `$` or `[]`. Create a new variable called `three` that has values *3* and then see the first rows of the data frame.
+
+```{r}
+corn$three <- 3
+head(corn)
+```
+
+As you can see, because there are more rows than one, R has recycled the number you provided and given it to all observations. In actual use, you will want the new values to depend on other values in the data frame. This does not make much sense, but suppose you'd like to get the ratio of yield to moisture. So divide the values of `yield` by `moisture` and store the result in a variable called *ymratio*.
+
+```{r}
+corn$ymratio <- corn$yield / corn$moisture
+head(corn)
+```
+
+It is also possible to use a condition to define new values. This is where `ifelse()` function comes handy. Suppose you wish to create a new variable that indicates if yield is above or below 140. Pass the condition `corn$yield > 140` to `ifelse()` and let the value be *high* if the condition is true and *low* otherwise. Assign the result in variable called *yield.type*. See `?ifelse` if you're not sure how to use the function.
+
+```{r}
+corn$yield.type <- ifelse(corn$yield > 140, 'high', 'low')
+head(corn)
+```
+
+# Replace the values of a variable
+
+You can replace the values of an existing variable in the same manner as creating a new one. Just refer to the variable in a data frame using either of the subsetting operators (`$`, `[]`) and define new values. Suppose we found out that moisture was measured incorrecly and all of the values of variable `moisture` should be higher by 1 unit. Change the values of `moisture` accordingly.
+
+```{r}
+corn$moisture <- corn$moisture + 1
+head(corn)
+```
+
+<br><br>
+
+That's all with this task. If you learn how to use the functions above, you will be able to prepare and use the data for further analysis.
+
+Feel free to practice subsetting rows or adding new variables with different conditions. If you would like to practice with another data set, use one from package *agridat*. To do so, install the package (`install.packages()`), load it (`library()`) and then run `?agridat` to see all the available data sets. Then just type the name of a data set to use it.
