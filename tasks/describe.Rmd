@@ -1,5 +1,5 @@
 ---
-title: Task. Basics in R.
+title: Task. Description of variables.
 subtitle: Data and statistics with R <br> Research methods <br><br>
 author: Jüri Lillemets
 date: "`r Sys.Date()`"
@@ -18,100 +18,185 @@ editor_options:
 ```{r setup, include = F}
 # Settings
 knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T, error = T)
-# Libraries
-library('magrittr')
-# Functions
-headtail <- function(x) if (is.data.frame(x)) rbind(head(x, 3), tail(x, 3)) else c(head(x, 3), tail(x, 3))
+# Manipulate data
+oats <- agridat::yates.oats
+marvellousRows <- as.numeric(row.names(oats[oats$gen == 'Marvellous', ]))
+oats$yield[sample(marvellousRows, 12)] <- NA
+write.csv('/home/jrl/rcrs/data/yates_oats.csv')
 ```
 
-The following outlines some basic functionality of R. These methods help you to understand what's in a data set, prepare data for further processing and get some simple summary statistics.
+The following tasks help you understand how to get some descriptive statistics on variables.
 
 # Load data a data set into R workspace
 
-# Have an overview of the data set
+Read the data available on the following *url* and store it in an object named `oats`.
+
+https://raw.githubusercontent.com/lillemets/datastatsr/master/data/yates_oats.csv
+
+```{r, eval = F, echo = F}
+oats <- read.csv('https://raw.githubusercontent.com/lillemets/datastatsr/master/data/yates_oats.csv')
+```
+
+The data set containes following variables:
+
+- `row`, row
+- `col`, column
+- `yield`, yield in 1/4 lbs per sub-plot, each 1/80 acre
+- `nitro`, nitrogen treatment in hundredweight per acre
+- `gen`, genotype, 3 levels
+- `block`, block, 6 levels
+- `grain`, grain weight in lbs per sub-plot
+- `straw`, straw weight in lbs per sub-plot
+
+# Get an overview of the data set
+
+See if data was correctly read and get an understandinng of what it contains. To do so, use the functions that show (1) types of variables, (2) first rows of data, (3) summary statistics on each variable.
+
+```{r, echo = F}
+str(oats)
+head(oats)
+summary(oats)
+```
+
+# Store a subset of data
+
+Subset the data frame `oats` so that you only get variables `yield` and `nitro` for genotype *Victory*. Store the result in an object called `vic`. See the first rows of this new data frame.
+
+```{r, echo = F}
+vic <- oats[oats$gen == 'Victory', c('yield', 'nitro')]
+head(vic)
+```
+
+# Add a new variable
+
+Variable `grain` represents oats weight in pounds (lbs). Create a new variable `grain.kg` in data frame `oats` that reperesents this value in kilograms (kg). Consider 1 pound to be equal to 0.45 kilograms. See the first rows of `grain` and `grain.kg` to see if it worked.
+
+```{r, echo = F}
+oats$grain.kg <- oats$grain * .45
+head(oats[, c('grain', 'grain.kg')])
+```
 
 # Calculate statistics of variables
 
-```{r}
-mean(corn$flower)
-```
-
-`na.rm = TRUE`
+Use function `mean()` to calculate arithmetic mean of variable `yield` in data frame `oats`.
 
 ```{r}
-mean(corn$flower, na.rm = TRUE)
+mean(oats$yield)
 ```
+
+This returned `NA` because some of the values are missing. If you try to do a calculation which involves missing values, then R correctly returns `NA` because we don't know the true result if we're not certain of all the values. If you wish to do the calculation without missing values, then you need to be explicit about it. Add an argument `na.rm = TRUE` to the function to do so.
 
 ```{r}
-mean(corn$yield)
+mean(oats$yield, na.rm = TRUE) 
 ```
+
+You can also do calculations on some specific subset of a dafa frame. For this you just need to pass only the subset of the data to a function. Calculate the mean yield only for genotype *Victory*. See if you get the same result from data frame `vic`.
 
 ```{r}
-head(corn[corn$loc == 'Knoxville,TN', ])
+mean(oats[oats$gen == 'Victory', 'yield'], na.rm = TRUE)
+mean(vic[, 'yield'], na.rm = TRUE)
 ```
 
-```{r}
-mean(corn[corn$loc == 'Knoxville,TN', 'yield'])
-```
+There are of course more functions for describing the values of variables. Try the following on some variables and make sure you understand what they mean.
 
-Now try...
-
-- `mean()'
-- `median()'
-- `min()'
-- `max()'
-- `sum()'
-
-
-# Aggregate data
-
-Formula
-
-```{r}
-aggregate(formula = , data = , FUN = )
-```
+- `sum()`
+- `min()`
+- `max()`
+- `median()`
+- `quantile()`
+- `sd()`
 
 # See the distribution of values
 
-
-
-```{r}
-summary(corn$yield)
-hist(corn$yield)
-```
-
-# Plot distribution of a variable by group
+Plot the distribution of values for the weights of straw. Also get the summary statistics. Try to understand how the histogram and summary statistics are related.
 
 ```{r}
-boxplot(, corn)
+hist(oats$straw)
+summary(oats$straw)
 ```
+
+# Plot distribution of values by group
+
+Create a boxplot where each box represents the yield of a genotype. 
+
+```{r}
+boxplot(yield ~ gen, oats)
+```
+
+Create similar plots for other numeric variables in the data frame. Instead of variable `gen`, you can also use a condition, e.g. *straw > 36*.
+
+# Get summaries by a grouping variable
+
+To do calculations on one variable and get the results separately for each value in another variable you need to use the `aggregate()` function. This function requires at least three arguments: formula, data and function according to which data will be aggregated. Suppose you wanted to get medians of grain mass by genotype. You could pass all the arguments as below.
+
+`aggregate(formula = grain ~ gen, data = oats, FUN = median)`
+
+However, the arguments don't need to be defined explicitly, e.g. instead of `FUN = median` you can only use `median`. Arguments just need to be in the correct order, so `median` needs to be third. Thus, the function below has exactly the same result as the above function.
+
+`aggregate(grain ~ gen, oats, median)`
+
+Now get the summary statistics (`summary()`) of yield by genotype using the aggregate function as above.
+
+```{r}
+aggregate(yield ~ gen, oats, summary)
+```
+
+The values describing quartiles in this table were also reported on the boxplot created in previous section. Try to understand how the quartiles are related to boxplot.
 
 # Tabulate to get counts
 
-A very useful function in R is `table()`. Simply put, you give it a character, factor or logical variable and it returns how many times each value in that value occurs. Try to find out how many times each location (`loc`) occurs in the data set by passing the variable to `table()`. 
+A very useful function in R is `table()`. Simply put, you give it a character, factor or logical variable and it returns how many times each value of that variable occurs. Try to find out how many times each genotype (`gen`) occurs in the data set by passing the variable to `table()`. 
 
 ```{r}
-table(corn$loc)
+table(oats$gen)
 ```
 
-You can see that each location occurs 60 times, i.e. is represented by 60 rows in the data frame. 
+You can see that each genotype occurs 24 times, i.e. is represented by 24 rows in the data frame. 
 
-A great feature of this function is that you can give it more than one variable. In such case, it will return a cross table. Cross tabulate genotype (`gen`) and location (`loc`) to see which genotypes are available in each location.
+A great feature of this function is that you can give it more than one variable. In such case, it will return a cross table. Cross tabulate genotype (`gen`) and nitrogen used (`nitro`) to see which genotypes are available for each level of nitrogen use.
 
 ``` {r}
-table(corn$gen, corn$loc) %>% as.data.frame.matrix %>% head
+table(oats$gen, oats$nitro)
 ```
 
-```{r}
-is.na()
+We can see that for each genotype, each amount of nitrogen was tested 6 times. Next, also add the block (`block`).
+
+``` {r}
+table(oats$gen, oats$nitro, oats$block)
 ```
 
+You should now see that each row is a unique combination of genotype, nitrogen use and block. This is how `table()` also helps you understand the structure of data.
+
+Sometimes it is helpful to include a condition to tabulation. Tabulate genotype and *yield > 100* to see how many observations of each genotype have yield of more than 100.
+
 ```{r}
-table(is.na())
+table(oats$gen, oats$yield > 100)
 ```
+
+Using a condition in `table()` is often handy to figure out missing values. Use `is.na()` on yield and pass the result to `table()`. 
+
+```{r}
+table(is.na(oats$yield))
+```
+
+Now also include genotype to see how many values of yield are missing for each genotype.
+
+```{r}
+table(oats$gen, is.na(oats$yield))
+```
+
+We can now see that all the missing values are of genotype *Marvellous*. Or, half of the values of yield are missing for *Marvellous*.
 
 # Save data
 
-```{r}
-write.csv()
+Data frames can be saved as plain text using `write.csv()`. As a minimum it is necessary to provide the (1) name of the data frame to be saved and (2) path to file where it will be saved. Save data frame oats to a file called *oats.csv* somewhere on your computer where you can find it.
+
+```{r, eval = F}
+write.csv(oats, 'oats.csv')
 ```
+
+Some versions of MS Excel can not open conventional *.csv* files. In such case use `write.csv2()` to be able to open the resulting file in MS Excel.
+
+---
+
+Now that you have learned to use the functions in this task you will be able to create a basic description of data, both numerically and visually.

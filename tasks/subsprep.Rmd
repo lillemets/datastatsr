@@ -26,7 +26,7 @@ headtail <- function(x) if (is.data.frame(x)) rbind(head(x, 3), tail(x, 3)) else
 
 The following outlines some basic functionality of R. These methods help you to load a data set, understand what's in a data set and prepare data for further analysis.
 
-Please ignore the `%>%` and whatever follows it in the code. It is used to avoid littering the the document with lenghty output.
+*NB!* Please ignore the `%>%` and whatever follows it in the code. It is used to avoid littering the the document with lenghty output.
 
 # Load data a data set into R workspace
 
@@ -71,7 +71,7 @@ Once you have loaded the data into R workspace, it is a good idea to make sure i
 str(corn)
 ```
 
-Now you can see that there are 540 observations (`540 obs.`) that represent the rows of the data frame. As indicated by `10 variables`, the data frame has 10 variables, i.e. 10 columns. For each variable, you can see its name, type and some sample values it has.
+Now you can see that there are 540 observations (`540 obs.`) that represent the rows of the data frame. As indicated by `9 variables`, the data frame has 9 variables, i.e. 9 columns. For each variable, you can see its name, type and some sample values it has.
 
 Another way to get an overview of the data frame is to use `head()` function. This returns you first rows (observations) of the data (by default 6 rows).  Try it.
 
@@ -188,6 +188,8 @@ This is because to get rid of observations in a data frame, we're actually not g
 corn <- corn[!is.na(corn$stand), ]
 ```
 
+This is how you can remove observations from data frame using any condition you need, e.g. remove some locations or moisture levels.
+
 # Add a new variable
 
 Another operation you might want to do is to add a variable to data frame. This can be done the same way as creating an object, by using the assignment operator (`<-`). Because now the object that you're creating is a variable in the data frame you need to refer to it accordingly, i.e. using `$` or `[]`. Create a new variable called `three` that has values *3* and then see the first rows of the data frame.
@@ -220,7 +222,7 @@ corn$moisture <- corn$moisture + 1
 head(corn)
 ```
 
-<br><br>
+<br><br><br>
 
 That's all with this task. If you learn how to use the functions above, you will be able to prepare and use the data for further analysis.
 
