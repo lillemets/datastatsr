@@ -22,7 +22,7 @@ knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T,
 oats <- agridat::yates.oats
 marvellousRows <- as.numeric(row.names(oats[oats$gen == 'Marvellous', ]))
 oats$yield[sample(marvellousRows, 12)] <- NA
-write.csv('/home/jrl/rcrs/data/yates_oats.csv')
+write.csv(oats, '/home/jrl/rcrs/data/yates_oats.csv', row.names = F)
 ```
 
 The following tasks help you understand how to get some descriptive statistics on variables.
@@ -189,10 +189,10 @@ We can now see that all the missing values are of genotype *Marvellous*. Or, hal
 
 # Save data
 
-Data frames can be saved as plain text using `write.csv()`. As a minimum it is necessary to provide the (1) name of the data frame to be saved and (2) path to file where it will be saved. Save data frame oats to a file called *oats.csv* somewhere on your computer where you can find it.
+Data frames can be saved as plain text using `write.csv()`. As a minimum it is necessary to provide the (1) name of the data frame to be saved and (2) path to file where it will be saved. Also add `row.names = F` to avoid having a columnt for row names.Save data frame oats to a file called *oats.csv* somewhere on your computer where you can find it.
 
 ```{r, eval = F}
-write.csv(oats, 'oats.csv')
+write.csv(oats, 'oats.csv', row.names = F)
 ```
 
 Some versions of MS Excel can not open conventional *.csv* files. In such case use `write.csv2()` to be able to open the resulting file in MS Excel.
