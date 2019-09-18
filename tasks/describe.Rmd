@@ -1,5 +1,5 @@
 ---
-title: Task. Description of variables.
+title: Description of variables.
 subtitle: Data and statistics with R <br> Research methods <br><br>
 author: Jüri Lillemets
 date: "`r Sys.Date()`"
@@ -189,7 +189,7 @@ We can now see that all the missing values are of genotype *Marvellous*. Or, hal
 
 # Save data
 
-Data frames can be saved as plain text using `write.csv()`. As a minimum it is necessary to provide the (1) name of the data frame to be saved and (2) path to file where it will be saved. Also add `row.names = F` to avoid having a columnt for row names.Save data frame oats to a file called *oats.csv* somewhere on your computer where you can find it.
+Data frames can be saved as plain text using `write.csv()`. As a minimum it is necessary to provide the (1) name of the data frame to be saved and (2) path to file where it will be saved. Also add `row.names = F` to avoid having a column for row names. Save data frame `oats` to a file called *oats.csv* somewhere on your computer where you can find it.
 
 ```{r, eval = F}
 write.csv(oats, 'oats.csv', row.names = F)

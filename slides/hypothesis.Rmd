@@ -1,0 +1,469 @@
+---
+title: Statistical hypothesis testing. T-test.
+subtitle: Data and statistics with R <br> Research Methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T, error = T, 
+                      fig.width = 12, fig.height = 6)
+# Seed
+set.seed(0)
+```
+
+---
+
+class: center middle inverse
+
+# Inferential statistics
+
+---
+
+## Population and sample
+
+When we have data on the entire population we can simply describe it using *descriptive statistics*.
+
+But often we only have a part of the *population*, i.e. a *sample*.
+
+Since we only have data on sample, we can't be sure if same properties hold for population.
+
+Hence, we need to make *predictions* or *inferences* about the *population*.
+
+We can make inferences with some limited certainty, i.e. confidence.
+
+To do that, we need to use ideas from *probability theory*.
+
+---
+
+# Random sample
+
+Sample must be taken from the population *randomly*.
+
+For this, every value in the population must have an equal chance of being in sample.
+
+E.g. when examining crops, you should not take samples from only one part of the field.
+
+---
+
+# Why statistical hypothesis testing?
+
+Are these samples different? Are these mean values for two samples different?
+
+```{r, echo = F}
+makePlot <- function() {
+  plot(c(10, 35), c(0, .25), type = 'n', yaxt = 'n', 
+       xlab = 'Values', ylab = 'Probability')
+  abline(v = c(20, 25), col = 'tomato')
+}
+makePlot()
+```
+
+---
+
+If these were the observed distributions, we could say that means are different.
+
+```{r, echo = F}
+makePlot()
+lines(density(rnorm(100, 20, 2)))
+lines(density(rnorm(100, 25, 2)))
+```
+
+---
+
+However, here we can't be so sure.
+
+```{r, echo = F}
+makePlot()
+lines(density(rnorm(100, 20, 6)))
+lines(density(rnorm(100, 25, 6)))
+```
+
+---
+
+What we really wish to know: do these samples come from the same population (blue)?
+
+```{r, echo = F}
+makePlot()
+lines(density(rnorm(100, 20, 4)))
+lines(density(rnorm(100, 25, 6)))
+lines(density(rnorm(100, 22.5, 4)), col = 'skyblue', lwd = 2)
+```
+
+---
+
+## Normal distribution
+
+Commonly used continuous probability distribution due to *central limit theorem*. Many methods assume random variables to be normally distributed.
+
+Symmetric and bell-shaped. Characterized by parameters mean ( $\mu$ ) and variance ( $\sigma^2$ ). ( ${\mathcal{N}}(\mu,\sigma^{2})$ ). For standard normal distribution mean is 0 and variance 1 ( ${\mathcal{N}}(0,1)$ .
+
+---
+
+```{r}
+par(mfrow = c(1,3))
+curve(dnorm(x, 0, 1), -3,3);curve(dnorm(x, 0, .2), -3,3);curve(dnorm(x, 0, 2), -3,3)
+```
+
+---
+
+Some test statistics are assumed to have normal distribution. We can use this to see how probable a value of a test statistic is, e.g. is it at least 95%.
+
+```{r, echo = F}
+curve(dnorm(x, 0, 1), -3,3)
+abline(v = c(-qnorm(.975), qnorm(.975)), col = 'tomato')
+```
+
+---
+
+## How is a test statistic used
+
+The value of a test statstic indicates how extreme the differences are.
+
+E.g. t-statistic used in t-test.
+
+$$t = \frac{\overline{x} - \mu_{0}}{s/\sqrt{n}}$$
+
+---
+
+### Example
+
+Does this wheat come from a population where mean yield is 600 g/plot?
+
+```{r}
+wheat <- agridat::wiebe.wheat.uniformity
+mean(wheat$yield)
+(tScore <- (mean(wheat$yield) - 600) / (sd(wheat$yield) / sqrt(nrow(wheat))))
+```
+
+---
+
+What is the probability of getting this extreme t-statistic if this wheat came from a population with mean yield of 600 or more?
+
+.pull-left[
+``` {r}
+curve(dt(x, nrow(wheat) - 1), from = -5, to = 5)
+abline(v = tScore, col = 'tomato')
+```
+]
+
+.pull-right[
+``` {r}
+(pVal <- pt(tScore, nrow(wheat) - 1))
+```
+]
+
+The p-value, hence the probability is very small.
+
+---
+
+## P-value
+
+The probability that a sample value (e.g. difference in means) is equal to or more extreme than true value if null hypothesis is true.
+
+We estimate this probability through a test statistic.
+
+---
+
+## Hypotheses
+
+We only test null hypothesis ( $H_{0}$ ). 
+
+When we can not confirm $H_{0}$, we accept the alternative hypothesis ( $H_{1}$ ).
+
+For testing we set a treshold for p-value **beforehand**, conventionally 0.05.
+
+If p-value is =>0.05, we accept $H_{0}$. If p-value is <0.05, we reject $H_{0}$ and accept $H_{1}$.
+
+**P-value is NOT the probability of $H_{1}$ being true!**
+
+---
+
+# Multiple comparisons problem
+
+Every time you find a statistically significant result, there is a possibility that you got this extreme data by chance. In this case, you committed a type 1 error.
+
+Therefore, if you do a lot of tests, the possibility that at least one of the statistically significant results is actually not true. 
+
+**The number of tests you do should be limited.**
+
+---
+
+class: center middle inverse
+
+# Types of tests
+
+---
+
+## Number of groups
+
+Between how many groups do we estimate differences? 
+
+There are different methods to compare...
+- one group and a constant, 
+- two groups, 
+- three or more groups.
+
+---
+
+### One group and constant
+
+```{r, echo = F}
+curve(dnorm(x, 20,3), 10, 30, xlab = "Value", ylab = "Probability")
+abline(v = c(20, 25), col = 'tomato')
+```
+
+---
+
+### Two groups
+
+```{r, echo = F}
+plot(c(10, 40), c(0, .15), xlab = "Value", ylab = "Probability", type = 'n')
+lines(density(rnorm(100, 20, 4)))
+lines(density(rnorm(100, 30, 4)))
+abline(v = c(20, 30), col = 'tomato')
+```
+
+---
+
+### Three or more groups
+
+```{r, echo = F}
+plot(c(10, 40), c(0, .15), xlab = "Value", ylab = "Probability", type = 'n')
+lines(density(rnorm(100, 20, 4)))
+lines(density(rnorm(100, 25, 4)))
+lines(density(rnorm(100, 30, 4)))
+abline(v = c(20, 25, 30), col = 'tomato')
+```
+
+---
+
+## Parametric and non-parametric tests
+
+Parametric tests assume that data comes from a popluation with a known distribution (e.g. normal). We can then use **a fixed set of parameters** (e.g. mean and variance) to test differences.
+
+Non-parametric tests do not assume any distribution. We can then only use **rankings of values** to test differences.
+
+Rule of thumb: when your values are normally distributed, use a parametric test, otherwise a non-parametric test.
+
+---
+
+## Paired or unpaired values
+
+Do the pairwise values represent measurements of the same subject? If yes, then values are paired.
+
+Paired data is uncommon, e.g. measurement of the same subject at different times, or two measurements of different phenomena of the same subject.
+
+---
+
+Example of paired data: Milk yield of cows in different periods (`P1`, `P2` and `P3`).
+
+```{r, echo = F}
+milk <- agridat::patterson.switchback
+milk <- milk[, c('cow', 'period', 'y')]
+milk <- tidyr::spread(milk, period, y)
+head(milk, 12)
+```
+
+---
+
+Example of paired data: Weight of vines (`vines`) and peas (`peas`) in same plot.
+
+```{r, echo = F}
+peas <- agridat::nonnecke.peas.uniformity
+head(peas, 12)
+```
+
+---
+
+## One-tailed or two-tailed tests
+
+What is the relationship that we are testing? 
+
+Do we need to know the probability that parameter values for groups are equal or that one is larger?
+
+---
+
+$H_{1}$: Means of groups are not equal.
+
+```{r, echo = F}
+curve(dnorm(x), -4, 4)
+polygon(c(-4, seq(-4, -1.96, .01), -1.96), 
+        c(0, dnorm(seq(-4, -1.96, .01)), 0), 
+        col = 'tomato')
+polygon(c(1.96, seq(1.96, 4, .01), 4), 
+        c(0, dnorm(seq(1.96, 4, .01)), 0), 
+        col = 'tomato')
+```
+
+---
+
+With one-tailed tests the test statistic does not have to be as extreme. With 95% confindence intervals, instead of 2.5%, we're now using 5% of extreme values. E.g. a t-statistic value of 1.7 is now significant. 
+
+.pull-left[
+$H_{1}$: Mean of one group is smaller.
+```{r, echo = F}
+curve(dnorm(x), -4, 4)
+polygon(c(-4, seq(-4, -1.645, .01), -1.645), 
+        c(0, dnorm(seq(-4, -1.645, .01)), 0), 
+        col = 'tomato')
+```
+]
+
+.pull-right[
+$H_{1}$: Mean of one group is greater.
+```{r, echo = F}
+curve(dnorm(x), -4, 4)
+polygon(c(1.645, seq(1.645, 4, .01), 4), 
+        c(0, dnorm(seq(1.645, 4, .01)), 0), 
+        col = 'tomato')
+```
+]
+
+---
+
+class: center middle inverse
+
+# T-test in R
+
+---
+
+## T-test
+
+Used to compare the mean of one group to a constant or means of two groups.
+
+Assumes that (means of the) values are *independent and identically distributed* (i.i.d.) and follow an (approximately) normal distribution.
+
+Based on the calculation of t-statistic and its location on t-distribution.
+
+---
+
+```{r}
+apples <- agridat::archbold.apple
+head(apples)
+```
+
+--
+
+We assume that we only have a sample of apple trees and we would like to make inferences about the entire population of apple trees.
+
+---
+
+```{r}
+plot(range(apples$yield, na.rm = T), c(0,.01), type = 'n')
+lines(density(apples$yield, na.rm = T), lwd = 2)
+lines(density(apples$yield[apples$gen == 'Golden'], na.rm = T), col = 'orange')
+lines(density(apples$yield[apples$gen == 'Redspur'], na.rm = T), col = 'red')
+```
+
+---
+
+## Compare group mean to a constant
+
+$H_{0}:$ Mean of group is equal to a constant.  
+$H_{1}:$ Mean of group is different from a constant.
+
+In R: `t.test(x, mu)`.
+
+---
+
+Is the mean of Golden apples 160 g/tree?
+
+```{r}
+t.test(apples$yield[apples$gen == 'Golden'], mu = 160)
+```
+
+--
+
+P-value is less than 0.05. We thus reject $H_{0}$ and accept the $H_{1}$ that the mean yield of Golden apples is not 160 kg/tree.
+
+---
+
+## Compare means of two groups
+
+$H_{0}:$ Means of groups are equal.  
+$H_{1}:$ Means of groups are different.
+
+In R: `t.test(y ~ x, data)` or `t.test(x, y, data)`.
+
+---
+
+Is there a difference between the means yields of Golden and Redspur apple trees?
+
+```{r}
+t.test(yield ~ gen, apples)
+```
+
+--
+
+P-value is greater than 0.05. We thus accept $H_{0}$ that there is no difference between the mean yields of Golden and Redspur.
+
+---
+
+# Two-sided vs one-sided t-test
+
+Tests on previous slides were two-sided. To do a one-sided test, we need to specify the side using argument `alternative` (hypothesis).
+
+Test if mean of `x` is greater than `mu`: `t.test(x, mu, alternative = 'greater')`.
+
+Test if mean of 1st group is less than mean of 2nd group. `mu`: `t.test(y ~ x, data, alternative = 'less')`.
+
+---
+
+Is the yield of Golden apple trees more than 130 kg/tree?
+
+``` {r}
+t.test(apples$yield[apples$gen == 'Golden'], mu = 130, alternative = 'greater')
+```
+
+--
+
+P-value is less than 0.05. We thus reject $H_{0}$ and accept the $H_{1}$ that the mean yield of Golden apples is higher than 130 kg/tree.
+
+---
+
+Is the yield of Golden apple trees higher than that of Redspur apple trees?
+
+```{r}
+t.test(yield ~ gen, apples, alternative = 'greater')
+```
+
+--
+
+P-value is greater than 0.05. We thus accept $H_{0}$ that mean yield for Golden is less than or equal to that of Redspur.
+
+---
+
+# Unpaired vs paired t-test
+
+Tests on previous slides were unpaired (default for t-test in R). For a paired test, we need to add argument `paired = TRUE`.
+
+`t.test(y ~ x, paired = FALSE)`
+
+---
+
+Suppose that our data includes only a sample. Are corn yields of US states different when we compare two years?
+
+``` {r}
+corn <- agridat::nass.corn
+head(corn, 3)
+mean(corn$yield[corn$year == 2000])
+mean(corn$yield[corn$year == 2010])
+```
+
+---
+
+``` {r}
+t.test(yield ~ year, corn[corn$year %in% c(2000, 2010), ], paired = T)
+```
+
+--
+
+P-value is less than 0.05. We thus reject $H_{0}$ and accept the $H_{1}$ that the corn yields for two years are different.
+
+---
+
+class: inverse

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Statistical hypothesis testing. T-test.</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-18" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Statistical hypothesis testing. T-test.
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-18
+
+---
+
+  
+
+
+---
+
+class: center middle inverse
+
+# Inferential statistics
+
+---
+
+## Population and sample
+
+When we have data on the entire population we can simply describe it using *descriptive statistics*.
+
+But often we only have a part of the *population*, i.e. a *sample*.
+
+Since we only have data on sample, we can't be sure if same properties hold for population.
+
+Hence, we need to make *predictions* or *inferences* about the *population*.
+
+We can make inferences with some limited certainty, i.e. confidence.
+
+To do that, we need to use ideas from *probability theory*.
+
+---
+
+# Random sample
+
+Sample must be taken from the population *randomly*.
+
+For this, every value in the population must have an equal chance of being in sample.
+
+E.g. when examining crops, you should not take samples from only one part of the field.
+
+---
+
+# Why statistical hypothesis testing?
+
+Are these samples different? Are these mean values for two samples different?
+
+![](hypothesis_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+
+---
+
+If these were the observed distributions, we could say that means are different.
+
+![](hypothesis_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+---
+
+However, here we can't be so sure.
+
+![](hypothesis_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+---
+
+What we really wish to know: do these samples come from the same population (blue)?
+
+![](hypothesis_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+## Normal distribution
+
+Commonly used continuous probability distribution due to *central limit theorem*. Many methods assume random variables to be normally distributed.
+
+Symmetric and bell-shaped. Characterized by parameters mean ( `\(\mu\)` ) and variance ( `\(\sigma^2\)` ). ( `\({\mathcal{N}}(\mu,\sigma^{2})\)` ). For standard normal distribution mean is 0 and variance 1 ( `\({\mathcal{N}}(0,1)\)` .
+
+---
+
+
+```r
+par(mfrow = c(1,3))
+curve(dnorm(x, 0, 1), -3,3);curve(dnorm(x, 0, .2), -3,3);curve(dnorm(x, 0, 2), -3,3)
+```
+
+![](hypothesis_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+Some test statistics are assumed to have normal distribution. We can use this to see how probable a value of a test statistic is, e.g. is it at least 95%.
+
+![](hypothesis_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+## How is a test statistic used
+
+The value of a test statstic indicates how extreme the differences are.
+
+E.g. t-statistic used in t-test.
+
+`$$t = \frac{\overline{x} - \mu_{0}}{s/\sqrt{n}}$$`
+
+---
+
+### Example
+
+Does this wheat come from a population where mean yield is 600 g/plot?
+
+
+```r
+wheat &lt;- agridat::wiebe.wheat.uniformity
+mean(wheat$yield)
+```
+
+```
+## [1] 587.722
+```
+
+```r
+(tScore &lt;- (mean(wheat$yield) - 600) / (sd(wheat$yield) / sqrt(nrow(wheat))))
+```
+
+```
+## [1] -4.755732
+```
+
+---
+
+What is the probability of getting this extreme t-statistic if this wheat came from a population with mean yield of 600 or more?
+
+.pull-left[
+
+```r
+curve(dt(x, nrow(wheat) - 1), from = -5, to = 5)
+abline(v = tScore, col = 'tomato')
+```
+
+![](hypothesis_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+```r
+(pVal &lt;- pt(tScore, nrow(wheat) - 1))
+```
+
+```
+## [1] 1.083729e-06
+```
+]
+
+The p-value, hence the probability is very small.
+
+---
+
+## P-value
+
+The probability that a sample value (e.g. difference in means) is equal to or more extreme than true value if null hypothesis is true.
+
+We estimate this probability through a test statistic.
+
+---
+
+## Hypotheses
+
+We only test null hypothesis ( `\(H_{0}\)` ). 
+
+When we can not confirm `\(H_{0}\)`, we accept the alternative hypothesis ( `\(H_{1}\)` ).
+
+For testing we set a treshold for p-value **beforehand**, conventionally 0.05.
+
+If p-value is =&gt;0.05, we accept `\(H_{0}\)`. If p-value is &lt;0.05, we reject `\(H_{0}\)` and accept `\(H_{1}\)`.
+
+**P-value is NOT the probability of `\(H_{1}\)` being true!**
+
+---
+
+# Multiple comparisons problem
+
+Every time you find a statistically significant result, there is a possibility that you got this extreme data by chance. In this case, you committed a type 1 error.
+
+Therefore, if you do a lot of tests, the possibility that at least one of the statistically significant results is actually not true. 
+
+**The number of tests you do should be limited.**
+
+---
+
+class: center middle inverse
+
+# Types of tests
+
+---
+
+## Number of groups
+
+Between how many groups do we estimate differences? 
+
+There are different methods to compare...
+- one group and a constant, 
+- two groups, 
+- three or more groups.
+
+---
+
+### One group and constant
+
+![](hypothesis_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+### Two groups
+
+![](hypothesis_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+### Three or more groups
+
+![](hypothesis_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+## Parametric and non-parametric tests
+
+Parametric tests assume that data comes from a popluation with a known distribution (e.g. normal). We can then use **a fixed set of parameters** (e.g. mean and variance) to test differences.
+
+Non-parametric tests do not assume any distribution. We can then only use **rankings of values** to test differences.
+
+Rule of thumb: when your values are normally distributed, use a parametric test, otherwise a non-parametric test.
+
+---
+
+## Paired or unpaired values
+
+Do the pairwise values represent measurements of the same subject? If yes, then values are paired.
+
+Paired data is uncommon, e.g. measurement of the same subject at different times, or two measurements of different phenomena of the same subject.
+
+---
+
+Example of paired data: Milk yield of cows in different periods (`P1`, `P2` and `P3`).
+
+
+```
+##      cow   P1   P2   P3
+## 1  C3175 58.5 63.8 50.4
+## 2  C3259 69.1 62.6 57.7
+## 3  C3300 96.2 85.1 82.3
+## 4  C3336 70.8 65.5 60.1
+## 5  C3415 75.5 68.5 66.3
+## 6  C3428 61.9 53.3 36.5
+## 7  C3476 77.7 79.1 73.3
+## 8  C3497 78.4 71.9 62.0
+## 9   C603 76.7 70.5 69.0
+## 10  C617 64.4 66.1 60.4
+## 11  C632 60.1 56.5 44.9
+## 12  C636 74.7 72.3 65.8
+```
+
+---
+
+Example of paired data: Weight of vines (`vines`) and peas (`peas`) in same plot.
+
+
+```
+##    block row col vines peas
+## 1     B1   1   1   8.5 0.89
+## 2     B1   1  10   9.5 1.27
+## 3     B1   1  11   9.4 1.28
+## 4     B1   1  12   8.5 1.18
+## 5     B1   1  13   5.8 0.62
+## 6     B1   1  14  10.0 1.38
+## 7     B1   1  15  10.7 1.27
+## 8     B1   1   2  14.8 1.82
+## 9     B1   1   3  11.4 1.52
+## 10    B1   1   4  16.5 1.78
+## 11    B1   1   5  10.4 0.96
+## 12    B1   1   6  13.0 1.20
+```
+
+---
+
+## One-tailed or two-tailed tests
+
+What is the relationship that we are testing? 
+
+Do we need to know the probability that parameter values for groups are equal or that one is larger?
+
+---
+
+`\(H_{1}\)`: Means of groups are not equal.
+
+![](hypothesis_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+
+With one-tailed tests the test statistic does not have to be as extreme. With 95% confindence intervals, instead of 2.5%, we're now using 5% of extreme values. E.g. a t-statistic value of 1.7 is now significant. 
+
+.pull-left[
+`\(H_{1}\)`: Mean of one group is smaller.
+![](hypothesis_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+`\(H_{1}\)`: Mean of one group is greater.
+![](hypothesis_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+]
+
+---
+
+class: center middle inverse
+
+# T-test in R
+
+---
+
+## T-test
+
+Used to compare the mean of one group to a constant or means of two groups.
+
+Assumes that (means of the) values are *independent and identically distributed* (i.i.d.) and follow an (approximately) normal distribution.
+
+Based on the calculation of t-statistic and its location on t-distribution.
+
+---
+
+
+```r
+apples &lt;- agridat::archbold.apple
+head(apples)
+```
+
+```
+##   rep row pos spacing    stock     gen yield trt
+## 1  R1   2   1       6 Seedling Redspur  70.9 601
+## 2  R1   2   2       6 Seedling  Golden 130.9 602
+## 3  R1   2   8       6    MM111 Redspur 114.5 611
+## 4  R1   2   7       6    MM111  Golden  90.5 612
+## 5  R1   2   3       6    M0007 Redspur 151.8 671
+## 6  R1   2   4       6    M0007  Golden 125.0 672
+```
+
+--
+
+We assume that we only have a sample of apple trees and we would like to make inferences about the entire population of apple trees.
+
+---
+
+
+```r
+plot(range(apples$yield, na.rm = T), c(0,.01), type = 'n')
+lines(density(apples$yield, na.rm = T), lwd = 2)
+lines(density(apples$yield[apples$gen == 'Golden'], na.rm = T), col = 'orange')
+lines(density(apples$yield[apples$gen == 'Redspur'], na.rm = T), col = 'red')
+```
+
+![](hypothesis_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+---
+
+## Compare group mean to a constant
+
+`\(H_{0}:\)` Mean of group is equal to a constant.  
+`\(H_{1}:\)` Mean of group is different from a constant.
+
+In R: `t.test(x, mu)`.
+
+---
+
+Is the mean of Golden apples 160 g/tree?
+
+
+```r
+t.test(apples$yield[apples$gen == 'Golden'], mu = 160)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  apples$yield[apples$gen == "Golden"]
+## t = -2.4467, df = 41, p-value = 0.01879
+## alternative hypothesis: true mean is not equal to 160
+## 95 percent confidence interval:
+##  129.5462 157.0872
+## sample estimates:
+## mean of x 
+##  143.3167
+```
+
+--
+
+P-value is less than 0.05. We thus reject `\(H_{0}\)` and accept the `\(H_{1}\)` that the mean yield of Golden apples is not 160 kg/tree.
+
+---
+
+## Compare means of two groups
+
+`\(H_{0}:\)` Means of groups are equal.  
+`\(H_{1}:\)` Means of groups are different.
+
+In R: `t.test(y ~ x, data)` or `t.test(x, y, data)`.
+
+---
+
+Is there a difference between the means yields of Golden and Redspur apple trees?
+
+
+```r
+t.test(yield ~ gen, apples)
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  yield by gen
+## t = -0.38847, df = 89.841, p-value = 0.6986
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -23.46232  15.78765
+## sample estimates:
+##  mean in group Golden mean in group Redspur 
+##              143.3167              147.1540
+```
+
+--
+
+P-value is greater than 0.05. We thus accept `\(H_{0}\)` that there is no difference between the mean yields of Golden and Redspur.
+
+---
+
+# Two-sided vs one-sided t-test
+
+Tests on previous slides were two-sided. To do a one-sided test, we need to specify the side using argument `alternative` (hypothesis).
+
+Test if mean of `x` is greater than `mu`: `t.test(x, mu, alternative = 'greater')`.
+
+Test if mean of 1st group is less than mean of 2nd group. `mu`: `t.test(y ~ x, data, alternative = 'less')`.
+
+---
+
+Is the yield of Golden apple trees more than 130 kg/tree?
+
+
+```r
+t.test(apples$yield[apples$gen == 'Golden'], mu = 130, alternative = 'greater')
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  apples$yield[apples$gen == "Golden"]
+## t = 1.953, df = 41, p-value = 0.02884
+## alternative hypothesis: true mean is greater than 130
+## 95 percent confidence interval:
+##  131.8418      Inf
+## sample estimates:
+## mean of x 
+##  143.3167
+```
+
+--
+
+P-value is less than 0.05. We thus reject `\(H_{0}\)` and accept the `\(H_{1}\)` that the mean yield of Golden apples is higher than 130 kg/tree.
+
+---
+
+Is the yield of Golden apple trees higher than that of Redspur apple trees?
+
+
+```r
+t.test(yield ~ gen, apples, alternative = 'greater')
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  yield by gen
+## t = -0.38847, df = 89.841, p-value = 0.6507
+## alternative hypothesis: true difference in means is greater than 0
+## 95 percent confidence interval:
+##  -20.2546      Inf
+## sample estimates:
+##  mean in group Golden mean in group Redspur 
+##              143.3167              147.1540
+```
+
+--
+
+P-value is greater than 0.05. We thus accept `\(H_{0}\)` that mean yield for Golden is less than or equal to that of Redspur.
+
+---
+
+# Unpaired vs paired t-test
+
+Tests on previous slides were unpaired (default for t-test in R). For a paired test, we need to add argument `paired = TRUE`.
+
+`t.test(y ~ x, paired = FALSE)`
+
+---
+
+Suppose that our data includes only a sample. Are corn yields of US states different when we compare two years?
+
+
+```r
+corn &lt;- agridat::nass.corn
+head(corn, 3)
+```
+
+```
+##   year      state   acres yield
+## 1 1866    Alabama 1050000     9
+## 2 1866   Arkansas  280000    18
+## 3 1866 California   42000    28
+```
+
+```r
+mean(corn$yield[corn$year == 2000])
+```
+
+```
+## [1] 132.6585
+```
+
+```r
+mean(corn$yield[corn$year == 2010])
+```
+
+```
+## [1] 141.9756
+```
+
+---
+
+
+```r
+t.test(yield ~ year, corn[corn$year %in% c(2000, 2010), ], paired = T)
+```
+
+```
+## 
+## 	Paired t-test
+## 
+## data:  yield by year
+## t = -2.1264, df = 40, p-value = 0.03969
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -18.1725428  -0.4616035
+## sample estimates:
+## mean of the differences 
+##               -9.317073
+```
+
+--
+
+P-value is less than 0.05. We thus reject `\(H_{0}\)` and accept the `\(H_{1}\)` that the corn yields for two years are different.
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

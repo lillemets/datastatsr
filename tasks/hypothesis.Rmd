@@ -1,0 +1,173 @@
+---
+title: Statistical hypothesis testing. T-test.
+subtitle: Data and statistics with R <br> Research methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+    highlight: default
+    theme: yeti
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = F, message = T, warning = T, error = T)
+# Packages
+library('magrittr')
+# Create data
+cattle <- agridat::kenward.cattle
+write.csv(cattle, '/home/jrl/rcrs/data/keward_cattle.csv', row.names = F)
+```
+
+In the following exercises you will learn how to do statistical hypothesis testig using t-test.
+
+# Load data a data set into R workspace
+
+Read the data available on the following *url* and store it in an object named `oats`.
+
+https://raw.githubusercontent.com/lillemets/datastatsr/master/data/kenward_cattle.csv
+
+```{r, eval = F}
+oats <- read.csv('https://raw.githubusercontent.com/lillemets/datastatsr/master/data/kenward_cattle.csv')
+```
+
+The data set contains repeated measurements of the weights of calves from a trial on the control of intestinal parasites. There are following variables:
+
+- `animal`, animal factor
+- `trt`, treatment factor, A or B
+- `day`, day, numeric, 0-133
+- `weight`, bodyweight, kg
+
+# Get an overview of the data set
+
+See the first rows of data frame and which types of variables it contains.
+
+```{r}
+head(cattle)
+str(cattle)
+```
+
+Find out how many animals were measured and on which days were the measurements taken.
+
+```{r}
+unique(cattle$animal)
+unique(cattle$day)
+```
+
+We can see that 60 calves were measured in the experiment. The measurements were taken every 14 days until day 126 and the last measurement was on day 133.
+
+# Understand how the measurements were taken
+
+Use `table()` function to answer the following questions.
+
+1. On which days was each animal measured?
+1. How many measurements are there for each treatment group?
+1. In which treatment group each animal belonged to?
+
+```{r}
+table(cattle$animal, cattle$day) %>% as.data.frame.matrix %>% head
+table(cattle$day, cattle$trt) %>% as.data.frame.matrix %>% head
+table(cattle$animal, cattle$trt) %>% as.data.frame.matrix %>% head
+```
+
+Above are the first rows of each table you should create. We can see that (1) every animal was measured once every day, (2) for each treatment group 30 measurements were taken each day, and  (3) first animals in data set belong to treatment group A.
+
+# See the differences in weights by groups
+
+First, see how the values of `weight` are distributed using a histogram.
+
+```{r}
+hist(cattle$weight, 30)
+```
+
+Disregarding differences among treatment groups and days, the values seem to be approximately normally distributed. Use function `qqnorm()` to see how different is the distribution of values from normal distribution.
+
+```{r}
+qqnorm(cattle$weight)
+```
+
+If distribution of weight values was exactly normal, the observations would follow a straight line.
+
+See the summary statistics for weight by treatment groups. Then, create a boxplot to visualize the difference in weight between treatment groups.
+
+```{r}
+aggregate(weight ~ trt, cattle, summary)
+boxplot(weight ~ trt, cattle)
+```
+
+We can see that the distribution of weights is very similar for both groups.
+
+Also create a boxplot to see the change in weight by day. 
+
+``` {r}
+boxplot(weight ~ day, cattle)
+```
+
+The weight seems to grow exponentially until about 320 kg by median and then level off.
+
+Now, add treatment groups to the plot above. To do so, the values of weight should be grouped by `trt + day`. Also, add two colors to distinguish treatment groups.
+
+``` {r}
+boxplot(weight ~ trt + day, cattle, col = c('tomato', 'yellowgreen'))
+```
+
+Calves in group A seem to be heavier in most days the measurements were taken.
+
+# Test differences in mean weights
+
+You need to use function `t.test()` and subset data as needed. Interpret the results and write all of your interpretations as comments in R script file.
+
+## Is the true mean weight of calves in treatment group A on day 28 actually 250 kg?
+
+```{r, echo = T}
+t.test(cattle$weight[cattle$trt == 'A' & cattle$day == 28], mu = 250)
+```
+
+## Is the true mean weight of calves in treatment group A on day 28 more than 240 kg?
+
+```{r, echo = T}
+t.test(cattle$weight[cattle$trt == 'A' & cattle$day == 28], mu = 240, alternative = 'greater')
+```
+
+## Are the mean weights of treatment groups actually different?
+
+```{r, echo = T}
+t.test(weight ~ trt, cattle)
+```
+
+## What if we just look at the mean weigths on day 56? 
+
+```{r, echo = T}
+t.test(weight ~ trt, cattle[cattle$day %in% 56, ])
+```
+
+## Are the mean weights different on day 0 and day 14?
+
+You now compare two measurements for each calf, so you need to use a paired test. 
+
+```{r, echo = T}
+t.test(weight ~ day, cattle[cattle$day %in% 0:14, ], paired = T)
+```
+
+## Are the mean weights different before and after day 70?
+
+You first need to create a new variable (e.g. `day70`) that determines if day is more than 70 or not. Then use it as an "independent variable" in the t-test. Because you now have different number of days in each group, the test is not paired.
+
+```{r, echo = 2}
+cattle$day70 <- ifelse(cattle$day > 70, 'later', 'day 70 or before')
+t.test(weight ~ day70, cattle)
+```
+
+For learning purposes, we have now done a substantial number of statistical tests and it is likely that somewhere we committed an error.
+
+<br><br><br>
+
+---
+
+If you learn the methods in this task, you will be able to test the significance of means for the entire population if you only have a sample of it.
