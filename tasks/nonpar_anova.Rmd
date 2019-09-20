@@ -17,7 +17,7 @@ editor_options:
 
 ```{r setup, include = F}
 # Settings
-knitr::opts_chunk$set(include = T, eval = T, echo = F, message = T, warning = T, error = T)
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T, error = T)
 # Packages
 library('magrittr')
 ```
@@ -55,7 +55,7 @@ str(wheat)
 
 Add a variable to data frame that has the value `TRUE` when `locgroup` is "Grp1" and `FALSE` otherwise. This will make subsetting the observations easier later on as you will not need to use a condition, e.g. you will be able to use just `wheat$loc1` instead of `wheat$locgorup == 'Grp1'`.
 
-```{r, echo = F}
+```{r, echo = T}
 wheat$loc1 <- wheat$locgroup == 'Grp1'
 head(wheat)
 ```
