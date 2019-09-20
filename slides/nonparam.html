@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Non-parametric tests</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-20" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Non-parametric tests
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-20
+
+---
+
+
+
+
+## Example data
+
+Infection in wheat by different strains of Fusarium. 
+
+
+```r
+fus &lt;- agridat::snijders.fusarium
+head(fus, 3)
+```
+
+```
+##                gen strain year y
+## 1 SVP72017-17-5-10    F39 1986 2
+## 2       SVP77076-4    F39 1986 9
+## 3            Arina    F39 1986 8
+```
+
+- `gen`, wheat genotype
+- `strain`, fusarium strain
+- `year`, year
+- `y`, percent infected
+
+---
+
+
+```r
+par(mfrow = c(1,4))
+for (i in unique(fus$strain)) hist(fus$y[fus$strain == i], 30, xlim = c(0,70), main = i)
+```
+
+![](nonparam_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+```r
+fus$f39 &lt;- fus$strain == 'F39'
+```
+
+---
+
+## Can we use parameters for testing?
+
+When our (population) values does not follow normal distribution, we can't use tests based on parameters such as mean and variance. 
+
+![](nonparam_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+---
+
+class: center middle inverse
+
+# Mann–Whitney U test
+
+---
+
+## Mann–Whitney U test
+
+Also known as Wilcoxon rank sum test.
+
+Groups are independent, i.e. data is unpaired.
+
+`\(H_{0}\)`: Distributions of both samples are the same.  
+`\(H_{1}\)`: Distributions of samples are different.
+
+In R: `wilcox.test(y ~ x)`. Specify the alternative hypothesis with `alternative`.
+
+---
+
+Formal definition of `\(H_{0}\)`: A randomly selected value from one sample is equally likely to be less than or greater than a randomly selected value from a second sample.
+
+![](nonparam_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+## Calculation
+
+
+```r
+fusMWU &lt;- rbind(head(fus[fus$f39, c('strain', 'y')]), head(fus[!fus$f39, c('strain', 'y')]))
+fusMWU$rank &lt;- rank(fusMWU$y)
+fusMWU
+```
+
+```
+##    strain    y rank
+## 1     F39  2.0  4.0
+## 2     F39  9.0 11.0
+## 3     F39  8.0 10.0
+## 4     F39 18.0 12.0
+## 5     F39  6.0  8.0
+## 6     F39  4.5  7.0
+## 18   F329  1.5  3.0
+## 19   F329  1.0  1.5
+## 20   F329  2.5  5.0
+## 21   F329  1.0  1.5
+## 22   F329  3.0  6.0
+## 23   F329  7.5  9.0
+```
+
+---
+
+
+```r
+aggregate(rank ~ strain, fusMWU, function(x) sum(x) - (length(x)*(length(x)+1))/2)
+```
+
+```
+##   strain rank
+## 1   F329    5
+## 2    F39   31
+```
+
+Smaller of these values is the W-statistic. This is expected to be approximately normally distributed.
+
+---
+
+
+```r
+wilcox.test(y ~ strain, fusMWU, paired = F)
+```
+
+```
+## Warning in wilcox.test.default(x = c(1.5, 1, 2.5, 1, 3, 7.5), y = c(2, 9, :
+## cannot compute exact p-value with ties
+```
+
+```
+## 
+## 	Wilcoxon rank sum test with continuity correction
+## 
+## data:  y by strain
+## W = 5, p-value = 0.04495
+## alternative hypothesis: true location shift is not equal to 0
+```
+
+Value rankings of two groups are different, so they have different distributions.
+
+---
+
+class: center middle inverse
+
+# Wilcoxon signed rank test
+
+---
+
+## Wilcoxon signed rank test
+
+Used for repeated measurements, i.e. data is paired.
+
+`\(H_{0}\)`: Distributions of both samples are the same.  
+`\(H_{1}\)`: Distributions of samples are different.
+
+In R: `wilcox.test(y ~ x, paired = TRUE)`.
+
+---
+
+## Calculation
+
+
+```r
+fusWSR &lt;- spread(fus[fus$year %in% 1987:1988, ], year, y, sep = '.')
+fusWSR &lt;- fusWSR[1:12, ]
+fusWSR$diff &lt;- fusWSR$year.1987 - fusWSR$year.1988
+fusWSR$abs.diff &lt;- abs(fusWSR$diff)
+fusWSR$rank &lt;- rank(fusWSR$abs.diff)
+fusWSR$sign &lt;- sign(fusWSR$diff)
+```
+
+---
+
+
+```r
+fusWSR[-3]
+```
+
+```
+##               gen strain year.1987 year.1988  diff abs.diff rank sign
+## 1           Arina   F329       0.3       1.0  -0.7      0.7    2   -1
+## 2           Arina   F348       0.1       2.0  -1.9      1.9    3   -1
+## 3           Arina    F39      12.0       6.3   5.7      5.7    5    1
+## 4           Arina   F436       2.8       3.3  -0.5      0.5    1   -1
+## 5         Nautica   F329       1.3      25.0 -23.7     23.7   12   -1
+## 6         Nautica   F348       0.8      18.0 -17.2     17.2   11   -1
+## 7         Nautica    F39      32.2      40.0  -7.8      7.8    7   -1
+## 8         Nautica   F436       4.8      20.3 -15.5     15.5   10   -1
+## 9  SVP72003-4-2-4   F329       0.7       6.3  -5.6      5.6    4   -1
+## 10 SVP72003-4-2-4   F348       0.4       7.3  -6.9      6.9    6   -1
+## 11 SVP72003-4-2-4    F39      16.3       5.0  11.3     11.3    8    1
+## 12 SVP72003-4-2-4   F436       1.4      13.7 -12.3     12.3    9   -1
+```
+
+---
+
+
+```r
+aggregate(rank ~ sign, fusWSR, sum)
+```
+
+```
+##   sign rank
+## 1   -1   65
+## 2    1   13
+```
+
+Smaller of these values is the W-statistic. This is expected to be approximately normally distributed.
+
+---
+
+
+```r
+wilcox.test(fusWSR$year.1987, fusWSR$year.1988, paired = T)
+```
+
+```
+## 
+## 	Wilcoxon signed rank test
+## 
+## data:  fusWSR$year.1987 and fusWSR$year.1988
+## V = 13, p-value = 0.04248
+## alternative hypothesis: true location shift is not equal to 0
+```
+
+Differences summed by signs are very different, distributions are not the same.
+
+---
+
+class: center middle inverse
+
+# Kolmogorov-Smirnov test
+
+---
+
+## Kolmogorov-Smirnov test
+
+Compares the overall shape of two distributions, not mean or other parameters. Uses cumulative distribution function to do this.
+
+`\(H_{0}\)`: Distributions of both samples are the same.  
+`\(H_{1}\)`: Distributions of samples are different.
+
+In R: `ks.test(x, y)`.
+
+---
+
+## Cumulative distribution function (CDF)
+
+![](nonparam_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+## Calculation
+
+Test statistic D is the **maximum aboslute difference** between two cumulative distribution functions.
+
+![](nonparam_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+P-value is determined by the extremity of the D-statistic on Kolmogorov distribution.
+
+---
+
+Is the infection rate between strain F39 and other strains different?
+
+
+```r
+ks.test(fus$y[fus$f39], fus$y[!fus$f39])
+```
+
+```
+## Warning in ks.test(fus$y[fus$f39], fus$y[!fus$f39]): cannot compute exact
+## p-value with ties
+```
+
+```
+## 
+## 	Two-sample Kolmogorov-Smirnov test
+## 
+## data:  fus$y[fus$f39] and fus$y[!fus$f39]
+## D = 0.47712, p-value = 5.467e-08
+## alternative hypothesis: two-sided
+```
+
+--
+
+The maximum aboslute difference between the CDFs is relatively high, so the p-value is very low.
+
+---
+
+class: inverse
+
+---
+
+exclude: true
+
+# Kruskal-Wallis Rank Sum Test
+
+Unpaired, non-parametric
+
+`\(H_{0}\)`: Location parameters of the distribution of x are the same in each group.
+`\(H_{1}\)`: Location parameters of the distribution of x differ in at least one.
+
+`kruskal.test(x ~ y)`
+
+---
+
+exclude: true
+
+# Friedman Rank Sum Test
+
+Repeated measure, within subjects
+
+`\(H_{0}\)`: apart from an effect of blocks, the location parameter of y is the same in each of the groups.
+`\(H_{1}\)`:
+
+`friedman.test()`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

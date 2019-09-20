@@ -37,7 +37,7 @@ https://raw.githubusercontent.com/lillemets/datastatsr/master/data/yates_oats.cs
 oats <- read.csv('https://raw.githubusercontent.com/lillemets/datastatsr/master/data/yates_oats.csv')
 ```
 
-The data set containes following variables:
+The data set contains following variables:
 
 - `row`, row
 - `col`, column

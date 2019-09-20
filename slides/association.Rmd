@@ -216,6 +216,44 @@ Chi-squared test, `chisq.test()`
 
 ---
 
+# Chi-squared test
+
+```{r}
+webw <- agridat::beall.webworms
+webw$spray <- webw$spray == 'Y'
+webw$worms <- webw$y > 1
+conTab <- table(webw$spray, webw$worms, dnn = c('Sprayed', 'Webworms present'))
+conTab
+```
+
+
+Chi-squared test statistic:
+
+$$\chi^2 = \sum_{i = 1} \frac{n_{obs, i} - n_{expected, i}}{n_{expected, i}}$$
+
+Basically, sum of all differences between observed and expected values.
+
+---
+
+```{r}
+conTab
+chisq.test(conTab)
+```
+
+P-value of `r chisq.test(conTab)$p.value` is below treshold of 0.05, so there's a statistically significant relationship.
+
+---
+
+``` {r, fig.height = 5}
+curve(dchisq(x, df = chisq.test(conTab)$parameter), from = 0, to = 100)
+abline(v = qchisq(.95, df = chisq.test(conTab)$parameter), col = 'red') # Critical value
+abline(v = chisq.test(conTab)$statistic, col = 'blue') # Our value
+```
+
+It's very unlikely to get a test statistic with value `r chisq.test(conTab)$statistic` or greater if there was no relationship.
+
+---
+
 class: center middle inverse
 
 # Continuous variables

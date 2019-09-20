@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Analysis of variance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-20" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Analysis of variance
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-20
+
+---
+
+
+
+
+---
+
+class: center middle inverse
+
+# One-way Anova
+
+---
+
+# Analysis of variance (Anova)
+
+Used to test differences in **means** of **two or more groups**.
+
+`\(H_{0}\)`: Means of all groups are equal.   
+`\(H_{1}\)`: Mean of at least one group is different from others.
+
+Hence, Anova does not indicate which group/groups is/are different.
+
+Can also be used as a model ( `\(Y=x+\varepsilon\)` ) to determine the effect of different groups of factor variable `\(x\)` on dependent variable `\(Y\)`.
+
+In R: use `aov()` and then get the summary of the result with `summary()`.
+
+---
+
+# Assumptions of Anova
+
+Observations are independent, so can not apply to paired data.
+
+Dependent variable is continuous and follows a normal distribution.
+
+The variance of dependent variable is similar in groups.
+
+---
+
+We can specify relationship as a model:
+
+`$$Y_{ij}=\mu+\varepsilon_{ij},$$` 
+
+where 
+
+- `\(Y\)` is the value for observation `\(i\)` from group `\(j\)`, 
+- `\(\mu\)` the overall mean, and 
+- `\(\varepsilon_{ij}\)` the difference between overall mean `\(\mu\)` and value for observation `\(i\)` from factor `\(j\)`.
+
+---
+
+We can also separate factor `\(\alpha\)` from other variables:
+
+`$$Y_{ij}=\mu+\alpha_{j}+\varepsilon_{ij},$$`
+
+- `\(Y\)` is the value for observation `\(i\)` from group `\(j\)`, 
+- `\(\mu\)` the overall mean, 
+- `\(\alpha_{i}\)` the difference between mean of group `\(j\)` and overall mean `\(\mu\)`, and 
+- `\(\varepsilon_{ij}\)` the difference between group mean and value for observation `\(i\)` from factor `\(j\)`.
+
+---
+
+# Example data
+
+Multi-environment trial of sorghum at 3 locations across 5 years. We'll assume that the data isbase on random samples.
+
+
+```r
+sorg &lt;- agridat::adugna.sorghum
+sorg &lt;- sorg[sorg$year == 2004, ]
+head(sorg)
+```
+
+```
+##     gen trial env yield year      loc
+## 150 G01    T1 E09  6275 2004 Melkassa
+## 151 G02    T1 E09  6375 2004 Melkassa
+## 152 G03    T1 E09  5925 2004 Melkassa
+## 153 G04    T1 E09  7125 2004 Melkassa
+## 154 G05    T1 E09  6000 2004 Melkassa
+## 155 G06    T1 E09  5950 2004 Melkassa
+```
+
+---
+
+# Example problem
+
+Is mean yield different among locations? Does location have an effect on yield?
+
+![](anova_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+---
+
+`$$Y_{ij}=\mu+\alpha_{j}+\varepsilon_{ij},$$`
+
+
+![](anova_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+mkPlot()
+points(c(NA, sorg$yield[1], NA), bg =  'tomato', pch = 21, cex = 2)
+```
+
+![](anova_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+sorg$yield[1]
+```
+
+```
+## [1] 6275
+```
+
+```r
+mu &lt;- mean(sorg$yield)
+alpha &lt;- mean(sorg$yield[sorg$loc == 'Melkassa']) - mean(sorg$yield)
+epsilon &lt;- sorg$yield[1] - mean(sorg$yield[sorg$loc == 'Melkassa'])
+mu + alpha + epsilon
+```
+
+```
+## [1] 6275
+```
+
+---
+
+There are two sources of variation: 
+
+- random variation within a group, i.e. `\(\varepsilon_{ij}\)`
+- variation between groups, i.e. `\(\alpha_{j}\)`
+
+The idea behind Anova is comparing these. If the variation between groups is higher that variation within groups by a certain degree, we can say that there's an effect.
+
+---
+
+We use *sums of squares* to quantify these and total variability:
+
+- sum of squares of errors (SSE)  
+    `\(SSE=\sum_{j=1}^{k}\sum_{i=1}^{n} (y_{ij}-\overline{y_{j}})^{2}\)`, `\(df = n-k\)`
+- sum of squares between groups (SSA)  
+    `\(SSA=\sum_{j=1}^{k}\sum_{i=1}^{n_{j}} (\overline{y}-\overline{y_{j}})^{2}\)`, `\(df = k - 1\)`
+- total sum of squares (SST=SSE+SSA)  
+    `\(SST=\sum_{j=1}^{k}\sum_{i=1}^{n} (y_{ij}-\overline{y})^{2}\)`, `\(df = n-1\)`
+
+---
+
+We use *mean squares* to calculate the value of F-statistic.
+
+- mean squares for SSE (MSE)
+    `\(MSE = SSE / (n - k)\)`
+- mean squares for SSA (MSA)
+    `\(MSA = SSA / (k - 1)\)`
+    
+F-statistic is the ratio between these: `\(F = MSA / MSE\)`. 
+
+If MSA is substantially higher than MSE, the value of F-statistic is higher and its probability on an F-distribution lower.
+
+---
+
+# Example
+
+Is mean yield different among locations? Does location have an effect on yield?
+
+
+```r
+(av &lt;- summary(aov(yield ~ loc, sorg)))
+```
+
+```
+##             Df   Sum Sq  Mean Sq F value   Pr(&gt;F)    
+## loc          2 33564900 16782450   27.36 8.33e-10 ***
+## Residuals   81 49676781   613294                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+
+
+```r
+curve(df(x, df1 = av[[1]]['Df'][1, ], df2 = av[[1]]['Df'][2, ]), 1, 40)
+abline(v = av[[1]]['F value'][1,1], col = 'tomato')
+```
+
+![](anova_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+The probability of acquiring an F-statistic this high or higher by chance is very small.
+
+---
+
+class: center middle inverse
+
+# Two-way Anova
+
+---
+
+# Two-way Anova
+
+We can add multiple factors to Anova model. This allows us to consider the iteraction between multiple factors.
+
+There are three types of two-way Anova methods, which differ in how interactions are handled. R's `aov` uses type I. 
+
+`$$Y_{ij}=\mu+\alpha_{i}+\beta_{k}+\varepsilon_{ij}$$`
+
+---
+
+# Example
+
+Does mean yield differ among locations and trials?
+
+![](anova_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+summary(aov(yield ~ loc, sorg))
+```
+
+```
+##             Df   Sum Sq  Mean Sq F value   Pr(&gt;F)    
+## loc          2 33564900 16782450   27.36 8.33e-10 ***
+## Residuals   81 49676781   613294                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+summary(aov(yield ~ loc + trial, sorg))
+```
+
+```
+##             Df   Sum Sq  Mean Sq F value   Pr(&gt;F)    
+## loc          2 33564900 16782450   40.13 8.53e-13 ***
+## trial        1 16219493 16219493   38.78 2.07e-08 ***
+## Residuals   80 33457288   418216                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
