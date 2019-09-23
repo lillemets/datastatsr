@@ -1,0 +1,210 @@
+---
+title: Correlation. Ordinary least squares regression.
+subtitle: Data and statistics with R <br> Research methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+    highlight: default
+    theme: yeti
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T, error = T)
+# Packages
+library('magrittr')
+# Make data
+corn <- agridat::engelstad.nitro
+write.csv(corn, '/home/jrl/rcrs/data/engelstad_nitro.csv', row.names = F)
+```
+
+# Read and store data 
+
+Read data on the url below.
+
+https://raw.githubusercontent.com/lillemets/datastatsr/master/data/engelstad_nitro.csv
+
+```{r, echo = F, eval = F}
+corn <- read.csv('https://raw.githubusercontent.com/lillemets/datastatsr/master/data/engelstad_nitro.csv')
+```
+
+The data set is the result of a multi-environment trial of corn with nitrogen fertilizer. It includes corn yield response to nitrogen fertilizer for a single variety of corn at two locations over five years.
+
+- `loc`, location, 2 levels
+- `year`, year, 1962-1966
+- `nitro`, nitrogen fertilizer kg/ha
+- `yield`, yield, quintals/ha
+
+# Understand the variables and their values
+
+See what kind of variables the dataset contains and what values they take.
+
+```{r, echo = F}
+str(corn)
+summary(corn)
+```
+
+# Relationships
+
+You can plot the relationship between all variables using `pairs()` function. Use it on the data set.
+
+```{r}
+pairs(corn)
+```
+
+It seems that yield tends to decrease by year and increase with additional nitrogen.
+
+In the following tasks we will be intrested in what is the effect of different variables on yield. Let's start with investigating how the application of nitrogen increases yield. As always, start with plotting. Create a scatterplot of this relationship. 
+
+```{r, echo = F}
+plot(yield ~ nitro, corn)
+```
+
+We can see that higher nitrogen use also means higher yield.
+
+> Is there a linear relationship between yield and nitrogen?
+
+# Correlation
+
+See if yield and nitrogen application are correlated. Calculate the Pearson's coefficient of correlation.
+
+```{r}
+cor(corn$yield, corn$nitro)
+```
+
+Now also calculate Spearman's coefficient of correlation.
+
+``` {r}
+cor(corn$yield, corn$nitro, method = 'spearman')
+```
+
+> Are the variables linearly related? Is there a monotonic relationship? If yes, how would you describe the strength of the correlation?
+
+Create a plot that dispalys the correlations between all continuous variables. To do that, you need to omit the first column. 
+
+```{r}
+heatmap(cor(corn[, -1]))
+```
+
+Heatmaps are useful for exploratory analysis when a data frame has a lot of continuous variables.
+
+# Linear model
+
+We are interested in how nitrogen use affects yield. Estimate a linear model that represents this relationship. Store it and see the summary of the model.
+
+```{r}
+ylMod <- lm(yield ~ nitro, corn)
+summary(ylMod)
+```
+
+> What is the yield when no nitrogen is used according to the model? How much yield increases when nitrogen use increases by 1 unit? How much of the variance in yield is explained by the model?
+
+Next, visualize the model. First create a scatterplot where yield is on y-axis and nitrogen on x-axis. Then add the regression line by simply calling it with `abline()`. 
+Feel free to add color.
+
+```{r}
+plot(yield ~ nitro, corn)
+abline(ylMod, col = 'tomato')
+```
+
+> Based on the regression line, does the model fit data well?
+
+# Check some simple assumptions
+
+See if residuals have constant variance regarding fitted values. Plot the fitted values against residuals using `plot()` function and adding argument `1` to get the fist diagnosic plot
+
+```{r}
+plot(ylMod, 1)
+```
+
+> Would you say that there is constant variance? Is this assumption satisfied?
+
+See if residuals are normally distributed. Create the plot in the same way, except this time add argument `2` to get a QQ-plot.
+
+```{r}
+plot(ylMod, 2)
+```
+
+> Are residuals normally distributed?
+
+# Estimate a log-linear model
+
+Find out if log-linear model better describes the data. To do this, first estimate a model where yield has logged values and store the resulting model. 
+
+```{r}
+ylModLog <- lm(log(yield) ~ nitro, corn)
+summary(ylModLog)
+```
+
+Compare the linear and log-linear models. You need to do this for both models. It's a good idea to draw the plots side by side with `par(mfrow = )`.
+
+```{r}
+par(mfrow = c(1,2))
+plot(ylMod, 1)
+plot(ylModLog, 1)
+```
+
+> Is log-linear model better than linear model in terms of constant variance?
+
+# Estimate a model with squared term
+
+When we examine the scatterplot of yield and nitrogen use, it's obvious that the relationship is not linear. We should thus get a better fit by estimating a model with squared term of nitrogen. Estimate a model where `nitro` and `I(nitro^2)` are predictors and store it.
+
+```{r}
+ylModSq <- lm(yield ~ nitro + I(nitro^2), corn)
+summary(ylModSq)
+```
+
+As before, create a *residuals vs fitted* graph.
+
+```{r}
+par(mfrow = c(1,2))
+plot(ylMod, 1)
+plot(ylModSq, 1)
+```
+
+> Is model with squared nitrogen added better than linear model in terms of constant variance?
+
+Test if this last model has lower residual sum of squares. Use `anova()` function.
+
+```{r}
+anova(ylMod, ylModSq)
+```
+
+> Deciding by Anova results, is the model with squared `nitrogen` added better than linear model? Why?
+
+Below is the fit of the model with the squared term added. We can see that this model fits data much better. It also now accounts for the decrease of yield with higher application of nitrogen.
+
+```{r}
+plot(yield ~ nitro, corn)
+lines(sort(corn$nitro), 
+      predict(ylModSq, data.frame(nitro = sort(corn$nitro))), 
+      col = 'tomato')
+```
+
+# Add more variables
+
+Estimate a model where nitrogen and location are predictors and yield is response.
+
+```{r}
+ylModLoc <- lm(yield ~ nitro + loc, corn)
+summary(ylModLoc)
+```
+
+> How to interpert the intercept? How to interpret the coefficient for location (`locKnoxville`)?
+
+Now also add year.
+
+```{r}
+ylModLocYr <- lm(yield ~ nitro + loc + year, corn)
+summary(ylModLocYr)
+```
+
+> How to interpret the coefficient for year?

@@ -147,7 +147,7 @@ We use *sums of squares* to quantify these and total variability:
 - sum of squares of errors (SSE)  
     $SSE=\sum_{j=1}^{k}\sum_{i=1}^{n} (y_{ij}-\overline{y_{j}})^{2}$, $df = n-k$
 - sum of squares between groups (SSA)  
-    $SSA=\sum_{j=1}^{k}\sum_{i=1}^{n_{j}} (\overline{y}-\overline{y_{j}})^{2}$, $df = k - 1$
+    $SSA=\sum_{j=1}^{k}\sum_{i=1}^{n_{j}} (\overline{y_{j}}-\overline{y})^{2}$, $df = k - 1$
 - total sum of squares (SST=SSE+SSA)  
     $SST=\sum_{j=1}^{k}\sum_{i=1}^{n} (y_{ij}-\overline{y})^{2}$, $df = n-1$
 

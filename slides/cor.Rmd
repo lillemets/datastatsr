@@ -1,0 +1,186 @@
+---
+title: Correlation
+subtitle: Data and statistics with R <br> Research Methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T, error = T)
+# Libraries
+library('DiagrammeR')
+# Set seed
+set.seed(0)
+```
+
+---
+
+class: center middle inverse
+
+# Correlation
+
+---
+
+# What is correlation?
+
+Relationship between two **continuous** variables.
+
+Indicates the direction of relationship on a scale -1 ... 1 where 0 means lack of relationship.
+
+Does **not** indicate causality.
+
+---
+
+# Causality
+
+.pull-left[
+$X$ is correlated to $Y$ , so we might think that $X$ causes $Y$ .
+```{r, echo = F}
+grViz("digraph {rankdir=LR; node [shape = circle] X -> Y}")
+```
+]
+
+--
+
+.pull-right[
+Actually both might be caused by $Z$ , which leads to the correlation between $X$ and $Y$. 
+```{r, echo = F}
+grViz("digraph {rankdir=LR; node [shape = circle] X -> Y [dir=none]; Z -> X; Z -> Y}")
+```
+]
+
+---
+
+# Example
+
+People with high education have high salaries. Does education increase salary?
+
+--
+
+Probably both are influenced by personal characteristics, aptitude, motivation, talent etc.
+
+```{r, echo = F}
+grViz("digraph {rankdir=LR; node [shape = circle] 
+      Education -> Salary [dir=none]; 
+      Personality -> Education; 
+      Personality -> Salary}")
+```
+
+---
+
+# Pearson’s correlation coefficient
+
+Evaluates **linear** relationship: when x increases by 1 unit, y also increases by 1 unit.
+
+$$r = \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^{n}(x_i-\bar{x})^2 \sum_{i=1}^{n}(y_i-\bar{y})^2}$$
+
+We compare differences from mean for values of each group.
+
+---
+
+Statistical significance can also be estimated by finding the probability of t-statistic on t-distribution.
+
+$$t=r\sqrt{n-2}/\sqrt{1-r^{2}}$$
+
+---
+
+# Spearman rank-order correlation coefficient
+
+Evaluation is based on the ranking of values. Evaluates a **monotonic** relationship: when x increases, y also increases.
+
+$$r = 1 - \frac{6\sum (x_{i}-y_{i})^{2}}{n(n^{2}-1)}$$
+
+We compare rankings of values from each group.
+
+---
+
+# Pearson and Spearman coefficients
+
+Monotonically increasing linear relationship
+
+```{r, echo = F}
+x <- rnorm(100, 100)
+y <- x + rnorm(100, 0, .5)
+plot(x, y)
+legend('topright', 
+       legend = c(paste("Pearson's r =", cor(x, y, method = 'pearson') %>% round(2)), 
+                  paste("Spearman's r =", cor(x, y, method = 'spearman') %>% round(2))))
+```
+
+---
+
+Montonically increasing non-linear relationship
+
+```{r, echo = F}
+x <- runif(100, 1, 100)
+y <- 100 * x^.1 + rnorm(100)
+plot(x, y)
+legend('topright', 
+       legend = c(paste("Pearson's r =", cor(x, y, method = 'pearson') %>% round(2)), 
+                  paste("Spearman's r =", cor(x, y, method = 'spearman') %>% round(2))))
+```
+
+---
+
+# How to use in R?
+
+Example data: Nebraska farm income in 2007 by county.
+
+```{r}
+farmin <- agridat::nebraska.farmincome
+head(farmin, 3) 
+```
+
+- `county`, county
+- `crop`, crop income, thousand dollars
+- `animal`, livestock and poultry income, thousand dollars
+- `area`, area of each county, square miles
+
+---
+
+Is income from crops related to income from livestock and poultry?
+
+```{r}
+par(pty = 's') # Force the plot area to be square
+plot(farmin$crop, farmin$animal)
+```
+
+---
+
+To get a coefficient of correlation, use function `cor()`. If data has missing values, add `use = 'pairwise.complete.obs'` as an argument to only use observations where both values are not missing. 
+
+```{r}
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs')
+```
+
+--
+
+By default `cor()` computes Pearson's correlation coefficient. Use `method = 'spearman'` to calculate Spearman's version.
+
+```{r}
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs', method = 'spearman')
+```
+
+---
+
+When you pass multiple data frame columns to the function, `cor()` returns a correlation table. 
+
+```{r}
+corTab <- cor(farmin[, c('animal', 'crop', 'area')], use = 'pairwise.complete.obs')
+corTab
+```
+
+---
+
+You can get a visual overview of correlations when you pass a correlation table to `heatmap()` function.
+
+```{r, fig.height = 5}
+heatmap(corTab)
+```
+
+---
+
+class: inverse

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Correlation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-21" />
+    <script src="cor_files/htmlwidgets-1.3/htmlwidgets.js"></script>
+    <script src="cor_files/viz-0.3/viz.js"></script>
+    <link href="cor_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="cor_files/grViz-binding-1.0.1/grViz.js"></script>
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Correlation
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-21
+
+---
+
+  
+
+
+---
+
+class: center middle inverse
+
+# Correlation
+
+---
+
+# What is correlation?
+
+Relationship between two **continuous** variables.
+
+Indicates the direction of relationship on a scale -1 ... 1 where 0 means lack of relationship.
+
+Does **not** indicate causality.
+
+---
+
+# Causality
+
+.pull-left[
+`\(X\)` is correlated to `\(Y\)` , so we might think that `\(X\)` causes `\(Y\)` .
+<div id="htmlwidget-8df843a680a1fcd62a0d" style="width:504px;height:504px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-8df843a680a1fcd62a0d">{"x":{"diagram":"digraph {rankdir=LR; node [shape = circle] X -> Y}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+]
+
+--
+
+.pull-right[
+Actually both might be caused by `\(Z\)` , which leads to the correlation between `\(X\)` and `\(Y\)`. 
+<div id="htmlwidget-d1ba32e0541469b5ed49" style="width:504px;height:504px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d1ba32e0541469b5ed49">{"x":{"diagram":"digraph {rankdir=LR; node [shape = circle] X -> Y [dir=none]; Z -> X; Z -> Y}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+]
+
+---
+
+# Example
+
+People with high education have high salaries. Does education increase salary?
+
+--
+
+Probably both are influenced by personal characteristics, aptitude, motivation, talent etc.
+
+<div id="htmlwidget-06484ed42468d86de4a4" style="width:504px;height:504px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-06484ed42468d86de4a4">{"x":{"diagram":"digraph {rankdir=LR; node [shape = circle] \n      Education -> Salary [dir=none]; \n      Personality -> Education; \n      Personality -> Salary}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Pearson’s correlation coefficient
+
+Evaluates **linear** relationship: when x increases by 1 unit, y also increases by 1 unit.
+
+`$$r = \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^{n}(x_i-\bar{x})^2 \sum_{i=1}^{n}(y_i-\bar{y})^2}$$`
+
+We compare differences from mean for values of each group.
+
+---
+
+Statistical significance can also be estimated by finding the probability of t-statistic on t-distribution.
+
+`$$t=r\sqrt{n-2}/\sqrt{1-r^{2}}$$`
+
+---
+
+# Spearman rank-order correlation coefficient
+
+Evaluation is based on the ranking of values. Evaluates a **monotonic** relationship: when x increases, y also increases.
+
+`$$r = 1 - \frac{6\sum (x_{i}-y_{i})^{2}}{n(n^{2}-1)}$$`
+
+We compare rankings of values from each group.
+
+---
+
+# Pearson and Spearman coefficients
+
+Monotonically increasing linear relationship
+
+![](cor_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+Montonically increasing non-linear relationship
+
+![](cor_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+# How to use in R?
+
+Example data: Nebraska farm income in 2007 by county.
+
+
+```r
+farmin &lt;- agridat::nebraska.farmincome
+head(farmin, 3) 
+```
+
+```
+##     county   crop animal     area
+## 1    adams 130743 118514 563.5273
+## 2 antelope 147408 192425 859.2138
+## 3   arthur     NA     NA 706.5321
+```
+
+- `county`, county
+- `crop`, crop income, thousand dollars
+- `animal`, livestock and poultry income, thousand dollars
+- `area`, area of each county, square miles
+
+---
+
+Is income from crops related to income from livestock and poultry?
+
+
+```r
+par(pty = 's') # Force the plot area to be square
+plot(farmin$crop, farmin$animal)
+```
+
+![](cor_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+To get a coefficient of correlation, use function `cor()`. If data has missing values, add `use = 'pairwise.complete.obs'` as an argument to only use observations where both values are not missing. 
+
+
+```r
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs')
+```
+
+```
+## [1] 0.5021147
+```
+
+--
+
+By default `cor()` computes Pearson's correlation coefficient. Use `method = 'spearman'` to calculate Spearman's version.
+
+
+```r
+cor(farmin$crop, farmin$animal, use = 'pairwise.complete.obs', method = 'spearman')
+```
+
+```
+## [1] 0.575783
+```
+
+---
+
+When you pass multiple data frame columns to the function, `cor()` returns a correlation table. 
+
+
+```r
+corTab &lt;- cor(farmin[, c('animal', 'crop', 'area')], use = 'pairwise.complete.obs')
+corTab
+```
+
+```
+##           animal       crop       area
+## animal 1.0000000 0.50211471 0.17100688
+## crop   0.5021147 1.00000000 0.02321347
+## area   0.1710069 0.02321347 1.00000000
+```
+
+---
+
+You can get a visual overview of correlations when you pass a correlation table to `heatmap()` function.
+
+
+```r
+heatmap(corTab)
+```
+
+![](cor_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,597 @@
+---
+title: Ordinary least squares regression
+subtitle: Data and statistics with R <br> Research Methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = F, warning = T, error = T)
+# Set seed
+set.seed(0)
+```
+
+---
+
+class: center middle inverse
+
+# Ordinary least squares regression
+
+---
+
+# Example problem
+
+Weight gain calves in a feedlot, given three different diets.
+
+```{r}
+calves <- agridat::urquhart.feedlot
+head(calves, 3)
+```
+
+- `animal`, animal ID
+- `herd`, herd ID
+- `diet`, diet: Low, Medium, High
+- `weight1`, initial weight
+- `weight2`, slaughter weight
+
+---
+
+# Example problem
+
+.pull-left[
+Initial and slaughter weight of calves.
+```{r, echo = F}
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight")
+```
+]
+
+--
+
+.pull-right[
+Does 1st weight have an effect on 2nd weight?
+
+How much of 2nd weight depends on 1st weight?
+
+How much does 2nd weight increase when 1st weight increases?
+
+What could be the 2nd weight when 1st weight is e.g. 700?
+
+Can we quantify this relationship?
+]
+
+---
+
+We can model this using regression!
+
+```{r, echo = F}
+wtMod <- lm(weight2 ~ weight1, calves)
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight")
+lines(calves$weight1, 
+      predict(wtMod, data.frame(weight1 = calves$weight1)), 
+      col = 'tomato', lwd = 2)
+```
+
+---
+
+# Ordinarly least squares
+
+Also called OLS.
+
+Simplest regression model.
+
+Works only for relationships that are linear (in parameters).
+
+---
+
+# Model specification
+
+Simple linear regression model has one predictor.
+
+$$Y = \alpha + \beta x + \varepsilon,$$
+
+where
+
+- $Y$ is dependent or explained variable, **response** or regressand, 
+- $\alpha$ is the intercept or constant, 
+- $\beta$ is a coefficient, 
+- $x$ is independent or explanatory variable, **predictor** or regressor, and
+- $\varepsilon$ is the model error.
+
+---
+
+# Calculation
+
+Minimization of (squared) residuals.
+
+Model parameters are calculated (unlike maximum likelihood estimation based on iterations). 
+
+To estimate the model $Y = \alpha + \beta x + \varepsilon$ :
+
+$\hat{\beta} = \frac{\sum{x_{i} y_{i}} - \frac{1}{n} \sum{x_{i}}\sum{y_{i}}}{\sum{x_{i}^{2}} - \frac{1}{n} (\sum{x_{i}})^{2}} = \frac{Cov[x,y]} {Var[x]}$
+
+$\hat{\alpha} = \overline{y} - \beta \overline{x}$
+
+---
+
+For a model $y = \beta x + \varepsilon$ we can simply use matrix algebra on values of $x$ and $y$:
+
+$$\hat{\beta} = (X^{T} X)^{-1} X^{T} Y$$
+
+In our example problem $X$ would be the vector of 1st weights.
+
+```{r}
+calves$weight1
+```
+
+And $Y$ would be the vector of 2nd weights.
+
+```{r}
+calves$weight1
+```
+
+---
+
+# Estimating an OLS model in R
+
+.pull-left[
+Function `lm()` (linear model).
+
+The model is defined as a formula.
+
+$Y = \alpha + \beta x + \varepsilon$
+
+In R this is expressed as:  
+`y ~ x`  
+or  
+`y ~ x + z`
+]
+
+.pull-right[
+```{r}
+wtMod <- lm(weight2 ~ weight1, calves)
+summary(wtMod)
+```
+]
+
+---
+
+class: center middle inverse
+
+# Some elements of OLS models
+
+---
+
+# Intercept
+
+.pull-left[
+In the formula the $\alpha$.Sometimes called constant. The value of $y$ where the value of $x$ is zero ( $y|x=0$ ).
+
+In our example 2nd weight is `r round(wtMod$coef[[1]])` if 1st weight is 0. Intercept not need to be theoretically valid but it sometimes is.
+]
+
+.pull-right[
+```{r, echo = F}
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight", 
+     xlim = c(0, max(calves$weight1)), ylim = c(0, max(calves$weight2)))
+lines(c(-100, calves$weight1), 
+      predict(wtMod, data.frame(weight1 = c(-100, calves$weight1))), 
+      col = 'tomato', lwd = 2)
+abline(v = 0)
+points(0, wtMod$coef[1], col = 'steelblue', cex = 4, lwd = 5)
+```
+]
+
+---
+
+# Coefficient(s)
+
+.pull-left[
+In formula the $\beta$. Indicates how much y increases when $x$ increases. In our example every kg of 1st weight increases 2nd weight by `r round(wtMod$coef[[2]], 3)` kg (in the plot *100).
+
+Coefficients are only relevant when their difference from 0 is statistically significant.
+]
+
+.pull-right[
+```{r, echo = F}
+par(pty = 's')
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight")
+lines(calves$weight1, 
+      predict(wtMod, data.frame(weight1 = calves$weight1)), 
+      col = 'tomato', lwd = 2)
+predWt <- function(x) predict(wtMod, list(weight1 = x))
+lines(c(700, 800), c(predWt(700), predWt(700)))
+lines(c(800, 800), c(predWt(700), predWt(800)), col = 'steelblue', lwd = 5)
+```
+]
+
+---
+
+We can not be sure if the coefficients are actually significant, especially when estimation is done on a sample. 
+
+It is thus necessary to test whether or not coefficients are different from 0. This is done by calculating t-statistic from coefficient and standard error.
+
+---
+
+# Residuals
+
+.pull-left[
+In formula the $\varepsilon$. Residuals are the difference of response between observed and fitted values
+
+We use residuals to evaluate how well model fits data. If residuals are large, the model is not very good.
+]
+
+.pull-right[
+```{r, echo = F}
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight")
+lines(calves$weight1, 
+      predict(wtMod, data.frame(weight1 = calves$weight1)), 
+      col = 'tomato', lwd = 2)
+for (i in 1:nrow(calves)) {
+  lines(c(calves$weight1[i], calves$weight1[i]), 
+        c(calves$weight2[i], predWt(calves$weight1[i])), 
+        col = 'steelblue', lwd = 2)
+}
+```
+]
+
+---
+
+# Fitted values
+
+.pull-left[
+These are the values of $y$ calculated using the model for every $x$ in the data. 
+
+In other words, predictions.
+]
+
+.pull-right[
+```{r, echo = F}
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight")
+lines(calves$weight1, 
+      predict(wtMod, data.frame(weight1 = calves$weight1)), 
+      col = 'tomato', lwd = 2)
+points(calves$weight1, predWt(calves$weight1), pch = 20, col = 'steelblue', lwd = 5)
+```
+]
+
+---
+
+# The $R^2$ 
+
+A *goodness of fit* measure: measures how well model fits data. Indicates the **part of variation in response variable that is explained by the model**:
+
+$$R^{2} = \frac{ESS}{TSS} = 1 - \frac{RSS}{TSS}$$
+
+- **e**xplained sum of squares, $ESS$
+  $\sum_{i = 1}^{n} (\hat{y}_{i} - \overline{y})^2$
+- **r**esidual sum of squares, $RSS$
+  $\sum_{i = 1}^{n} (y_{i} - \hat{y}_{i})^2$
+- **t**otal sum of squares, $TSS$
+  $\sum_{i = 1}^{n} (y_{i} - \overline{y}_{i})^2$
+
+---
+
+How much better is model at explaining the variance of $y$ compared to just the mean?
+
+```{r, echo = F, fig.width = 16}
+par(mfrow = 1:2)
+# Model
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight", 
+     main = "Unexplained by model")
+lines(calves$weight1, 
+      predict(wtMod, data.frame(weight1 = calves$weight1)), 
+      col = 'tomato', lwd = 2)
+for (i in 1:nrow(calves)) {
+  lines(c(calves$weight1[i], calves$weight1[i]), 
+        c(calves$weight2[i], predWt(calves$weight1[i])), 
+        col = 'steelblue', lwd = 2)
+}
+# Mean
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight", 
+     main = "Unexplained by mean")
+abline(h = mean(calves$weight2), col = 'tomato', lwd = 2)
+for (i in 1:nrow(calves)) {
+  lines(c(calves$weight1[i], calves$weight1[i]), 
+        c(calves$weight2[i], mean(calves$weight2)), 
+        col = 'steelblue', lwd = 2)
+}
+```
+
+---
+
+# The adjusted- $R^2$ 
+
+The more variables we add, the more the model explains.
+
+To penalize a model for the number of predictors ( $K$ ) while considering the number of observations ( $N$ ), the adjusted $R^{2}$ can also be used, particularly for model comparison:
+
+$$\overline{R^{2}} = 1 - \frac{RSS/(N-K)}{TSS/(N-K)}$$
+
+---
+
+# These are in the output of  `summary.lm()`
+
+```{r}
+summary(wtMod)
+```
+
+---
+
+How are the parameters related to the formula?
+
+$$weight2_{i} = `r round(wtMod$coef[[1]])` + `r round(wtMod$coef[[2]], 3)` * weight1_{i} + \varepsilon_{i}$$
+
+```{r}
+calves$weight2[1]
+wtMod$coef[[1]] + wtMod$coef[[2]] * calves$weight1[[1]] + wtMod$resid[[1]]
+```
+
+---
+
+class: center middle inverse
+
+# Assumptions and diagnostics
+
+---
+
+# Residuals are normally distributed
+
+.pull-left[
+```{r}
+hist(wtMod$residuals, 30)
+```
+]
+
+.pull-right[
+``` {r}
+plot(wtMod, 2)
+```
+]
+
+---
+
+# Residuals have equal variance
+
+```{r}
+plot(wtMod, 1)
+```
+
+Here the we have equal variance, e.g. homoscedasticity.
+
+---
+
+Example of heteroscedasticity. Here higher values have higher variance than lower.
+
+```{r, echo = F, fig.width = 16}
+par(mfrow = 1:2)
+x <- runif(100, 1, 100)
+y <- x + x * rnorm(100, 0, .2)
+plot(x, y)
+abline(lm(y ~ x), col = 'red')
+plot(lm(y ~ x), 1)
+```
+
+---
+
+# There is no multicollinearity
+
+May be problem when model has multiple predictors.
+
+It should not be possible to linearly predict any of the predictors from others predictors. Otherwise the coefficients will not be reliable.
+
+This can be detected with variance inflation factor by using $Rpredictor._{2}$ to estimate how much of the variation in one predictor can be predicted from others.
+
+$$VIF_{i} = \frac{1}{1 - R^{2}_{i}}$$
+
+---
+
+# Gauss-Markov assumptions
+
+Linear model must fulfill the following conditions.
+
+- linear in parameters  
+  $Y = \alpha + \beta x + \varepsilon$
+- expected error is zero  
+  $E(\varepsilon) = 0$
+- homoscedasticity  
+  $var(\varepsilon) = E(\varepsilon^{2})$
+- no autocorrelation  
+  $cov(\varepsilon_{i}, \varepsilon_{j}) = 0, i \neq j$
+- independence of predictor(s) and residuals  
+  $cov(x,\varepsilon) = 0$
+  
+If these are true, then the model is the *best linear unbiased estimator* (BLUE).
+
+---
+
+class: center middle inverse 
+
+# Improving the functional form
+
+---
+
+# Use logs
+
+When the distribution is highly skewed, we may wish to use (natural) logged values of variable(s). 
+
+We can specify this simply in the model definition, e.g. `log(weight2) ~ weight1`
+
+---
+
+# Log-linear model
+
+.pull-left[
+```{r}
+wtModLogLin <- lm(log(weight2) ~ weight1, calves)
+summary(wtModLogLin)
+```
+]
+
+.pull-right[
+When 1st weight increases by 1 kg, 2nd weight increases by `r round(wtModLogLin$coef[[2]] * 100, 3)` percent.
+]
+
+---
+
+```{r, fig.width = 16}
+par(mfrow = c(1,2))
+plot(wtMod, 1)
+plot(wtModLogLin, 1)
+```
+
+---
+
+# Log-log model
+
+.pull-left[
+```{r}
+wtModLogLog <- lm(log(weight2) ~ log(weight1), calves)
+summary(wtModLogLog)
+```
+]
+
+.pull-right[
+When 1st weight increases by 1 percent, 2nd weight increases by `r round(wtModLogLog$coef[[2]], 3)` percent.
+]
+
+---
+
+# Use polynomials
+
+Response $Y$ can be modelled as some degree polynomial in predictor $X$ . This means adding the predictor as squared, cubic, quadratic or higher term.
+
+In the example the formula of square term added would be `weight2 ~ weight1 + I(weight1^2)`. We simply add variable `weight1` as squared and make R treat it *as is* by enclosing it in `I()`.
+
+What this means: $Y = \alpha + \beta_{1} x  + \beta_{2} x^2+ \varepsilon$
+
+---
+
+.pull-left[
+```{r}
+wtModSq <- lm(weight2 ~ weight1 + I(weight1^2), calves)
+summary(wtModSq)
+```
+]
+
+.pull-right[
+Did the R-squared improve?
+```{r}
+summary(wtMod)$r.squared
+summary(wtModSq)$r.squared
+```
+We can't really interpret the coefficients now.
+]
+
+---
+
+We can use `anova()` to test wether or not the squared term improves model.
+
+```{r}
+anova(wtMod, wtModLogLin)
+```
+
+Here the p-value of `r round(anova(wtMod, wtModSq)$P[[2]], 3)` indicates that model with squared term is not significantly different (better).
+
+---
+
+class: center middle inverse
+
+# Multivariate models
+
+---
+
+# Let's add a predictor
+
+Does diet also have an effect on 2nd weight? 
+
+```{r, echo = F}
+plot(weight2 ~ weight1, calves, xlab = "1st weight", ylab = "2nd weight", 
+     col = rainbow(3)[calves$diet], pch = 20, cex = 2)
+legend('topleft', legend = levels(calves$diet), pch = 20, pt.cex = 2, col = rainbow(3))
+```
+
+---
+
+We can add multiple predictors to model and these can even be factors. Because all factor levels are evaluated against the first level, we may want to change it.
+
+```{r}
+levels(calves$diet)
+calves$diet <- factor(calves$diet, levels = c('Low', 'Medium', 'High'))
+```
+
+---
+
+.pull-left[
+```{r}
+wtMod <- lm(weight2 ~ weight1 + diet, calves)
+summary(wtMod)
+```
+]
+
+.pull-right[
+The coefficient for 1st weight slightly increased. 
+
+The 2nd weight if 1st weight is 0 and diet is low is `r round(wtMod$coef[[1]], 3)`.
+
+All the values for variable `diet` are compared to base level, i.e. *Low*. 
+
+Medium diet actually decreases 2nd weight by  `r round(wtMod$coef[[3]], 3)` compared to *low* diet. 
+
+*High* diet is no different from *Low* as the coefficient is not statistically significant.
+]
+
+---
+
+# Factors in OLS
+
+.pull-left[
+```{r}
+summary(lm(weight2 ~ diet, calves))
+```
+]
+
+.pull-right[
+```{r}
+aggregate(weight2 ~ diet, calves, mean)
+```
+
+Anova is equivalent to OLS with one or more factor variables.
+
+``` {r}
+summary(aov(weight2 ~ diet, calves))
+```
+]
+
+---
+
+# Why use multiple predictors?
+
+.pull-left[
+```{r}
+lm(weight2 ~ weight1, calves)$coef
+```
+
+```{r}
+lm(weight2 ~ weight1 + diet, calves)$coef
+```
+]
+
+--
+
+.pull-right[
+Treating only diet as a predictor would have misled us.
+```{r}
+lm(weight2 ~ diet, calves)$coef
+```
+
+```{r}
+aggregate(cbind(weight1, weight2) ~ diet, calves, mean)
+```
+]
+
+---
+
+class: inverse
