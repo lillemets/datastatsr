@@ -12,13 +12,251 @@ output:
     highlight: default
     theme: yeti
 editor_options:
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
   
 ```{r setup, include = F}
 # Settings
-knitr::opts_chunk$set(include = T, eval = T, echo = F, message = T, warning = T, error = T)
+knitr::opts_chunk$set(include = F, eval = F, echo = F, message = T, warning = T, error = T)
 # Create data
 lupin <- agridat::verbyla.lupin
+lupin <- lupin[!(lupin$loc %in% c('Badgingerra', 'EastChapman', 'SouthCarrabin')), ]
+lupin <- droplevels(lupin)
 write.csv(lupin, '/home/jrl/rcrs/data/verbyla_lupin.csv', row.names = F)
 ```
+
+For actions type respective command(s) in R. For questions provide an answer as a comment.
+
+# Read and understand
+
+## Read and store data
+
+- Read data on the following *url*.
+  https://raw.githubusercontent.com/lillemets/datastatsr/master/data/verbyla_lupin.csv
+  
+- Store this data as data frame.
+
+You will need to use the following variables:
+
+- `gen`, genotype, 9 varieties
+- `site`, site, 11 levels
+- `rep`, rep, 2-3 levels
+- `rate`, seeding rate in plants/m^2
+- `row`, row
+- `col`, column
+- `serp`, factor of 4 levels for serpentine seeding effect
+- `linrow`, centered row position as a numeric variate (row-8.5)/10
+- `lincol`, centered column position as a numeric variate (col-3.5)
+- `linrate`, linear effect of seedrate, scaled (seedrate-41.92958)/10
+- `yield`, yield in tons/hectare
+- `year`, year, 1991-1992
+- `loc`, location
+
+## Understand data
+
+- See the structure of data.
+
+```{r}
+str(lupin)
+```
+
+- See the first rows of data.
+
+```{r}
+head(lupin)
+```
+
+- See summary statistics for all variables.
+
+```{r}
+summary(lupin)
+```
+
+- How many observations are in the data?
+
+- How many variables are of type Factor?
+
+- How many missing values are there for variable `yield`?
+
+# Tidy data
+
+## Remove some observations
+
+- Remove observations where the value for `loc` is *MtBarker*.
+
+```{r}
+lupin <- lupin[lupin$loc != 'MtBarker', ]
+```
+
+- See how many missing values are there for `yield`.
+
+```{r}
+table(is.na(lupin$yield))
+```
+
+- Remove observations where `yield` is missing.
+
+```{r}
+lupin <- lupin[!is.na(lupin$yield), ]
+```
+
+## Add variables
+
+- Add variable called `place` that has value *"Newdegate"* when `loc` is *Newdegate* and when it is something else then *"Others"*.
+
+```{r}
+lupin$place <- ifelse(lupin$loc == 'Newdegate', 'Newdegate', 'Others')
+```
+
+## Replace a variable
+
+- `yield` is represented in t/ha. Replace the values of `yield` so that it would be kg/ha. You need to multiply values of `yield` by 1000.
+
+```{r}
+lupin$yield <- lupin$yield * 1000
+```
+
+## Tabulate
+
+- Count the observations of `loc` in both groups of `place`.
+
+```{r}
+table(lupin$loc, lupin$place)
+```
+
+# Descriptive statistics
+
+## Describe the distribution
+
+- Find the mean, median, minimum and maximum values of `yield`.
+
+```{r}
+summary(lupin$yield)
+```
+
+- Plot the distribution of `yield`.
+
+```{r}
+hist(lupin$yield)
+```
+
+## Summarize by groups
+
+- Get mean values of `yield` by `place`.
+
+```{r}
+aggregate(yield ~ place, lupin, mean)
+```
+
+- Find mean values of `yield` for each `loc`.
+
+```{r}
+aggregate(yield ~ loc, lupin, mean)
+```
+
+- Draw boxplots of the values of `yield` of each `loc`.
+
+```{r}
+boxplot(yield ~ loc, lupin)
+```
+
+# Test differences in means
+
+- Test if mean yield is different for *Newdegate* and *Others* in variable `place`.
+
+```{r}
+t.test(yield ~ place, lupin)
+```
+
+- Is there a difference?
+
+- Test if mean yields differ by `loc`.
+
+```{r}
+summary(aov(yield ~ loc, lupin))
+```
+
+- Is any of the environments in `loc` different from others in terms of yield?
+
+# Correlations
+
+## Correlation coefficient
+
+- Plot the relationship between `yield` and `rate`.
+
+```{r}
+plot(yield ~ rate, lupin)
+```
+
+- Find the Pearson's correlation coefficient between `yield` and `rate`.
+
+```{r}
+cor(lupin$yield, lupin$rate, use = 'pairwise.complete.obs')
+```
+
+- How would you describe this relationship?
+
+# Regression modelling
+
+## Estimate an OLS regression model
+
+- Estimate an OLS regression model where `yield` depends on `height`.
+
+```{r}
+ylMod <- lm(yield ~ height, lupin)
+summary(ylMod)
+```
+
+- What is the theoretical yield when height is 0?
+
+- How many units yield increases when height increases by 1 unit?
+
+- How much of the variance in yield is explained by the model?
+
+## See how well the model fits
+
+- Plot the relationship between `yield` and `height` and add the regression line of the model.
+
+```{r}
+plot(yield ~ height, lupin)
+abline(ylMod, col = 'tomato')
+```
+
+- Deciding by the plot, does the model fit data well? 
+
+- Plot residuals against fitted values.
+
+```{r}
+plot(ylMod, 1)
+```
+
+- Is the variance of the residuals constant?
+
+- Plot QQ-plot of standardized residuals
+
+```{r}
+plot(ylMod, 2)
+```
+
+- Are residuals normally distributed?
+
+## Estimate a multivariate OLS regression model
+
+- Estimate another model where you also add `hddate` and `WA` as predictors.
+
+```{r}
+ylMod2 <- lm(yield ~ height + hddate + wa, lupin)
+summary(ylMod2)
+```
+
+- How do you interpret the intercept now?
+
+- How do you interpret the coefficient of `wa`?
+
+- Test if models are different.
+
+```{r}
+anova(ylMod, ylMod2)
+```
+
+- Is the second model different from first? How?

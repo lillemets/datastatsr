@@ -51,21 +51,27 @@ The data has the following variables:
 
 - See the structure of data.
 
+```{r}
+str(barley)
+```
+
 - See the first rows of data.
 
+```{r}
+head(barley)
+```
+
 - See summary statistics for all variables.
+
+```{r}
+summary(barley)
+```
 
 - How many observations are in the data?
 
 - How many variables are of type Factor?
 
 - How many missing values are there for variable `logding`?
-
-```{r}
-str(barley)
-head(barley)
-summary(barley)
-```
 
 # Tidy data
 
@@ -164,26 +170,31 @@ boxplot(protein ~ env, barley)
 # Test differences in means
 
 - Test if mean yield is different for *WA* and *Other* locations in variable `wa`.
-- Is there a difference?
 
 ```{r}
 t.test(yield ~ wa, barley)
 ```
 
-- Test if mean yield of *WA* is higher than mean yield of other locations.
-- Is it higher?
+- Is there a difference?
+
+- Test if mean yield of *WA* is higher than mean yield of *Others*.
 
 ```{r}
 unique(barley$wa)
-t.test(yield ~ wa, barley, alt = 'less')
+t.test(barley$yield[barley$loc == 'WA'],
+       barley$yield[barley$loc == 'Others'], 
+       alt = 'greater')
 ```
 
-- Test if mean yields differ by `env`.
-- Is any of the environments in `env` different from others in terms of yield?
+- Is it higher?
+
+- Test if mean protein differs by `env`.
 
 ```{r}
 summary(aov(protein ~ env, barley))
 ```
+
+- Is any of the environments in `env` different from others in terms of yield?
 
 # Correlations
 

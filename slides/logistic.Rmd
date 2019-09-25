@@ -182,4 +182,22 @@ legend('topleft', legend = c('OLS', 'Logit'), col = c('steelblue', 'tomato'), lt
 
 ---
 
+# Fitted values
+
+Fitted values represent probability of blight for each observation.
+
+```{r}
+potModF <- glm(blight ~ rain.am + rain.ja + precip.m, potato, family = 'binomial')
+summary(potModF)
+potato$blight.prob <- round(potModF$fitted, 3)
+```
+
+---
+
+```{r}
+potato
+```
+
+---
+
 class: inverse
