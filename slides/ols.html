@@ -4,7 +4,7 @@
     <title>Ordinary least squares regression</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jüri Lillemets" />
-    <meta name="date" content="2019-09-22" />
+    <meta name="date" content="2019-09-25" />
     <link rel="stylesheet" href="minimal.css" type="text/css" />
     <link rel="stylesheet" href="fonts.css" type="text/css" />
   </head>
@@ -15,7 +15,7 @@ class: center, middle, inverse, title-slide
 # Ordinary least squares regression
 ## Data and statistics with R <br> Research Methods <br><br>
 ### Jüri Lillemets
-### 2019-09-22
+### 2019-09-25
 
 ---
 
@@ -146,14 +146,15 @@ And `\(Y\)` would be the vector of 2nd weights.
 
 
 ```r
-calves$weight1
+calves$weight2
 ```
 
 ```
-##  [1] 575 605 640 600 610 575 730 670 690 685 690 670 755 655 725 750 705
-## [18] 785 685 655 750 715 785 795 640 680 620 765 750 645 730 795 605 570
-## [35] 730 670 700 665 635 700 715 675 770 800 685 715 865 845 705 725 840
-## [52] 755 725 770 755 530 680 605 665 765 720 780 675 705 755 755 750
+##  [1]  826  816  902  931  854  960 1104  922 1046 1027 1018  864 1008  979
+## [15] 1085 1037 1123 1171 1018 1027 1152 1142 1104 1152  941  979  931 1133
+## [29]  989  970 1162 1248  874  854 1046 1056 1037  874  874  998  960  979
+## [43] 1056 1133 1027 1037 1219  998 1037 1075 1190 1104  883 1123 1056  883
+## [57] 1018  874  970 1114 1018 1152 1056 1066 1104 1114 1008
 ```
 
 ---
@@ -480,7 +481,7 @@ summary(wtModLogLin)
 ]
 
 .pull-right[
-When 1st weight increases by 1 kg, 2nd weight increases by 0.117 percent.
+When 1st weight increases by 1 kg, 2nd weight increases by 0.1 percent.
 ]
 
 ---
@@ -598,23 +599,17 @@ We can use `anova()` to test wether or not the squared term improves model.
 
 
 ```r
-anova(wtMod, wtModLogLin)
-```
-
-```
-## Warning in anova.lmlist(object, ...): models with response '"log(weight2)"'
-## removed because response differs from model 1
+anova(wtMod, wtModSq)
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
-## Response: weight2
-##           Df Sum Sq Mean Sq F value    Pr(&gt;F)    
-## weight1    1 442738  442738  117.95 3.017e-16 ***
-## Residuals 65 243987    3754                      
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## Model 1: weight2 ~ weight1
+## Model 2: weight2 ~ weight1 + I(weight1^2)
+##   Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+## 1     65 243987                           
+## 2     64 242931  1    1056.5 0.2783 0.5996
 ```
 
 Here the p-value of 0.6 indicates that model with squared term is not significantly different (better).

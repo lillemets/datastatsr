@@ -194,6 +194,7 @@ lines(sort(corn$nitro),
 Estimate a model where nitrogen and location are predictors and yield is response.
 
 ```{r}
+unique(corn$loc)
 ylModLoc <- lm(yield ~ nitro + loc, corn)
 summary(ylModLoc)
 ```

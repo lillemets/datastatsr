@@ -129,7 +129,7 @@ calves$weight1
 And $Y$ would be the vector of 2nd weights.
 
 ```{r}
-calves$weight1
+calves$weight2
 ```
 
 ---
@@ -431,7 +431,7 @@ summary(wtModLogLin)
 ]
 
 .pull-right[
-When 1st weight increases by 1 kg, 2nd weight increases by `r round(wtModLogLin$coef[[2]] * 100, 3)` percent.
+When 1st weight increases by 1 kg, 2nd weight increases by `r round(wtModLogLin$coef[[2]], 3)  * 100` percent.
 ]
 
 ---
@@ -490,7 +490,7 @@ We can't really interpret the coefficients now.
 We can use `anova()` to test wether or not the squared term improves model.
 
 ```{r}
-anova(wtMod, wtModLogLin)
+anova(wtMod, wtModSq)
 ```
 
 Here the p-value of `r round(anova(wtMod, wtModSq)$P[[2]], 3)` indicates that model with squared term is not significantly different (better).

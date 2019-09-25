@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Logistic regression</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jüri Lillemets" />
+    <meta name="date" content="2019-09-25" />
+    <link rel="stylesheet" href="minimal.css" type="text/css" />
+    <link rel="stylesheet" href="fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Logistic regression
+## Data and statistics with R <br> Research Methods <br><br>
+### Jüri Lillemets
+### 2019-09-25
+
+---
+
+  
+
+
+---
+
+class: center middle inverse
+
+# Logistic regression
+
+---
+
+# Example data
+
+
+```r
+potato &lt;- agridat::johnson.blight
+head(potato, 3)
+```
+
+```
+##   year area blight rain.am rain.ja precip.m
+## 1 1970    0      0       8       1     5.84
+## 2 1971    0      0       9       4     6.86
+## 3 1972    0      0       9       6    47.29
+```
+
+- `year`, year
+- `area`, area affected, hectares
+- `blight`, blight detected, 0/1 numeric
+- `rain.am`, number of rainy days in April and May
+- `rain.ja`, number of rainy days in July and August
+- `precip.m`, precipitation in May when temp &gt; 5C, milimeters
+
+---
+
+# Example problem
+
+Does the number of rainy days in April and May have an effect on blight incidence?
+
+--
+
+Response variable has only 2 values: `0` for no blight and `1` for blight detected.
+
+
+```r
+table(potato$blight)
+```
+
+```
+## 
+##  0  1 
+## 13 12
+```
+
+We can't expect there to be a linear relationship.
+
+---
+
+Rainy days in April and May plotted against blight.
+
+![](logistic_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+---
+
+Linear model `blight ~ rain.am` does not fit the data very well.
+
+![](logistic_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+If we use linear model to model a binary outcome, distribution of errors is not normal.
+
+![](logistic_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+# The solution: specify error distribution
+
+We can specify a binomial distribution for errors and include a link function such as *logit*. When we do this, we estimate a **logistic regression** model.
+
+![](logistic_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+We need to use a generalized linear model to specify an error distribution.
+
+Model can not be simply calculated anymore. 
+
+We need to use maximum likelihood estimation to iterate parameters and find for which parameters is the data most likely.
+
+---
+
+# Logistic regression in R
+
+Binary distribution of errors.
+
+Logistic function to model values of response variable.
+
+`$$log(\frac{p}{1 - p}) = \alpha + \beta x + \varepsilon$$`
+
+In R: `glm(, family = 'binomial')` (generalized linear model). The default link for binomial distribution is logistic.
+
+---
+
+
+```r
+potMod &lt;- glm(blight ~ rain.am, potato, family = 'binomial'); summary(potMod)
+```
+
+```
+## 
+## Call:
+## glm(formula = blight ~ rain.am, family = "binomial", data = potato)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.9395  -0.6605  -0.3517   1.0228   1.6048  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)  
+## (Intercept)  -4.9854     2.0720  -2.406   0.0161 *
+## rain.am       0.4467     0.1860   2.402   0.0163 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 34.617  on 24  degrees of freedom
+## Residual deviance: 24.782  on 23  degrees of freedom
+## AIC: 28.782
+## 
+## Number of Fisher Scoring iterations: 5
+```
+
+---
+
+What does the fit look like?
+
+![](logistic_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+---
+
+# Interpretation
+
+.pull-left[
+
+```r
+summary(potMod)
+```
+
+```
+## 
+## Call:
+## glm(formula = blight ~ rain.am, family = "binomial", data = potato)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.9395  -0.6605  -0.3517   1.0228   1.6048  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)  
+## (Intercept)  -4.9854     2.0720  -2.406   0.0161 *
+## rain.am       0.4467     0.1860   2.402   0.0163 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 34.617  on 24  degrees of freedom
+## Residual deviance: 24.782  on 23  degrees of freedom
+## AIC: 28.782
+## 
+## Number of Fisher Scoring iterations: 5
+```
+]
+
+.pull-right[
+The coefficient 0.447 is the increase in logged odds of having blight vs not having blight.
+
+When we take exponent of the coefficient we get 1.563 which is the odds of having blight vs not having blight.
+
+There isn't any more intuitive way to interpret this.
+
+We can only say that rainy days in April and May increase the probability of blight.
+]
+
+---
+
+# Marginal effects
+
+.pull-left[
+
+```r
+potModLm &lt;- lm(blight ~ rain.am, potato)
+summary(potModLm)
+```
+
+```
+## 
+## Call:
+## lm(formula = blight ~ rain.am, data = potato)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.77956 -0.24463 -0.01537  0.44969  0.67895 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept) -0.36672    0.26499  -1.384  0.17967   
+## rain.am      0.07642    0.02265   3.375  0.00262 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.426 on 23 degrees of freedom
+## Multiple R-squared:  0.3311,	Adjusted R-squared:  0.3021 
+## F-statistic: 11.39 on 1 and 23 DF,  p-value: 0.002615
+```
+]
+
+.pull-right[
+When we estimate a binary outcome via linear model, then the coefficient shows the *marginal effect*.
+
+**One average**, one rainy day increases probability of blight by 7.6 percent.
+]
+
+---
+
+*On average* means that it doesn't show the change accurately at every value of `rain.am`.
+
+![](logistic_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

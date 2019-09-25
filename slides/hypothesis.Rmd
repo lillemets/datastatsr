@@ -370,7 +370,7 @@ In R: `t.test(x, mu)`.
 
 ---
 
-Is the mean of Golden apples 160 g/tree?
+Is the mean yield of Golden apples 160 g/tree?
 
 ```{r}
 t.test(apples$yield[apples$gen == 'Golden'], mu = 160)

@@ -1,0 +1,24 @@
+---
+title: Final test
+subtitle: Data and statistics with R <br> Research methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+    highlight: default
+    theme: yeti
+editor_options:
+  chunk_output_type: inline
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = F, message = T, warning = T, error = T)
+# Create data
+lupin <- agridat::verbyla.lupin
+write.csv(lupin, '/home/jrl/rcrs/data/verbyla_lupin.csv', row.names = F)
+```
