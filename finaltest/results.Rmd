@@ -1,0 +1,92 @@
+---
+title: Final test results
+subtitle: Data and statistics with R <br> Research Methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = F, message = F, warning = T, error = T, 
+                      fig.height = 9, fig.width = 16)
+# Set seed
+set.seed(0)
+# Get data
+res <- read.csv('/home/jrl/rcrs/finaltest/results/results.csv')
+res$prc <- res$pts / res$pts.max
+res$prc.quiz <- res$pts.quiz / 15
+#unique(res[, c('id', 'last')])
+```
+
+Results in Moodle.
+
+Results by points as a .csv file.
+
+```{r}
+names(read.csv(list.files('/home/jrl/rcrs/finaltest/results/feedback', full = T)[1]))
+```
+
+---
+
+```{r}
+agg <- aggregate(prc ~ task.no + topic + type + pts.max, res, median)
+agg$topic <- factor(agg$topic, levels = unique(res$topic))
+agg <- agg[order(agg$task.no, decreasing = T), ]
+dotchart(agg$prc, labels = agg$task.no, groups = agg$topic, 
+         xlab = "Mean, share of points",
+         col = c('steelblue', 'tomato')[agg$type], pch = 20, pt.cex = agg$pts.max)
+legend('topleft', legend = levels(agg$type), col = c('steelblue', 'tomato'), pch = 20, pt.cex = 2)
+```
+
+---
+
+``` {r}
+agg <- merge(aggregate(cbind(pts, pts.max) ~ id, res, sum), 
+             aggregate(pts.quiz ~ id, res, mean, na.action = 'na.pass'))
+agg$prc <- agg$pts / agg$pts.max
+agg$prc.quiz <- agg$pts.quiz / 15
+```
+
+```{r}
+hist(agg$prc, seq(0,1,.1), main = "Histogram of results", xlab = "Points, share")
+```
+
+---
+
+```{r}
+plot(prc ~ prc.quiz, agg, 
+     xlim = 0:1, ylim = 0:1, 
+     main = "First quiz vs final test", xlab = 'Quiz result', ylab = 'Test result', 
+     pch = 20, cex = 2)
+```
+
+---
+
+```{r}
+agg <- aggregate(cbind(pts, pts.max) ~ id + type, res, mean)
+agg$prc <- agg$pts / agg$pts.max
+```
+
+```{r}
+par(mfrow = 1:2)
+hist(agg$prc[agg$type == 'Action'], seq(0,1,.1), 
+     main = "Actions", xlab = "Points, share", col = 'steelblue')
+hist(agg$prc[agg$type == 'Comment'], seq(0,1,.1), 
+     main = "Comments", xlab = "Points, share", col = 'tomato')
+```
+
+---
+
+``` {r}
+plot(agg$prc[agg$type == 'Action'], agg$prc[agg$type == 'Comment'], 
+     xlim = 0:1, ylim = 0:1, 
+     xlab = "Actions, share of points", ylab = "Comments, share of points", 
+     pch = 20, cex = 2)
+abline(v = median(agg$prc[agg$type == 'Action']), col = 'steelblue', lwd = 2)
+abline(h = median(agg$prc[agg$type == 'Comment']), col = 'tomato', lwd = 2)
+legend('topleft', 
+       legend = paste0(levels(agg$type), ", median"), col = c('steelblue', 'tomato'), 
+       lty = 'solid', lwd = 2)
+```

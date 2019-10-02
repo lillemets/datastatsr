@@ -1,5 +1,4 @@
 .gitignore
 .insync-trash/
 admin/
-tasks/final_test.html
-tasks/final_test.Rmd
+finaltest/results/

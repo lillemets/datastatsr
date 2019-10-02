@@ -1,0 +1,7 @@
+xaringan::moon_reader:
+    css: ["minimal.css","fonts.css"]
+    nature:
+        ratio: '16:9'
+        highlightStyle: github
+        highlightLines: true
+        countIncrementalSlides: false

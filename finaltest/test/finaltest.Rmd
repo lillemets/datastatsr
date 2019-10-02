@@ -1,0 +1,264 @@
+---
+title: Final test on quantitative methods
+subtitle: Data and statistics with R <br> Research methods <br><br>
+author: Jüri Lillemets
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    highlight: default
+    theme: yeti
+editor_options:
+  chunk_output_type: console
+---
+  
+```{r setup, include = F}
+# Settings
+knitr::opts_chunk$set(include = T, eval = T, echo = T, message = T, warning = T, error = T)
+# Create data
+lupin <- agridat::verbyla.lupin
+#lupin <- lupin[, c('gen', 'serp', 'site', 'year', 'loc', 'row', 'col', 'rep', 'rate', 'yield')]
+lupin <- lupin[!(lupin$loc %in% c('Badgingerra', 'EastChapman', 'SouthCarrabin')), ]
+lupin <- droplevels(lupin)
+#names(lupin)[names(lupin) == 'yield'] <- 'harvest'
+write.csv(lupin, '/home/jrl/rcrs/data/verbyla_lupin.csv', row.names = F)
+```
+
+Type your commands and comments in an R script. For actions type respective commands in R. For questions provide answers as comments. Submit the R script in Moodle once you're finished.
+
+Answer the questions as comprehensively as you can. Use complete sentences. If relevant, explain your understanding in the context of hypothesis testing. 
+
+# Data import and overview
+
+(@) Read data on the *url* below. (1 pt)  
+  https://raw.githubusercontent.com/lillemets/datastatsr/master/data/verbyla_lupin.csv
+  
+(@) Store this data as data frame. (1 pt)
+
+The variables are described as follows:
+
+- `gen`, genotype, 9 varieties
+- `serp`, factor of 4 levels for serpentine seeding effect
+- `site`, site, 11 levels
+- `year`, year, 1991-1992
+- `loc`, location
+- `row`, row
+- `col`, colum
+- `rep`, rep, 2-3 levels
+- `rate`, seeding rate in plants/m^2
+- `harvest`, yield in tons/hectare
+
+**Edit on 30.09.19: Variable `harvest` is actually `yield`. For excercises below, it was necessary to type `yield` instead of `harvest`.**
+
+The following tasks involve comparing harvest by location and replication, and investingating relationship between harvest and seeding rate.
+
+(@) See the first rows of data. (1 pt)
+
+```{r}
+head(lupin)
+```
+
+(@) See the dimensions and variable names and types. (1 pt)
+
+```{r}
+str(lupin)
+```
+
+(@) See the summary of all variables. (1 pt)
+
+```{r}
+summary(lupin)
+```
+
+(@) How many observations are in the data?  (1 pt)
+
+(@) How many variables are of type Factor?  (1 pt)
+
+(@) How many missing values are there in variable `harvest`?  (1 pt)
+
+# Data tidying
+
+(@) Remove observations where the value for `loc` is *MtBarker*. (2 pts) <!--  1 for right idea, 2 if works -->
+
+```{r}
+lupin <- lupin[lupin$loc != 'MtBarker', ]
+```
+
+(@) See how many missing values are there in `harvest` now. (2 pts) <!--  1 for summary, 2 for table() -->
+
+```{r}
+table(is.na(lupin$yield))
+```
+
+(@) Remove observations where `harvest` is missing. (2 pts) <!--  1 for right idea, 2 if works -->
+
+```{r}
+lupin <- lupin[!is.na(lupin$yield), ]
+```
+
+(@) Add a variable called `rep2` that has value *"2nd replication"* when `rep` is *R2* and when it is something else then give it value *"Others"*. (3 pts) <!--  1 for new variable name, 2 for ifelse, 3 if all works -->
+
+```{r}
+lupin$rep2 <- ifelse(lupin$rep == 'R2', '2nd replication', 'Others')
+```
+
+(@) `harvest` is represented in t/ha. Replace the values of `harvest` so that it would be kg/ha. You need to multiply values of `harvest` by 1000. (2 pts) <!--  1 for new variable name, 2 if works -->
+
+```{r}
+lupin$yield <- lupin$yield * 1000
+```
+
+# Descriptive statistics
+
+(@) Count the observations of each `loc` in both groups of `rep2`. (1 pt)
+
+```{r}
+table(lupin$loc, lupin$rep2)
+```
+
+(@) See how many observations are there in every every `site` for each `year`. (1 pt)
+
+```{r}
+table(lupin$site, lupin$year)
+```
+
+(@) How would you describe the distribution of observations in this last table? (1 pts)
+
+(@) Find the mean, median, minimum and maximum values of `harvest`. (2 pts) <!--  1 for right idea, 2 if all are found -->
+
+```{r}
+summary(lupin$yield)
+```
+
+(@) How would you interpret the value of median harvest? (2 pts)
+
+(@) Plot the distribution of `harvest`. (1 pt)
+
+```{r}
+hist(lupin$yield)
+```
+
+(@) Get mean values of `harvest` by `rep2`. (2 pts) <!--  1 for right idea, 2 if all are found -->
+
+```{r}
+aggregate(yield ~ rep2, lupin, mean)
+```
+
+(@) Find mean values of `harvest` for each `loc`. (2 pts) <!--  1 for right idea, 2 if all are found -->
+
+```{r}
+aggregate(yield ~ loc, lupin, mean)
+```
+
+(@) Draw boxplots of the values of `harvest` of each `loc`. (1 pts)
+
+```{r}
+boxplot(yield ~ loc, lupin)
+```
+
+# Testing differences in means
+
+(@) Test if mean harvest is different for *2nd replication* and *Others*. (2 pts) <!--  1 for right idea, 2 if correct test -->
+
+```{r}
+t.test(yield ~ rep2, lupin)
+```
+
+(@) Is there a difference? Why? (3 pts) <!-- 1 for conclusion, 2 for reason, 3 for all -->
+
+(@) Test if mean harvest differs by `loc`.  (2 pts) <!-- 1 for right idea, 2 if correct test -->
+
+```{r}
+summary(aov(yield ~ loc, lupin))
+```
+
+(@) Is any of the locations in `loc` different from others in mean harvest? Why? (3 pts) <!-- 1 for right idea, 2 if correct test, 3 for all -->
+
+# Correlation
+
+(@) Plot the relationship between `harvest` and `rate` as boxes. (1 pt)
+
+```{r}
+boxplot(yield ~ rate, lupin)
+```
+
+(@) Find Pearson's correlation coefficient between `harvest` and `rate`. (1 pt)
+
+```{r}
+cor(lupin$yield, lupin$rate, use = 'complete.obs', method = 'pearson')
+```
+
+(@) How would you describe this relationship by the plot and correlation coefficient? (2 pts) <!-- 1 for positive, 2 for linear or monotonic -->
+
+# Regression modelling
+
+We expect `harvest` to be higher when more seeds are sown (`rate`).
+
+## Estimate an OLS regression model
+
+(@) Estimate an OLS regression model where `harvest` depends on `rate`. Store and see the model. (2 pts)
+
+```{r}
+ylMod <- lm(yield ~ rate, lupin)
+summary(ylMod)
+```
+
+(@) What is the theoretical harvest when rate is 0? (2 pts) <!-- 2 if all correct -->
+
+(@) How many kg/ha harvest increases when seeding rate increases by 1 plant/m^2? (2 pts) <!-- 2 if all correct -->
+
+(@) How much of the variance in harvest is explained by the model? (2 pts) <!-- 2 if all correct -->
+
+## See how well the model fits
+
+(@) Plot the relationship between `harvest` and `rate` as points and add the regression line of the model. (1 pt)
+
+```{r}
+plot(yield ~ rate, lupin)
+abline(ylMod)
+```
+
+(@) Deciding by the plot, does the model fit data well? Why? (2 pts)
+
+(@) Plot residuals against fitted values. (1 pt)
+
+```{r}
+plot(ylMod, 1)
+```
+
+(@) Is the variance of the residuals constant? Why? (2 pts)
+
+(@) Draw QQ-plot of standardized residuals (1 pt)
+
+```{r}
+plot(ylMod, 2)
+```
+
+(@) Are residuals normally distributed? Why? (2 pts)
+
+## Estimate a multivariate OLS regression model
+
+(@) Estimate another model where you also add `loc` as a predictor. Store and see the model. (2 pts) <!-- 1 for idea, 2 if all correct -->
+
+```{r}
+ylMod2 <- lm(yield ~ rate + loc, lupin)
+summary(ylMod2)
+```
+
+The baseline value of `loc` is *Corrigin*.
+
+(@) How do you interpret the intercept now? (2 pts)
+
+(@) How do you interpret the coefficient for `locMullewa`? (2 pts)
+
+(@) How do you interpret the coefficient for `locNewdegate`? (2 pts)
+
+(@) Test if the two models you estimated are different. (1 pt)
+
+```{r}
+anova(ylMod, ylMod2)
+```
+
+(@) Is the second model different from first? How?  (2 pts)

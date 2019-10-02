@@ -169,7 +169,7 @@ boxplot(protein ~ env, barley)
 
 # Test differences in means
 
-- Test if mean yield is different for *WA* and *Other* locations in variable `wa`.
+- Test if mean yield is different for *WA* and *Others* in variable `wa`.
 
 ```{r}
 t.test(yield ~ wa, barley)
